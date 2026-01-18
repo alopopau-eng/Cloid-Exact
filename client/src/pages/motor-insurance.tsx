@@ -1304,6 +1304,8 @@ export default function MotorInsurance() {
                   <div className="grid gap-3">
                     {vehicleData.map((vehicle, index) => {
                       const vehicleMake =
+                        vehicle.MakerAr ||
+                        vehicle.makerAr ||
                         vehicle.ModelAr ||
                         vehicle.modelAr ||
                         vehicle.make ||
