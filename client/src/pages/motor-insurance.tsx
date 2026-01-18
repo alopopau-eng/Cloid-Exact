@@ -1076,47 +1076,6 @@ export default function MotorInsurance() {
                 </RadioGroup>
               </div>
 
-              <div>
-                <Label className="text-sm text-muted-foreground mb-2 block text-right">إضافات اختيارية</Label>
-                <div className="space-y-3">
-                  <div className="flex items-center p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Checkbox 
-                        id="roadside" 
-                        checked={form.watch("roadsideAssistance")}
-                        onCheckedChange={(checked) => form.setValue("roadsideAssistance", !!checked)}
-                        className="data-[state=checked]:bg-primary" 
-                        data-testid="checkbox-roadside" 
-                      />
-                      <Label htmlFor="roadside" className="text-sm font-normal">المساعدة على الطريق</Label>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Checkbox 
-                        id="replacement" 
-                        checked={form.watch("replacementCar")}
-                        onCheckedChange={(checked) => form.setValue("replacementCar", !!checked)}
-                        className="data-[state=checked]:bg-primary" 
-                        data-testid="checkbox-replacement" 
-                      />
-                      <Label htmlFor="replacement" className="text-sm font-normal">سيارة بديلة</Label>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Checkbox 
-                        id="personal-accident" 
-                        checked={form.watch("personalAccident")}
-                        onCheckedChange={(checked) => form.setValue("personalAccident", !!checked)}
-                        className="data-[state=checked]:bg-primary" 
-                        data-testid="checkbox-personal-accident" 
-                      />
-                      <Label htmlFor="personal-accident" className="text-sm font-normal">حوادث شخصية للسائق</Label>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </Card>
         )}
