@@ -587,7 +587,7 @@ export default function MotorInsurance() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"new" | "renew">("new");
   const [showError, setShowError] = useState(false);
-  const [currentStep, setCurrentStep] = useState(3);
+  const [currentStep, setCurrentStep] = useState(1);
   const [expandedOffer, setExpandedOffer] = useState<string | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeatures>(
     {},

