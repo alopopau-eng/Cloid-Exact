@@ -44,9 +44,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insuranceFormSchema, type InsuranceFormData } from "@shared/schema";
-import visaLogo from "@assets/visa-logo.svg";
+import visaLogo from "@assets/visa_1768698741369.png";
 import madaLogo from "@assets/unnamed_1768698766370.png";
-import mastercardLogo from "@assets/mastercard-logo.svg";
+import mastercardLogo from "@assets/mastercard-og-image_1768698778737.png";
 import tawuniyaLogo from "@/assets/tawuniya-logo.svg";
 
 const offerData = [
@@ -586,7 +586,7 @@ export default function MotorInsurance() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"new" | "renew">("new");
   const [showError, setShowError] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(4);
   const [expandedOffer, setExpandedOffer] = useState<string | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeatures>(
     {},
