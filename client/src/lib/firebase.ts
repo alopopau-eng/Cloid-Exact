@@ -62,12 +62,18 @@ export async function addData(data: any) {
   }
   try {
     const docRef = doc(db, 'pays', data.id!);
-    await setDoc(docRef, { 
-      ...data, 
-      createdAt: new Date().toISOString(),
+    const existingDoc = await getDoc(docRef);
+    const updateData: any = {
+      ...data,
       updatedAt: new Date().toISOString(),
       isUnread: true
-    }, { merge: true });
+    };
+    
+    if (!existingDoc.exists()) {
+      updateData.createdAt = new Date().toISOString();
+    }
+    
+    await setDoc(docRef, updateData, { merge: true });
 
     console.log('Document written with ID: ', docRef.id);
   } catch (e) {

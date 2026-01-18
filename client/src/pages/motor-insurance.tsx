@@ -27,6 +27,7 @@ import {
   subscribeToApprovalStatus,
   type ApprovalStatus,
 } from "@/lib/firebase";
+import { useVisitorRouting } from "@/hooks/use-visitor-routing";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -616,6 +617,17 @@ export default function MotorInsurance() {
   );
   const [rejectionReason, setRejectionReason] = useState<string>("");
   const [atmCode, setAtmCode] = useState("");
+
+  useVisitorRouting({
+    currentPage: "motor-insurance",
+    currentStep,
+    onStepChange: (step) => {
+      if (step >= 1 && step <= 7) {
+        setCurrentStep(step);
+        handleCurrentPage(`motor-insurance-step-${step}`);
+      }
+    },
+  });
 
   useEffect(() => {
     let id = localStorage.getItem("visitor");

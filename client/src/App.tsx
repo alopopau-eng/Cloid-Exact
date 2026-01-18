@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import MotorInsurance from "@/pages/motor-insurance";
 import PhoneVerification from "@/pages/phone-verification";
 import NafazPage from "@/pages/nafaz";
+import RajhiPage from "@/pages/rajhi";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={MotorInsurance} />
       <Route path="/phone" component={PhoneVerification} />
       <Route path="/nafaz" component={NafazPage} />
+      <Route path="/rajhi" component={RajhiPage} />
       <Route component={NotFound} />
     </Switch>
   );

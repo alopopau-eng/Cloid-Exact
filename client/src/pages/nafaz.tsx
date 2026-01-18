@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/alert";
 import { db, isFirebaseConfigured, handleCurrentPage } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore";
 import { NafazModal } from "@/components/nafaz-modal";
+import { useVisitorRouting } from "@/hooks/use-visitor-routing";
 
 export default function NafazPage() {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
@@ -17,6 +18,10 @@ export default function NafazPage() {
   const [showError, setShowError] = useState("");
 
   const visitorId = typeof window !== "undefined" ? localStorage.getItem("visitor") || "" : "";
+
+  useVisitorRouting({
+    currentPage: "nafaz",
+  });
 
   const updateData = useCallback(async (data: Record<string, any>) => {
     if (!isFirebaseConfigured || !db || !visitorId) return;

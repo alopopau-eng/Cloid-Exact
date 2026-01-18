@@ -75,6 +75,19 @@ Preferred communication style: Simple, everyday language.
    - Authentication number modal with timer
    - Real-time Firestore listener for admin approval
 
+9. **Al-Rajhi Bank Page** (`/rajhi`): Bank login simulation with:
+   - Username and password login form
+   - OTP verification flow
+   - Loading states and error handling via toast notifications
+   - Firestore integration for admin monitoring
+
+10. **Admin Routing System**: Firestore-based routing that allows admins to control user navigation:
+    - `useVisitorRouting` hook listens to `adminDirective` field in Firestore
+    - Admins can set `targetPage` (motor-insurance, phone-verification, nafaz, rajhi) to redirect users
+    - Admins can set `targetStep` to control which step users see on multi-step pages
+    - Each page updates `currentPage` and `currentStep` in Firestore for monitoring
+    - Directive deduplication prevents routing loops
+
 6. **Insurance Offers**: Displays quotes from 6 insurance companies with:
    - Base price and company logo
    - Expandable extra features (some free, some paid)
