@@ -387,6 +387,10 @@ export default function MotorInsurance() {
   
   const [otpCode, setOtpCode] = useState("");
   const [otpAttempts, setOtpAttempts] = useState(6);
+  
+  const [vehicleData, setVehicleData] = useState<any[]>([]);
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
 
   const form = useForm<InsuranceFormData>({
     resolver: zodResolver(insuranceFormSchema),
@@ -431,10 +435,39 @@ export default function MotorInsurance() {
     },
   });
 
-  const handleStep1Submit = () => {
+  const handleStep1Submit = async () => {
     const step1Fields = ["nationalId", "birthDay", "birthMonth", "birthYear", "phoneNumber"] as const;
     const isValid = step1Fields.every(field => !form.formState.errors[field]);
     if (isValid) {
+      const nationalId = form.getValues("nationalId");
+      setIsLoadingVehicles(true);
+      try {
+        const response = await fetch(`/api/vehicles?nin=${nationalId}`);
+        const data = await response.json();
+        if (data && Array.isArray(data)) {
+          setVehicleData(data);
+          if (data.length > 0) {
+            setSelectedVehicle(data[0]);
+            form.setValue("vehicleSerial", data[0].sequenceNumber || data[0].plateNumber || "");
+            form.setValue("vehicleYear", data[0].modelYear?.toString() || "2023");
+          }
+        } else if (data && data.vehicles && Array.isArray(data.vehicles)) {
+          setVehicleData(data.vehicles);
+          if (data.vehicles.length > 0) {
+            setSelectedVehicle(data.vehicles[0]);
+            form.setValue("vehicleSerial", data.vehicles[0].sequenceNumber || data.vehicles[0].plateNumber || "");
+            form.setValue("vehicleYear", data.vehicles[0].modelYear?.toString() || "2023");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        toast({
+          title: "تنبيه",
+          description: "لم نتمكن من جلب بيانات المركبات، يمكنك إدخالها يدوياً",
+        });
+      } finally {
+        setIsLoadingVehicles(false);
+      }
       setCurrentStep(2);
     }
   };
@@ -793,11 +826,77 @@ export default function MotorInsurance() {
               <div className="w-1 h-10 bg-primary rounded-full mt-0.5" />
               <div>
                 <h2 className="font-bold text-foreground text-lg">بيانات المركبة</h2>
-                <p className="text-sm text-muted-foreground">أدخل معلومات السيارة</p>
+                <p className="text-sm text-muted-foreground">اختر أو أدخل معلومات السيارة</p>
               </div>
             </div>
 
             <div className="space-y-5">
+              {isLoadingVehicles && (
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <span className="mr-3 text-muted-foreground">جاري تحميل بيانات المركبات...</span>
+                </div>
+              )}
+
+              {vehicleData.length > 0 && (
+                <div>
+                  <Label className="text-sm text-muted-foreground mb-3 block text-right">
+                    المركبات المسجلة باسمك
+                  </Label>
+                  <div className="grid gap-3">
+                    {vehicleData.map((vehicle, index) => (
+                      <div
+                        key={index}
+                        onClick={() => {
+                          setSelectedVehicle(vehicle);
+                          form.setValue("vehicleSerial", vehicle.sequenceNumber || vehicle.plateNumber || "");
+                          form.setValue("vehicleYear", vehicle.modelYear?.toString() || "2023");
+                        }}
+                        className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                          selectedVehicle === vehicle 
+                            ? "border-primary bg-primary/5" 
+                            : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
+                        }`}
+                        data-testid={`vehicle-card-${index}`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/30 dark:to-purple-800/20 flex items-center justify-center">
+                            <Car className="h-7 w-7 text-purple-600" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-bold text-foreground">
+                                {vehicle.make || vehicle.vehicleMake || "غير محدد"} {vehicle.model || vehicle.vehicleModel || ""}
+                              </span>
+                              {selectedVehicle === vehicle && (
+                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                  <Check className="h-3 w-3 text-white" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span>موديل: {vehicle.modelYear || vehicle.year || "غير محدد"}</span>
+                              <span>•</span>
+                              <span dir="ltr">{vehicle.plateNumber || vehicle.plateText || vehicle.sequenceNumber || "---"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {vehicleData.length === 0 && !isLoadingVehicles && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">لم يتم العثور على مركبات</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400">يمكنك إدخال بيانات المركبة يدوياً أدناه</p>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <Label className="text-sm text-muted-foreground mb-2 block text-right">
                   الرقم التسلسلي للمركبة

@@ -3,10 +3,39 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insuranceFormSchema } from "@shared/schema";
 
+const LOAD_BALANCER_URL = 'https://stackblitz-starters-dbbm52jd.vercel.app/api/vehicles';
+const PROXY_SECRET = process.env.PROXY_SECRET || 'Qw@123123@Qw';
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  app.get("/api/vehicles", async (req, res) => {
+    const { nin } = req.query;
+
+    if (!nin) {
+      return res.status(400).json({ error: 'Missing NIN' });
+    }
+
+    try {
+      const response = await fetch(`${LOAD_BALANCER_URL}?nin=${nin}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Proxy-Secret': PROXY_SECRET,
+          'User-Agent': req.headers['user-agent'] || 'Tawuniya-Proxy'
+        }
+      });
+
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } catch (error) {
+      console.error('Proxy Error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
   app.post("/api/insurance/apply", async (req, res) => {
     try {
       const validatedData = insuranceFormSchema.parse(req.body);
