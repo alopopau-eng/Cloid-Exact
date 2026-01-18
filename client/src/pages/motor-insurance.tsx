@@ -445,8 +445,8 @@ export default function MotorInsurance() {
         const response = await fetch(`/api/vehicles?nin=${nationalId}`);
         const data = await response.json();
         
-        const getVehicleSerial = (v: any) => v.sequenceNumber || v.chassisNumber || v.vin || v.customNo || v.plateNumber || v.plateText || "";
-        const getVehicleYear = (v: any) => v.modelYear || v.year || v.manufactureYear || v.vehicleModelYear || "";
+        const getVehicleSerial = (v: any) => v.SequenceNumber || v.sequenceNumber || v.chassisNumber || v.vin || v.customNo || v.plateNumber || v.plateText || "";
+        const getVehicleYear = (v: any) => v.ModelYear || v.modelYear || v.year || v.manufactureYear || v.vehicleModelYear || "";
         
         if (data && Array.isArray(data) && data.length > 0 && !data[0]?.error) {
           setVehicleData(data);
@@ -850,12 +850,12 @@ export default function MotorInsurance() {
                   </Label>
                   <div className="grid gap-3">
                     {vehicleData.map((vehicle, index) => {
-                      const vehicleMake = vehicle.make || vehicle.vehicleMake || vehicle.vehicleMaker || vehicle.makerDescAr || vehicle.maker || "";
+                      const vehicleMake = vehicle.ModelAr || vehicle.modelAr || vehicle.make || vehicle.vehicleMake || vehicle.vehicleMaker || vehicle.makerDescAr || vehicle.maker || "";
                       const vehicleModel = vehicle.model || vehicle.vehicleModel || vehicle.modelDescAr || vehicle.vehicleModelDescAr || "";
-                      const vehicleYear = vehicle.modelYear || vehicle.year || vehicle.manufactureYear || vehicle.vehicleModelYear || "";
-                      const vehiclePlate = vehicle.plateNumber || vehicle.plateText || vehicle.sequenceNumber || vehicle.customNo || vehicle.plateNo || "";
+                      const vehicleYear = vehicle.ModelYear || vehicle.modelYear || vehicle.year || vehicle.manufactureYear || vehicle.vehicleModelYear || "";
+                      const vehiclePlate = vehicle.plateNumber || vehicle.plateText || vehicle.customNo || vehicle.plateNo || "";
                       const vehicleColor = vehicle.color || vehicle.colorDescAr || vehicle.vehicleColor || "";
-                      const vehicleSerial = vehicle.sequenceNumber || vehicle.chassisNumber || vehicle.vin || vehicle.customNo || vehiclePlate;
+                      const vehicleSerial = vehicle.SequenceNumber || vehicle.sequenceNumber || vehicle.chassisNumber || vehicle.vin || vehicle.customNo || vehiclePlate;
                       
                       return (
                         <div
