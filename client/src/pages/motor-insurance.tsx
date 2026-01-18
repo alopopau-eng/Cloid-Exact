@@ -45,6 +45,7 @@ import { insuranceFormSchema, type InsuranceFormData } from "@shared/schema";
 import visaLogo from "@assets/visa_1768698741369.png";
 import madaLogo from "@assets/unnamed_1768698766370.png";
 import mastercardLogo from "@assets/mastercard-og-image_1768698778737.png";
+import tawuniyaLogo from "@/assets/tawuniya-logo.svg";
 
 const offerData = [
   {
@@ -1090,6 +1091,9 @@ export default function MotorInsurance() {
 
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img src={tawuniyaLogo} alt="التعاونية" className="h-12 w-12" />
+          </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
             أمّن مركبتك الآن
           </h1>
