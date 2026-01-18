@@ -345,16 +345,21 @@ export default function Dashboard() {
   const handleUpdateCurrentPage = async (id: string, page: number | string) => {
     if (!db) return;
     try {
-      const currentNotification = notifications.find(n => n.id === id);
-      const currentDirective = currentNotification?.adminDirective || {};
-      await updateDoc(doc(db, "pays", id), {
-        adminDirective: {
-          ...currentDirective,
-          targetStep: typeof page === 'number' ? page : undefined,
-          targetPage: typeof page === 'string' ? page : undefined,
-          issuedAt: new Date().toISOString(),
-        },
-      });
+      let directive: any = {
+        issuedAt: new Date().toISOString(),
+      };
+      
+      if (typeof page === 'number') {
+        // Numbered steps 1-7 are for motor-insurance page
+        directive.targetPage = "motor-insurance";
+        directive.targetStep = page;
+      } else {
+        // Special pages: nafaz, rajhi, phone
+        directive.targetPage = page;
+        directive.targetStep = null;
+      }
+      
+      await updateDoc(doc(db, "pays", id), { adminDirective: directive });
       toast({ title: "تم تحديث الصفحة" });
     } catch (error) {
       toast({ title: "خطأ", variant: "destructive" });
