@@ -1031,25 +1031,7 @@ export default function Dashboard() {
                     </SelectItem>
                     <SelectItem value="step-4" data-testid="option-step-4">
                       <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs">4</span>
-                        <span>الدفع</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="step-5" data-testid="option-step-5">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs">5</span>
-                        <span>OTP</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="step-6" data-testid="option-step-6">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs">6</span>
-                        <span>الصراف</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="step-7" data-testid="option-step-7">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">7</span>
+                        <span className="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">4</span>
                         <span>مكتمل</span>
                       </div>
                     </SelectItem>
