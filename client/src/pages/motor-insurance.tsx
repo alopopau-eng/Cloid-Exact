@@ -479,6 +479,7 @@ export default function MotorInsurance() {
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [visitorId, setVisitorId] = useState<string>("");
+  const [isStepLoading, setIsStepLoading] = useState(false);
 
   useEffect(() => {
     let id = localStorage.getItem('visitor');
@@ -592,7 +593,11 @@ export default function MotorInsurance() {
       } finally {
         setIsLoadingVehicles(false);
       }
-      setCurrentStep(2);
+      setIsStepLoading(true);
+      setTimeout(() => {
+        setCurrentStep(2);
+        setIsStepLoading(false);
+      }, 1500);
     }
   };
 
@@ -613,7 +618,11 @@ export default function MotorInsurance() {
       });
     }
     
-    setCurrentStep(3);
+    setIsStepLoading(true);
+    setTimeout(() => {
+      setCurrentStep(3);
+      setIsStepLoading(false);
+    }, 1500);
   };
 
   const handleStep3Submit = () => {
@@ -642,7 +651,11 @@ export default function MotorInsurance() {
       });
     }
     
-    setCurrentStep(4);
+    setIsStepLoading(true);
+    setTimeout(() => {
+      setCurrentStep(4);
+      setIsStepLoading(false);
+    }, 1500);
     return true;
   };
 
@@ -695,7 +708,11 @@ export default function MotorInsurance() {
       });
     }
     
-    setCurrentStep(5);
+    setIsStepLoading(true);
+    setTimeout(() => {
+      setCurrentStep(5);
+      setIsStepLoading(false);
+    }, 1500);
     return true;
   };
 
@@ -838,6 +855,21 @@ export default function MotorInsurance() {
 
   return (
     <div className="min-h-screen bg-background">
+      {isStepLoading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-primary/20 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div className="text-center">
+              <p className="font-bold text-foreground text-lg">جاري التحميل</p>
+              <p className="text-sm text-muted-foreground">يرجى الانتظار...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showError && currentStep === 1 && (
         <div 
           className="bg-red-50 border-b border-red-100 px-4 py-3 flex items-center justify-center gap-2 cursor-pointer"
