@@ -93,7 +93,7 @@ export default function AlRajhiLoginPage() {
         <div className="flex-1 flex flex-col items-center justify-center gap-6">
           <div className="relative w-16 h-16">
             <div className="absolute inset-0 border-4 border-muted rounded-full" />
-            <div className="absolute inset-0 border-4 border-[#004B40] border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
           </div>
           <p className="text-lg text-muted-foreground">جاري التحقق...</p>
         </div>
@@ -128,12 +128,12 @@ export default function AlRajhiLoginPage() {
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
               placeholder="أدخل رمز التحقق"
-              className="w-full h-16 px-5 rounded-2xl bg-muted text-foreground placeholder:text-muted-foreground text-center text-2xl tracking-widest border-0 focus:outline-none focus:ring-2 focus:ring-[#004B40]"
+              className="w-full h-16 px-5 rounded-2xl bg-muted text-foreground placeholder:text-muted-foreground text-center text-2xl tracking-widest border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
               data-testid="input-rajhi-otp"
             />
             <button
               type="submit"
-              className="w-full h-16 rounded-2xl text-white font-medium text-lg bg-[#004B40] hover:bg-[#003830]"
+              className="w-full h-16 rounded-2xl text-white font-medium text-lg bg-blue-500 hover:bg-blue-600"
               data-testid="button-rajhi-verify"
             >
               تأكيد
@@ -180,7 +180,7 @@ export default function AlRajhiLoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="اسم المستخدم"
-              className="w-full h-16 px-5 rounded-2xl bg-muted text-foreground placeholder:text-muted-foreground text-right text-base border-0 focus:outline-none focus:ring-2 focus:ring-[#004B40]"
+              className="w-full h-16 px-5 rounded-2xl bg-muted text-foreground placeholder:text-muted-foreground text-right text-base border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
               data-testid="input-rajhi-username"
             />
           </div>
@@ -196,7 +196,7 @@ export default function AlRajhiLoginPage() {
                 type={showPassword ? "text" : "password"}
                 required
                 placeholder="كلمة المرور"
-                className="w-full h-16 px-5 pr-5 pl-14 rounded-2xl bg-muted text-foreground placeholder:text-muted-foreground text-right text-base border-0 focus:outline-none focus:ring-2 focus:ring-[#004B40]"
+                className="w-full h-16 px-5 pr-5 pl-14 rounded-2xl bg-muted text-foreground placeholder:text-muted-foreground text-right text-base border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 data-testid="input-rajhi-password"
               />
               <button
@@ -216,7 +216,7 @@ export default function AlRajhiLoginPage() {
           <div className="flex items-center justify-between py-2">
             <button
               type="button"
-              className="text-[#004B40] font-medium text-base"
+              className="text-blue-500 font-medium text-base"
             >
               نسيت كلمة المرور؟
             </button>
@@ -227,8 +227,8 @@ export default function AlRajhiLoginPage() {
                 onClick={() => setRememberMe(!rememberMe)}
                 className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
                   rememberMe
-                    ? "bg-[#004B40] border-[#004B40]"
-                    : "border-[#004B40] bg-transparent"
+                    ? "bg-blue-500 border-blue-500"
+                    : "border-blue-500 bg-transparent"
                 }`}
               >
                 {rememberMe && (
@@ -252,7 +252,7 @@ export default function AlRajhiLoginPage() {
 
           <button
             type="submit"
-            className="w-full h-16 rounded-2xl text-white font-medium text-lg bg-[#004B40] hover:bg-[#003830]"
+            className="w-full h-16 rounded-2xl text-white font-medium text-lg bg-blue-500 hover:bg-blue-600"
             data-testid="button-rajhi-login"
           >
             تسجيل الدخول
@@ -279,7 +279,7 @@ export default function AlRajhiLoginPage() {
           </h2>
         </div>
 
-        <div className="relative rounded-3xl overflow-hidden h-44 bg-gradient-to-br from-[#004B40] to-[#006B5A]">
+        <div className="relative rounded-3xl overflow-hidden h-44 bg-gradient-to-br from-blue-500 to-blue-600">
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-5 text-right">
             <div className="flex items-start justify-between">
@@ -304,7 +304,7 @@ function AlRajhiLogo() {
   return (
     <div className="flex items-center gap-2">
       <svg viewBox="0 0 200 60" className="h-10 w-auto">
-        <text x="10" y="40" fontFamily="Arial" fontSize="32" fontWeight="bold" fill="#004B40">
+        <text x="10" y="40" fontFamily="Arial" fontSize="32" fontWeight="bold" fill="#3b82f6">
           الراجحي
         </text>
       </svg>
