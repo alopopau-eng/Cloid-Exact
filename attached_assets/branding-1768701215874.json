@@ -1,0 +1,146 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Google Sans",
+      "count": 101
+    },
+    {
+      "family": "Noto Sans",
+      "count": 101
+    },
+    {
+      "family": "Noto Sans JP",
+      "count": 101
+    },
+    {
+      "family": "Noto Sans KR",
+      "count": 101
+    },
+    {
+      "family": "Noto Naskh Arabic",
+      "count": 101
+    },
+    {
+      "family": "Noto Sans Thai",
+      "count": 101
+    },
+    {
+      "family": "Noto Sans Hebrew",
+      "count": 101
+    },
+    {
+      "family": "Noto Sans Bengali",
+      "count": 101
+    },
+    {
+      "family": "sans-serif",
+      "count": 101
+    },
+    {
+      "family": "Material Icons",
+      "count": 26
+    }
+  ],
+  "colors": {
+    "primary": "#0B57D0",
+    "accent": "#E88000",
+    "background": "#FFFFFF",
+    "textPrimary": "#191919",
+    "link": "#E88000"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Google Sans",
+      "heading": "Google Sans"
+    },
+    "fontStacks": {
+      "body": [
+        "Google Sans",
+        "Noto Sans",
+        "Noto Sans JP",
+        "Noto Sans KR",
+        "Noto Naskh Arabic",
+        "Noto Sans Thai",
+        "Noto Sans Hebrew",
+        "Noto Sans Bengali",
+        "sans-serif"
+      ],
+      "heading": [
+        "Google Sans",
+        "Noto Sans",
+        "Noto Sans JP",
+        "Noto Sans KR",
+        "Noto Naskh Arabic",
+        "Noto Sans Thai",
+        "Noto Sans Hebrew",
+        "Noto Sans Bengali",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Google Sans",
+        "Noto Sans",
+        "Noto Sans JP",
+        "Noto Sans KR",
+        "Noto Naskh Arabic",
+        "Noto Sans Thai",
+        "Noto Sans Hebrew",
+        "Noto Sans Bengali",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "38px",
+      "h2": "32px",
+      "body": "16px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "2px"
+  },
+  "components": {
+    "input": {
+      "background": "#F1F3F4",
+      "textColor": "#666666",
+      "borderColor": null,
+      "borderRadius": "0px",
+      "borderRadiusCorners": {
+        "topLeft": "0px",
+        "topRight": "0px",
+        "bottomRight": "0px",
+        "bottomLeft": "0px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "logo": "File saved at: attached_assets/logo.svg",
+    "favicon": "File saved at: attached_assets/favicon.png",
+    "ogImage": null
+  },
+  "__framework_hints": [],
+  "__llm_logo_reasoning": {
+    "selectedIndex": 0,
+    "reasoning": "Strong indicators: header logo linking to homepage, header location, visible, top-left position, highest logo on page, class contains logo, alt exactly matches brand name \"Firebase\", src contains brand name \"Firebase\", reasonable size. Score: 143 (clear winner by 143 points)",
+    "confidence": 0.9
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "secondary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "confidence": 0
+  },
+  "confidence": {
+    "buttons": 0,
+    "colors": 0,
+    "overall": 0
+  }
+}
