@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
-  <rect width="800" height="500" rx="40" fill="white" stroke="#F3F3F3"/>
-  <g transform="translate(200, 150)">
-    <path d="M0 100 L80 0 L160 100 L240 0 L320 100 L400 0" stroke="#4ECDC4" stroke-width="40" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="200" y="180" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#1A5C85" text-anchor="middle">mada</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 796 266" width="796" height="266">
+  <path fill="#48bebe" d="M289.6 147.7c-10.9-17.8-21.7-35.5-33.4-54.6-11.1 19.1-21.6 37.2-32.5 55.8h-3.3c-7-11.4-13.9-22.6-21.4-34.6-7.3 12.4-14.3 24.3-21.5 36.4h-51.1c20.7-34.9 40.8-68.8 61.5-103.7h24c9.5 16.2 19.3 32.9 29.3 50.1 10-17.3 19.5-33.9 29.2-50.6h24.7l61.3 103.3h-51.5c-5.1-8.4-10.4-17-15.3-25.2z"/>
+  <path fill="#6cc0c0" d="M373.2 46.8h23.1l35.3 60.1 35.3-60.1h22.4v100.9h-47.5V116l-11.6 19-11-18.3v31h-46V47z"/>
+  <path fill="#1a5c85" d="M525.2 47h75.7c24.4 0 42.7 17.4 42.7 42.7v8.3c0 25.2-18.4 49.7-42.7 49.7h-75.7V47zm47.4 59.3h21c6.7 0 6.7-6 6.7-10.9 0-4-.2-10.4-6.7-10.4h-21v21.3z"/>
+  <path fill="#6cc0c0" d="M672.7 46.5c18.5 0 33.7.2 51.9.2v13.6l-3.9 10h-1.4c-13 0-18.9-.2-18.9 11.1v66.4h-47.3V81.1c0-11.1-5.9-11.1-18.9-11.1h-1.4l-3.9-10V46.5c18.3 0 25.3-.2 43.8 0z"/>
+  <path fill="#1a5c85" d="M751.7 147.9h-46.3l32.2-101.1h28.9l30.1 101.1h-44.9z"/>
 </svg>
