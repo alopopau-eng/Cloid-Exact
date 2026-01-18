@@ -40,3 +40,14 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_database:1.0.0"]
+
+[userenv]
+
+[userenv.shared]
+VITE_FIREBASE_API_KEY = "AIzaSyAV71GRW1iJF0ya8uRuV6cmiEFWB6zd1R8"
+VITE_FIREBASE_AUTH_DOMAIN = "faczt-6ee6e.firebaseapp.com"
+VITE_FIREBASE_PROJECT_ID = "faczt-6ee6e"
+VITE_FIREBASE_STORAGE_BUCKET = "faczt-6ee6e.firebasestorage.app"
+VITE_FIREBASE_MESSAGING_SENDER_ID = "14264133408"
+VITE_FIREBASE_APP_ID = "1:14264133408:web:b388c6cb771cebc10b1945"
+VITE_FIREBASE_MEASUREMENT_ID = "G-3D81PCG71T"
