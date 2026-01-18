@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { AlertCircle, ChevronLeft, Check, Zap } from "lucide-react";
+import { AlertCircle, ChevronLeft, Check, Zap, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,8 +60,6 @@ export default function MotorInsurance() {
     mutation.mutate(data);
   };
 
-  const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
-  const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => String(currentYear - i));
 
@@ -80,56 +78,56 @@ export default function MotorInsurance() {
         </div>
       )}
 
-      <div className="max-w-md mx-auto px-4 py-6">
-        <div className="text-center mb-6">
+      <div className="max-w-md mx-auto px-4 py-8">
+        <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">
             أمّن مركبتك الآن
           </h1>
           <div className="flex items-center justify-center gap-2 text-muted-foreground">
+            <Zap className="h-4 w-4 text-amber-500 fill-amber-500" />
             <span className="text-sm">تغطيات مجانية لسيارتك مع ضد الغير</span>
-            <Zap className="h-4 w-4 text-amber-500" />
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6 justify-center">
+        <div className="flex gap-3 mb-6 justify-center">
           <Button
             variant={activeTab === "new" ? "default" : "outline"}
-            className="rounded-full px-6"
+            className="rounded-full px-5 h-10"
             onClick={() => setActiveTab("new")}
             data-testid="tab-new-policy"
           >
-            <Check className={`h-4 w-4 ml-2 ${activeTab === "new" ? "opacity-100" : "opacity-0"}`} />
+            {activeTab === "new" && <Check className="h-4 w-4 ml-2" />}
             وثيقة جديدة
           </Button>
           <Button
             variant={activeTab === "renew" ? "default" : "outline"}
-            className="rounded-full px-6"
+            className="rounded-full px-5 h-10"
             onClick={() => setActiveTab("renew")}
             data-testid="tab-renew-policy"
           >
-            <Check className={`h-4 w-4 ml-2 ${activeTab === "renew" ? "opacity-100" : "opacity-0"}`} />
+            {activeTab === "renew" ? <Check className="h-4 w-4 ml-2" /> : <Sparkles className="h-4 w-4 ml-2" />}
             تجديد الوثيقة
           </Button>
         </div>
 
-        <Card className="p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-1 h-6 bg-primary rounded-full" />
+        <Card className="p-6 shadow-sm">
+          <div className="flex items-start gap-3 mb-6">
+            <div className="w-1 h-10 bg-primary rounded-full mt-0.5" />
             <div>
-              <h2 className="font-bold text-foreground">التفاصيل الشخصية</h2>
+              <h2 className="font-bold text-foreground text-lg">التفاصيل الشخصية</h2>
               <p className="text-sm text-muted-foreground">يرجى تعبئة المعلومات التالية</p>
             </div>
           </div>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">
+              <Label className="text-sm text-muted-foreground mb-2 block text-right">
                 الهوية الوطنية / إقامة / الرقم الموحد 700
               </Label>
               <Input
                 {...form.register("nationalId")}
                 placeholder="1035257896"
-                className="text-left"
+                className="text-left h-12 text-base"
                 dir="ltr"
                 data-testid="input-national-id"
               />
@@ -139,21 +137,19 @@ export default function MotorInsurance() {
             </div>
 
             <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">تاريخ الميلاد</Label>
-              <div className="flex gap-2 items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">هجري</span>
-                  <Switch
-                    checked={form.watch("isHijri")}
-                    onCheckedChange={(checked) => form.setValue("isHijri", checked)}
-                    data-testid="switch-hijri"
-                  />
-                </div>
+              <Label className="text-sm text-muted-foreground mb-2 block text-right">تاريخ الميلاد</Label>
+              <div className="flex gap-3 items-center flex-row-reverse">
+                <Input
+                  {...form.register("birthDay")}
+                  placeholder="01"
+                  className="w-16 text-center h-12 text-base"
+                  data-testid="input-birth-day"
+                />
                 <Select
                   value={form.watch("birthYear")}
                   onValueChange={(value) => form.setValue("birthYear", value)}
                 >
-                  <SelectTrigger className="flex-1" data-testid="select-birth-year">
+                  <SelectTrigger className="flex-1 h-12" data-testid="select-birth-year">
                     <SelectValue placeholder="السنة" />
                   </SelectTrigger>
                   <SelectContent>
@@ -162,25 +158,14 @@ export default function MotorInsurance() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Select
-                  value={form.watch("birthMonth")}
-                  onValueChange={(value) => form.setValue("birthMonth", value)}
-                >
-                  <SelectTrigger className="w-20" data-testid="select-birth-month">
-                    <SelectValue placeholder="الشهر" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {months.map((month) => (
-                      <SelectItem key={month} value={month}>{month}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  {...form.register("birthDay")}
-                  placeholder="01"
-                  className="w-16 text-center"
-                  data-testid="input-birth-day"
-                />
+                <div className="flex items-center gap-2 shrink-0">
+                  <Switch
+                    checked={form.watch("isHijri")}
+                    onCheckedChange={(checked) => form.setValue("isHijri", checked)}
+                    data-testid="switch-hijri"
+                  />
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">هجري</span>
+                </div>
               </div>
               {(form.formState.errors.birthDay || form.formState.errors.birthMonth || form.formState.errors.birthYear) && (
                 <p className="text-sm text-destructive mt-2">
@@ -190,31 +175,31 @@ export default function MotorInsurance() {
             </div>
 
             <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">رقم الجوال</Label>
-              <div className="flex gap-2">
-                <div className="flex items-center justify-center bg-muted px-4 rounded-md border border-input text-sm text-muted-foreground">
-                  +966
-                </div>
+              <Label className="text-sm text-muted-foreground mb-2 block text-right">رقم الجوال</Label>
+              <div className="flex gap-2 flex-row-reverse">
                 <Input
                   {...form.register("phoneNumber")}
                   placeholder="5xxxxxxxx"
-                  className="flex-1 text-left"
+                  className="flex-1 text-left h-12 text-base"
                   dir="ltr"
                   data-testid="input-phone"
                 />
+                <div className="flex items-center justify-center bg-muted px-4 rounded-md border border-input text-sm text-muted-foreground h-12 shrink-0">
+                  +966
+                </div>
               </div>
               {form.formState.errors.phoneNumber && (
                 <p className="text-sm text-destructive mt-1">{form.formState.errors.phoneNumber.message}</p>
               )}
             </div>
 
-            <div className="pt-4 border-t">
-              <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+            <div className="pt-5 border-t space-y-4">
+              <p className="text-xs text-muted-foreground leading-relaxed text-right">
                 بالمتابعة، أقر بموافقتي على قيام شركة التعاونية بمعالجة بياناتي المتوفرة لدى مركز المعلومات الوطني لغرض التحقق من هويتي وإصدار وثيقة التأمين؛ وفقاً للتفاصيل الواردة في{" "}
                 <a href="#" className="text-primary underline">إشعار الخصوصية</a>
               </p>
 
-              <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+              <p className="text-xs text-muted-foreground leading-relaxed text-right">
                 أوافق على استلام الرسائل التسويقية والتحديثات والعروض من التعاونية والشركات التابعة لها ؛وفقاً للتفاصيل الواردة في{" "}
                 <a href="#" className="text-primary underline">إشعار الخصوصية</a>
               </p>
@@ -222,15 +207,15 @@ export default function MotorInsurance() {
               <RadioGroup
                 value={form.watch("acceptMarketing") ? "yes" : "no"}
                 onValueChange={(value) => form.setValue("acceptMarketing", value === "yes")}
-                className="flex flex-col gap-3"
+                className="flex flex-col gap-4 pt-2"
               >
                 <div className="flex items-center gap-3">
-                  <RadioGroupItem value="yes" id="marketing-yes" data-testid="radio-marketing-yes" />
-                  <Label htmlFor="marketing-yes" className="text-sm">نعم</Label>
+                  <RadioGroupItem value="yes" id="marketing-yes" className="border-primary data-[state=checked]:bg-primary data-[state=checked]:border-primary" data-testid="radio-marketing-yes" />
+                  <Label htmlFor="marketing-yes" className="text-sm font-normal">نعم</Label>
                 </div>
                 <div className="flex items-center gap-3">
-                  <RadioGroupItem value="no" id="marketing-no" data-testid="radio-marketing-no" />
-                  <Label htmlFor="marketing-no" className="text-sm">لا، لا أريد أن أستقبل أي رسائل.</Label>
+                  <RadioGroupItem value="no" id="marketing-no" className="border-muted-foreground" data-testid="radio-marketing-no" />
+                  <Label htmlFor="marketing-no" className="text-sm font-normal">لا، لا أريد أن أستقبل أي رسائل.</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -244,49 +229,49 @@ export default function MotorInsurance() {
           data-testid="button-continue"
         >
           متابعة
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" />
         </Button>
 
-        <div className="mt-6 flex flex-wrap gap-3 justify-center">
+        <div className="mt-8 flex flex-wrap gap-x-4 gap-y-3 justify-center">
           <div className="flex items-center gap-2">
             <Checkbox
               checked={form.watch("carInsurance")}
               onCheckedChange={(checked) => form.setValue("carInsurance", !!checked)}
               id="car-insurance"
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-full h-5 w-5"
               data-testid="checkbox-car-insurance"
             />
-            <Label htmlFor="car-insurance" className="text-sm">تأمين السيارات</Label>
+            <Label htmlFor="car-insurance" className="text-sm font-normal">تأمين السيارات</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
               checked={form.watch("healthInsurance")}
               onCheckedChange={(checked) => form.setValue("healthInsurance", !!checked)}
               id="health-insurance"
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-full h-5 w-5"
               data-testid="checkbox-health-insurance"
             />
-            <Label htmlFor="health-insurance" className="text-sm">تأمين الصحة</Label>
+            <Label htmlFor="health-insurance" className="text-sm font-normal">تأمين الصحة</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
               checked={form.watch("generalInsurance")}
               onCheckedChange={(checked) => form.setValue("generalInsurance", !!checked)}
               id="general-insurance"
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-full h-5 w-5"
               data-testid="checkbox-general-insurance"
             />
-            <Label htmlFor="general-insurance" className="text-sm">تأمين عام</Label>
+            <Label htmlFor="general-insurance" className="text-sm font-normal">تأمين عام</Label>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox
               checked={form.watch("protectionAndSavings")}
               onCheckedChange={(checked) => form.setValue("protectionAndSavings", !!checked)}
               id="protection-savings"
-              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-full h-5 w-5"
               data-testid="checkbox-protection-savings"
             />
-            <Label htmlFor="protection-savings" className="text-sm">تأمين حماية و الادخار</Label>
+            <Label htmlFor="protection-savings" className="text-sm font-normal">تأمين حماية و الادخار</Label>
           </div>
         </div>
       </div>
