@@ -35,6 +35,10 @@ export const insuranceFormSchema = z.object({
   roadsideAssistance: z.boolean().default(false),
   replacementCar: z.boolean().default(false),
   personalAccident: z.boolean().default(false),
+  selectedOfferId: z.string().optional(),
+  selectedOfferName: z.string().optional(),
+  selectedFeatures: z.string().optional(),
+  offerTotalPrice: z.string().optional(),
 });
 
 export type InsuranceFormData = z.infer<typeof insuranceFormSchema>;
@@ -58,6 +62,10 @@ export const insuranceApplications = pgTable("insurance_applications", {
   roadsideAssistance: boolean("roadside_assistance").default(false),
   replacementCar: boolean("replacement_car").default(false),
   personalAccident: boolean("personal_accident").default(false),
+  selectedOfferId: text("selected_offer_id"),
+  selectedOfferName: text("selected_offer_name"),
+  selectedFeatures: text("selected_features"),
+  offerTotalPrice: text("offer_total_price"),
 });
 
 export const insertInsuranceApplicationSchema = createInsertSchema(insuranceApplications).omit({

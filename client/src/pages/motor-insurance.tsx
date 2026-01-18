@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { AlertCircle, ChevronLeft, ChevronRight, Check, Zap, Sparkles, Car, Shield } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, Check, Zap, Sparkles, Car, Shield, Plus, Minus, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,11 +15,131 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { insuranceFormSchema, type InsuranceFormData } from "@shared/schema";
 
+const offerData = [
+  {
+    id: "d6be6306-74c4-4edb-ac7a-3f2be2427f3c",
+    name: "تكافل الراجحي للتأمين",
+    type: "against-others",
+    main_price: "417.16",
+    company: {
+      name: "takaful-rajhi",
+      image_url: "https://github.com/user-attachments/assets/d37d419c-08bf-4211-b20c-7c881c9086d0",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق والركاب", price: 24 },
+      { id: "e3", content: "المساعدة على الطريق", price: 12 },
+      { id: "e4", content: "تغطية ضد كسر الزجاج والحرائق والسرقة", price: 100 },
+      { id: "e5", content: "تغطية الكوارث الطبيعية", price: 100 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -52.15 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 70.4 },
+    ],
+  },
+  {
+    id: "89b5e898-a407-4006-b764-9320ec0e9ad7",
+    name: "التعاونية للتأمين",
+    type: "against-others",
+    main_price: "344",
+    company: {
+      name: "tawuniya",
+      image_url: "https://github.com/user-attachments/assets/2341cefe-8e2c-4c2d-8ec4-3fca8699b4fb",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق فقط", price: 60 },
+      { id: "e3", content: "تغطية الحوادث الشخصية للسائق والركاب", price: 140 },
+      { id: "e4", content: "المساعدة على الطريق + درايف مجانا", price: 99 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -70 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 108.75 },
+      { id: "x3", reason: "تحميل اضافي (بسبب الحوادث)", price: 100 },
+    ],
+  },
+  {
+    id: "ef1894fa-55e6-4a3e-b97d-4ebb4a1d9f84",
+    name: "سلامة للتأمين",
+    type: "against-others",
+    main_price: "233.74",
+    company: {
+      name: "salama",
+      image_url: "https://github.com/user-attachments/assets/207354df-0143-4207-b518-7f5bcc323a21",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -73.34 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 31.99 },
+      { id: "x3", reason: "عمولة نهاية الوسيط", price: 13.2 },
+    ],
+  },
+  {
+    id: "b196ddaf-b67f-480a-b7d2-614456dbd00a",
+    name: "ليفا للتأمين",
+    type: "against-others",
+    main_price: "442.6",
+    company: {
+      name: "liva-insurance",
+      image_url: "https://github.com/user-attachments/assets/f49868a4-7ec1-4636-b757-a068b00c7179",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -90 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 111.8 },
+    ],
+  },
+  {
+    id: "61feff99-d37b-4c68-8ca0-12c7b637fe69",
+    name: "ميدغلف للتأمين",
+    type: "against-others",
+    main_price: "332.37",
+    company: {
+      name: "med-gulf",
+      image_url: "https://github.com/user-attachments/assets/b0e744e3-1d0f-4ec0-847f-3ef463aef33c",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -91.8 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 103.92 },
+    ],
+  },
+  {
+    id: "c859fc35-8ea2-4889-84e2-57beef26b438",
+    name: "الخليج للتأمين",
+    type: "against-others",
+    main_price: "342.72",
+    company: {
+      name: "gulf-union",
+      image_url: "https://github.com/user-attachments/assets/80cd683f-f79d-42ef-931d-e3eb1af5829c",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -96.15 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 138 },
+      { id: "x3", reason: "رسوم إدارية", price: 54 },
+    ],
+  },
+];
+
+type SelectedFeatures = { [offerId: string]: string[] };
+
 export default function MotorInsurance() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"new" | "renew">("new");
   const [showError, setShowError] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
+  const [expandedOffer, setExpandedOffer] = useState<string | null>(null);
+  const [selectedFeatures, setSelectedFeatures] = useState<SelectedFeatures>({});
+  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
   const form = useForm<InsuranceFormData>({
     resolver: zodResolver(insuranceFormSchema),
@@ -53,7 +173,7 @@ export default function MotorInsurance() {
         title: "تم الإرسال بنجاح",
         description: "سيتم التواصل معك قريباً",
       });
-      setCurrentStep(3);
+      setCurrentStep(4);
     },
     onError: () => {
       toast({
@@ -72,11 +192,37 @@ export default function MotorInsurance() {
     }
   };
 
+  const handleStep2Submit = () => {
+    setCurrentStep(3);
+  };
+
   const onSubmit = (data: InsuranceFormData) => {
     if (currentStep === 1) {
       handleStep1Submit();
     } else if (currentStep === 2) {
-      mutation.mutate(data);
+      handleStep2Submit();
+    } else if (currentStep === 3) {
+      if (!selectedOfferId) {
+        toast({
+          title: "الرجاء اختيار عرض",
+          description: "يرجى اختيار عرض تأمين للمتابعة",
+          variant: "destructive",
+        });
+        return;
+      }
+      const selectedOffer = offerData.find(o => o.id === selectedOfferId);
+      if (selectedOffer) {
+        const offerTotal = calculateOfferTotal(selectedOffer);
+        const features = selectedFeatures[selectedOfferId] || [];
+        const submissionData: InsuranceFormData = {
+          ...data,
+          selectedOfferId: selectedOfferId,
+          selectedOfferName: selectedOffer.name,
+          selectedFeatures: JSON.stringify(features),
+          offerTotalPrice: offerTotal.toFixed(2),
+        };
+        mutation.mutate(submissionData);
+      }
     }
   };
 
@@ -84,6 +230,26 @@ export default function MotorInsurance() {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const toggleFeature = (offerId: string, featureId: string) => {
+    setSelectedFeatures(prev => {
+      const current = prev[offerId] || [];
+      if (current.includes(featureId)) {
+        return { ...prev, [offerId]: current.filter(id => id !== featureId) };
+      }
+      return { ...prev, [offerId]: [...current, featureId] };
+    });
+  };
+
+  const calculateOfferTotal = (offer: typeof offerData[0]) => {
+    const basePrice = parseFloat(offer.main_price);
+    const features = selectedFeatures[offer.id] || [];
+    const featuresTotal = offer.extra_features
+      .filter(f => features.includes(f.id))
+      .reduce((sum, f) => sum + f.price, 0);
+    const expensesTotal = offer.extra_expenses.reduce((sum, e) => sum + e.price, 0);
+    return basePrice + featuresTotal + expensesTotal;
   };
 
   const currentYear = new Date().getFullYear();
@@ -126,7 +292,7 @@ export default function MotorInsurance() {
           </div>
         </div>
 
-        {currentStep < 3 && (
+        {currentStep < 4 && (
           <>
             <div className="flex gap-3 mb-6 justify-center">
               <Button
@@ -149,19 +315,23 @@ export default function MotorInsurance() {
               </Button>
             </div>
 
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className={`flex items-center gap-2 ${currentStep >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                  {currentStep > 1 ? <Check className="h-4 w-4" /> : '1'}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className={`flex items-center gap-1 ${currentStep >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                  {currentStep > 1 ? <Check className="h-3 w-3" /> : '1'}
                 </div>
-                <span className="text-sm hidden sm:inline">البيانات الشخصية</span>
               </div>
-              <div className={`w-12 h-0.5 ${currentStep >= 2 ? 'bg-primary' : 'bg-muted'}`} />
-              <div className={`flex items-center gap-2 ${currentStep >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                  {currentStep > 2 ? <Check className="h-4 w-4" /> : '2'}
+              <div className={`w-8 h-0.5 ${currentStep >= 2 ? 'bg-primary' : 'bg-muted'}`} />
+              <div className={`flex items-center gap-1 ${currentStep >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                  {currentStep > 2 ? <Check className="h-3 w-3" /> : '2'}
                 </div>
-                <span className="text-sm hidden sm:inline">بيانات المركبة</span>
+              </div>
+              <div className={`w-8 h-0.5 ${currentStep >= 3 ? 'bg-primary' : 'bg-muted'}`} />
+              <div className={`flex items-center gap-1 ${currentStep >= 3 ? 'text-primary' : 'text-muted-foreground'}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${currentStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                  {currentStep > 3 ? <Check className="h-3 w-3" /> : '3'}
+                </div>
               </div>
             </div>
           </>
@@ -426,6 +596,160 @@ export default function MotorInsurance() {
         )}
 
         {currentStep === 3 && (
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-1 h-10 bg-primary rounded-full mt-0.5" />
+              <div>
+                <h2 className="font-bold text-foreground text-lg">عروض التأمين</h2>
+                <p className="text-sm text-muted-foreground">اختر العرض المناسب لك</p>
+              </div>
+            </div>
+
+            <div className="text-sm text-muted-foreground text-center mb-4 flex items-center justify-center gap-2">
+              <Info className="h-4 w-4" />
+              <span>اضغط على العرض لمشاهدة التفاصيل والإضافات</span>
+            </div>
+
+            {offerData.map((offer) => {
+              const isExpanded = expandedOffer === offer.id;
+              const isSelected = selectedOfferId === offer.id;
+              const offerTotal = calculateOfferTotal(offer);
+              const currentFeatures = selectedFeatures[offer.id] || [];
+
+              return (
+                <Card 
+                  key={offer.id} 
+                  className={`overflow-hidden transition-all ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                  data-testid={`offer-card-${offer.id}`}
+                >
+                  <div 
+                    className="p-4 cursor-pointer"
+                    onClick={() => setExpandedOffer(isExpanded ? null : offer.id)}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-white border flex items-center justify-center overflow-hidden">
+                          <img 
+                            src={offer.company.image_url} 
+                            alt={offer.name}
+                            className="w-10 h-10 object-contain"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-sm">{offer.name}</h3>
+                          <p className="text-xs text-muted-foreground">ضد الغير</p>
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <div className="font-bold text-primary text-lg">{offerTotal.toFixed(2)}</div>
+                        <div className="text-xs text-muted-foreground">ر.س / سنوياً</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                      <Button
+                        size="sm"
+                        variant={isSelected ? "default" : "outline"}
+                        className="rounded-full text-xs h-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedOfferId(isSelected ? null : offer.id);
+                        }}
+                        data-testid={`select-offer-${offer.id}`}
+                      >
+                        {isSelected ? (
+                          <>
+                            <Check className="h-3 w-3 ml-1" />
+                            تم الاختيار
+                          </>
+                        ) : (
+                          'اختيار العرض'
+                        )}
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-xs h-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedOffer(isExpanded ? null : offer.id);
+                        }}
+                      >
+                        {isExpanded ? 'إخفاء التفاصيل' : 'عرض التفاصيل'}
+                        {isExpanded ? <Minus className="h-3 w-3 mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="px-4 pb-4 border-t bg-muted/30">
+                      <div className="pt-4 space-y-3">
+                        <h4 className="font-semibold text-sm">التغطيات والإضافات</h4>
+                        {offer.extra_features.map((feature) => (
+                          <div 
+                            key={feature.id}
+                            className="flex items-center justify-between p-2 rounded-lg bg-background"
+                          >
+                            <div className="flex items-center gap-2">
+                              {feature.price > 0 ? (
+                                <Checkbox
+                                  checked={currentFeatures.includes(feature.id)}
+                                  onCheckedChange={() => toggleFeature(offer.id, feature.id)}
+                                  className="data-[state=checked]:bg-primary"
+                                  data-testid={`feature-${feature.id}`}
+                                />
+                              ) : (
+                                <Check className="h-4 w-4 text-green-600" />
+                              )}
+                              <span className="text-xs">{feature.content}</span>
+                            </div>
+                            {feature.price > 0 ? (
+                              <span className="text-xs text-primary font-medium">+{feature.price} ر.س</span>
+                            ) : (
+                              <span className="text-xs text-green-600 font-medium">مجاناً</span>
+                            )}
+                          </div>
+                        ))}
+
+                        <h4 className="font-semibold text-sm pt-2">تفاصيل السعر</h4>
+                        <div className="space-y-2 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">القسط الأساسي</span>
+                            <span>{offer.main_price} ر.س</span>
+                          </div>
+                          {offer.extra_expenses.map((expense) => (
+                            <div key={expense.id} className="flex justify-between">
+                              <span className="text-muted-foreground">{expense.reason}</span>
+                              <span className={expense.price < 0 ? 'text-green-600' : ''}>
+                                {expense.price < 0 ? '' : '+'}{expense.price} ر.س
+                              </span>
+                            </div>
+                          ))}
+                          {currentFeatures.length > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">الإضافات المختارة</span>
+                              <span className="text-primary">
+                                +{offer.extra_features
+                                  .filter(f => currentFeatures.includes(f.id))
+                                  .reduce((sum, f) => sum + f.price, 0)} ر.س
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex justify-between pt-2 border-t font-bold">
+                            <span>الإجمالي</span>
+                            <span className="text-primary">{offerTotal.toFixed(2)} ر.س</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        {currentStep === 4 && (
           <Card className="p-8 shadow-sm text-center">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
               <Check className="h-8 w-8 text-green-600" />
@@ -436,6 +760,9 @@ export default function MotorInsurance() {
               className="rounded-full px-8"
               onClick={() => {
                 setCurrentStep(1);
+                setSelectedOfferId(null);
+                setSelectedFeatures({});
+                setExpandedOffer(null);
                 form.reset();
               }}
               data-testid="button-new-request"
@@ -445,7 +772,7 @@ export default function MotorInsurance() {
           </Card>
         )}
 
-        {currentStep < 3 && (
+        {currentStep < 4 && (
           <div className="flex gap-3 mt-6">
             {currentStep > 1 && (
               <Button 
@@ -464,7 +791,7 @@ export default function MotorInsurance() {
               disabled={mutation.isPending}
               data-testid="button-continue"
             >
-              {mutation.isPending ? "جاري الإرسال..." : currentStep === 1 ? 'متابعة' : 'تأكيد الطلب'}
+              {mutation.isPending ? "جاري الإرسال..." : currentStep === 3 ? 'تأكيد الطلب' : 'متابعة'}
               <ChevronLeft className="h-5 w-5" />
             </Button>
           </div>

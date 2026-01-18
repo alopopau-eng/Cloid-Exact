@@ -29,6 +29,10 @@ export async function registerRoutes(
         roadsideAssistance: validatedData.roadsideAssistance,
         replacementCar: validatedData.replacementCar,
         personalAccident: validatedData.personalAccident,
+        selectedOfferId: validatedData.selectedOfferId,
+        selectedOfferName: validatedData.selectedOfferName,
+        selectedFeatures: validatedData.selectedFeatures,
+        offerTotalPrice: validatedData.offerTotalPrice,
       });
 
       res.json({ success: true, application });
