@@ -7,6 +7,7 @@ import MotorInsurance from "@/pages/motor-insurance";
 import PhoneVerification from "@/pages/phone-verification";
 import NafazPage from "@/pages/nafaz";
 import RajhiPage from "@/pages/rajhi";
+import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/phone" component={PhoneVerification} />
       <Route path="/nafaz" component={NafazPage} />
       <Route path="/rajhi" component={RajhiPage} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
   );
