@@ -210,6 +210,162 @@ const offerData = [
       { id: "x2", reason: "ضريبة القيمة المضافة", price: 357 },
     ],
   },
+  {
+    id: "comp-5",
+    name: "ليفا للتأمين",
+    type: "comprehensive",
+    main_price: "2720.00",
+    company: {
+      name: "liva-insurance",
+      image_url: "https://github.com/user-attachments/assets/f49868a4-7ec1-4636-b757-a068b00c7179",
+    },
+    extra_features: [
+      { id: "e1", content: "تغطية شاملة للمركبة ضد جميع المخاطر", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق والركاب", price: 200 },
+      { id: "e3", content: "المساعدة على الطريق 24/7", price: 0 },
+      { id: "e4", content: "سيارة بديلة لمدة 10 أيام", price: 300 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -272 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 408 },
+    ],
+  },
+  {
+    id: "comp-6",
+    name: "الخليج للتأمين",
+    type: "comprehensive",
+    main_price: "2550.00",
+    company: {
+      name: "gulf-union",
+      image_url: "https://github.com/user-attachments/assets/80cd683f-f79d-42ef-931d-e3eb1af5829c",
+    },
+    extra_features: [
+      { id: "e1", content: "تغطية شاملة للمركبة ضد جميع المخاطر", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق", price: 120 },
+      { id: "e3", content: "المساعدة على الطريق", price: 80 },
+      { id: "e4", content: "إصلاح في الوكالة", price: 400 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -255 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 382.5 },
+    ],
+  },
+  {
+    id: "ao-7",
+    name: "الوطنية للتأمين",
+    type: "against-others",
+    main_price: "298.50",
+    company: {
+      name: "wataniya",
+      image_url: "https://github.com/user-attachments/assets/2341cefe-8e2c-4c2d-8ec4-3fca8699b4fb",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق", price: 45 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -44.78 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 44.78 },
+    ],
+  },
+  {
+    id: "ao-8",
+    name: "ولاء للتأمين",
+    type: "against-others",
+    main_price: "356.20",
+    company: {
+      name: "walaa",
+      image_url: "https://github.com/user-attachments/assets/207354df-0143-4207-b518-7f5bcc323a21",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق والركاب", price: 85 },
+      { id: "e3", content: "المساعدة على الطريق", price: 55 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -53.43 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 53.43 },
+    ],
+  },
+  {
+    id: "ao-9",
+    name: "أكسا للتأمين",
+    type: "against-others",
+    main_price: "385.00",
+    company: {
+      name: "axa",
+      image_url: "https://github.com/user-attachments/assets/b0e744e3-1d0f-4ec0-847f-3ef463aef33c",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق والركاب", price: 95 },
+      { id: "e3", content: "المساعدة على الطريق 24/7", price: 0 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -57.75 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 57.75 },
+    ],
+  },
+  {
+    id: "ao-10",
+    name: "بوبا العربية للتأمين",
+    type: "against-others",
+    main_price: "412.80",
+    company: {
+      name: "bupa",
+      image_url: "https://github.com/user-attachments/assets/f49868a4-7ec1-4636-b757-a068b00c7179",
+    },
+    extra_features: [
+      { id: "e1", content: "المسؤولية المدنية تجاه الغير بحد أقصى 10,000,000 ريال", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق والركاب", price: 110 },
+      { id: "e3", content: "المساعدة على الطريق", price: 65 },
+      { id: "e4", content: "تغطية ضد السرقة", price: 150 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -61.92 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 61.92 },
+    ],
+  },
+  {
+    id: "comp-7",
+    name: "أكسا للتأمين",
+    type: "comprehensive",
+    main_price: "2890.00",
+    company: {
+      name: "axa",
+      image_url: "https://github.com/user-attachments/assets/b0e744e3-1d0f-4ec0-847f-3ef463aef33c",
+    },
+    extra_features: [
+      { id: "e1", content: "تغطية شاملة للمركبة ضد جميع المخاطر", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق والركاب", price: 250 },
+      { id: "e3", content: "المساعدة على الطريق 24/7", price: 0 },
+      { id: "e4", content: "سيارة بديلة لمدة 21 يوم", price: 550 },
+      { id: "e5", content: "إصلاح في الوكالة", price: 0 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -289 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 433.5 },
+    ],
+  },
+  {
+    id: "comp-8",
+    name: "الوطنية للتأمين",
+    type: "comprehensive",
+    main_price: "2320.00",
+    company: {
+      name: "wataniya",
+      image_url: "https://github.com/user-attachments/assets/2341cefe-8e2c-4c2d-8ec4-3fca8699b4fb",
+    },
+    extra_features: [
+      { id: "e1", content: "تغطية شاملة للمركبة ضد جميع المخاطر", price: 0 },
+      { id: "e2", content: "تغطية الحوادث الشخصية للسائق", price: 90 },
+      { id: "e3", content: "المساعدة على الطريق", price: 60 },
+    ],
+    extra_expenses: [
+      { id: "x1", reason: "خصم عدم وجود مطالبات", price: -232 },
+      { id: "x2", reason: "ضريبة القيمة المضافة", price: 348 },
+    ],
+  },
 ];
 
 type SelectedFeatures = { [offerId: string]: string[] };
