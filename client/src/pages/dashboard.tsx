@@ -1075,7 +1075,7 @@ export default function Dashboard() {
                         <span>الراجحي</span>
                       </div>
                     </SelectItem>
-                    <SelectItem value="phone" data-testid="option-phone">
+                    <SelectItem value="phone-verification" data-testid="option-phone">
                       <div className="flex items-center gap-2">
                         <Phone size={14} className="text-amber-500" />
                         <span>الهاتف</span>
