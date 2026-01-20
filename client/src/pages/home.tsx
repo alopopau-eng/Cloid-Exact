@@ -85,12 +85,12 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
+      <section className="relative overflow-hidden min-h-[70vh] sm:min-h-[500px] md:min-h-[600px]">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-right sm:bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroBg})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-white/30 md:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b sm:bg-gradient-to-l from-white/60 via-white/30 sm:via-transparent to-transparent sm:from-transparent" />
         
         <div className="relative container mx-auto px-4 py-12 sm:py-16 md:py-24 h-full flex items-center">
           <div className="max-w-xl mr-auto text-right">
