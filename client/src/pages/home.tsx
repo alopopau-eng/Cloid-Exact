@@ -85,27 +85,22 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden min-h-[500px] md:min-h-[600px]">
+      <section className="relative overflow-hidden min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${heroBg})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-white/30 md:to-transparent" />
         
-        <div className="relative container mx-auto px-4 py-16 md:py-24 h-full flex items-center">
+        <div className="relative container mx-auto px-4 py-12 sm:py-16 md:py-24 h-full flex items-center">
           <div className="max-w-xl mr-auto text-right">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-purple-800 mb-4 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-purple-800 mb-6 leading-tight">
               تأمين مركبات
-              <span className="block text-purple-600 mt-2">شامل لراحتك</span>
             </h1>
-            
-            <p className="text-lg md:text-xl text-slate-700 mb-8 max-w-md">
-              احصل على أفضل تغطية تأمينية لسيارتك مع التعاونية للتأمين
-            </p>
             
             <Button 
               size="lg" 
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-xl shadow-lg"
               onClick={() => setLocation("/motor")}
               data-testid="button-start-insurance"
             >
