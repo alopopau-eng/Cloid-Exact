@@ -62,10 +62,21 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-slate-600 dark:text-slate-300">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-slate-600 dark:text-slate-300"
+              onClick={() => setLocation("/motor")}
+              data-testid="button-login"
+            >
               تسجيل الدخول
             </Button>
-            <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+            <Button 
+              size="sm" 
+              className="bg-purple-600 hover:bg-purple-700"
+              onClick={() => setLocation("/motor")}
+              data-testid="button-account"
+            >
               حسابي
             </Button>
           </div>
