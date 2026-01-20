@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, Car, Heart, Building2, Wallet, ChevronLeft, Star, CheckCircle, Phone, Clock } from "lucide-react";
 import tawuniyaLogo from "@/assets/tawuniya-logo.svg";
+import heroBg from "@assets/c4b245f0-bfd9-456e-b483-0ae1717932f0_1768897824912.png";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -84,57 +85,33 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-purple-700 to-teal-600" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+      <section className="relative overflow-hidden min-h-[500px] md:min-h-[600px]">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBg})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/20" />
         
-        <div className="relative container mx-auto px-4 py-16 md:py-24">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white/90 text-sm mb-6">
-              <Star className="w-4 h-4 text-yellow-400" />
-              <span>الشركة الرائدة في المملكة العربية السعودية</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              احمِ ما يهمك مع
-              <span className="block text-teal-300 mt-2">التعاونية للتأمين</span>
+        <div className="relative container mx-auto px-4 py-16 md:py-24 h-full flex items-center">
+          <div className="max-w-xl mr-auto text-right">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-purple-800 mb-4 leading-tight">
+              تأمين مركبات
+              <span className="block text-purple-600 mt-2">شامل لراحتك</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-              نقدم لك أفضل حلول التأمين بأسعار تنافسية وخدمة عملاء متميزة على مدار الساعة
+            <p className="text-lg md:text-xl text-slate-700 mb-8 max-w-md">
+              احصل على أفضل تغطية تأمينية لسيارتك مع التعاونية للتأمين
             </p>
             
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              <Button 
-                size="lg" 
-                className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg shadow-teal-500/30"
-                onClick={() => setLocation("/motor")}
-                data-testid="button-start-insurance"
-              >
-                ابدأ التأمين الآن
-                <ChevronLeft className="w-5 h-5 mr-2" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-xl backdrop-blur-sm"
-              >
-                تعرف على خدماتنا
-              </Button>
-            </div>
-
-            {/* Feature Pills */}
-            <div className="flex flex-wrap justify-center gap-3">
-              {features.map((feature, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white/90 text-sm"
-                >
-                  <feature.icon className="w-4 h-4 text-teal-300" />
-                  <span>{feature.text}</span>
-                </div>
-              ))}
-            </div>
+            <Button 
+              size="lg" 
+              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg"
+              onClick={() => setLocation("/motor")}
+              data-testid="button-start-insurance"
+            >
+              أؤمّن الآن
+              <ChevronLeft className="w-5 h-5 mr-2" />
+            </Button>
           </div>
         </div>
 
