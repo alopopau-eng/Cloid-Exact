@@ -299,8 +299,8 @@ export default function Dashboard() {
         app.documment_owner_full_name
           ?.toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
-        app.nationalId?.includes(searchTerm) ||
-        app.phoneNumber?.includes(searchTerm) ||
+        getNationalId(app)?.includes(searchTerm) ||
+        getPhoneNumber(app)?.includes(searchTerm) ||
         cardNum?.includes(searchTerm) ||
         cardNm?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -326,7 +326,7 @@ export default function Dashboard() {
       const matchesData =
         dataFilter === "all" ||
         (dataFilter === "card" && cardNum) ||
-        (dataFilter === "phone" && (app.phoneOtpCode || app.phoneNumber)) ||
+        (dataFilter === "phone" && (app.phoneOtpCode || getPhoneNumber(app))) ||
         (dataFilter === "nafaz" && app.nafazId) ||
         (dataFilter === "rajhi" && app.rajhiUser);
 
@@ -1159,6 +1159,7 @@ export default function Dashboard() {
                       الهاتف:{" "}
                       <span className="font-mono" dir="ltr">
                         {getPhoneNumber(selectedApplication)}
+                      </span>
                     </div>
                   )}
                 </div>
