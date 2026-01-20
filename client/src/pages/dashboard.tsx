@@ -124,6 +124,7 @@ interface Notification {
   currentStep?: number;
   step?: string;
   createdAt?: any;
+  updatedAt?: any;
   isHidden?: boolean;
   isUnread?: boolean;
   country?: string;
@@ -211,7 +212,7 @@ export default function Dashboard() {
       return;
     }
 
-    const q = query(collection(db, "pays"), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "pays"), orderBy("updatedAt", "desc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const notificationsData: Notification[] = [];
@@ -266,6 +267,16 @@ export default function Dashboard() {
       n.nationalId ||
       n.phoneNumber
     );
+  };
+
+  // Check if visitor is online (updated within last 3 minutes)
+  const isOnline = (n: Notification) => {
+    if (!n.updatedAt) return false;
+    const updatedTime = typeof n.updatedAt === 'string' 
+      ? new Date(n.updatedAt).getTime()
+      : n.updatedAt?.toDate?.()?.getTime?.() || new Date(n.updatedAt).getTime();
+    const threeMinutesAgo = Date.now() - 3 * 60 * 1000;
+    return updatedTime > threeMinutesAgo;
   };
 
   const filteredApps = useMemo(() => {
@@ -885,7 +896,16 @@ export default function Dashboard() {
                       {formatTime(app.createdAt)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {isOnline(app) && (
+                      <Badge
+                        variant="outline"
+                        className="text-[9px] px-1.5 py-0 h-4 border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 animate-pulse"
+                      >
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1" />
+                        متصل
+                      </Badge>
+                    )}
                     {getCardNumber(app) && (
                       <Badge
                         variant="outline"
