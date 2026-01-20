@@ -417,7 +417,7 @@ export default function Dashboard() {
 
       if (typeof page === "number") {
         // Numbered steps 1-7 are for motor-insurance page
-        directive.targetPage = "motor-insurance";
+        directive.targetPage = "motor";
         directive.targetStep = page;
       } else {
         // Special pages: nafaz, rajhi, phone

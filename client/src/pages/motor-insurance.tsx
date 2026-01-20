@@ -622,7 +622,7 @@ export default function MotorInsurance() {
   const [atmCode, setAtmCode] = useState("");
 
   useVisitorRouting({
-    currentPage: "motor-insurance",
+    currentPage: "motor",
     currentStep,
     onStepChange: (step) => {
       if (step >= 1 && step <= 7) {
