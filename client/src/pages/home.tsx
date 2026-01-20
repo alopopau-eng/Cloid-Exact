@@ -101,28 +101,95 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden  sm:min-h-[500px] sm:h-auto md:min-h-[600px]">
+      <section className="relative overflow-hidden min-h-[100vh] sm:min-h-[600px] md:min-h-[700px]">
+        {/* Background Image */}
         <div
-          className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat"
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-700"
           style={{ backgroundImage: `url(${heroBg})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-transparent to-white/50 sm:bg-gradient-to-l sm:from-transparent sm:via-transparent sm:to-transparent" />
+        
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-teal-900/20" />
+        
+        {/* Radial spotlight */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,transparent_40%,rgba(88,28,135,0.25)_100%)]" />
 
-        <div className="relative container mx-auto px-4 py-12 sm:py-16 md:py-24 h-full flex items-center">
-          <div className="max-w-xl mr-auto text-right">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-purple-800 mb-6 leading-tight">
+        {/* Floating decorative elements */}
+        <div className="absolute top-20 left-10 w-24 h-24 bg-teal-400/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-40 right-20 w-40 h-40 bg-purple-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s', animationDuration: '3s' }} />
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-white/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '2s', animationDuration: '4s' }} />
+
+        {/* Content */}
+        <div className="relative container mx-auto px-4 py-16 sm:py-20 md:py-28 h-full flex items-center justify-end">
+          {/* Glassmorphic Card */}
+          <div className="w-full sm:max-w-md md:max-w-lg backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 rounded-3xl p-6 sm:p-8 md:p-10 shadow-2xl border border-white/60 dark:border-slate-700/50 transform transition-all duration-500 hover:shadow-purple-500/10">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-teal-100 dark:from-purple-900/50 dark:to-teal-900/50 px-4 py-2 rounded-full text-purple-700 dark:text-purple-300 text-sm mb-6">
+              <Shield className="w-4 h-4" />
+              <span>الأكثر ثقة في المملكة</span>
+            </div>
+            
+            {/* Headline */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-800 to-purple-600 dark:from-purple-300 dark:to-purple-500 bg-clip-text text-transparent mb-3 leading-tight">
               تأمين مركبات
             </h1>
-
-            <Button
-              size="lg"
-              className="bg-purple-600/40 hover:bg-purple-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg rounded-xl shadow-lg"
-              onClick={() => setLocation("/motor")}
-              data-testid="button-start-insurance"
-            >
-              أمّن الآن
-              <ChevronLeft className="w-5 h-5 mr-2" />
-            </Button>
+            <p className="text-xl sm:text-2xl text-slate-600 dark:text-slate-300 font-medium mb-6">
+              شامل لراحتك وأمانك
+            </p>
+            
+            {/* Trust Badges */}
+            <div className="flex flex-wrap gap-2 mb-8">
+              <div className="flex items-center gap-2 bg-teal-50 dark:bg-teal-900/30 px-3 py-2 rounded-xl text-teal-700 dark:text-teal-300 text-sm border border-teal-200/50 dark:border-teal-700/30">
+                <Clock className="w-4 h-4" />
+                <span>استجابة فورية</span>
+              </div>
+              <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/30 px-3 py-2 rounded-xl text-green-700 dark:text-green-300 text-sm border border-green-200/50 dark:border-green-700/30">
+                <Star className="w-4 h-4" />
+                <span>خصم 15%</span>
+              </div>
+              <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/30 px-3 py-2 rounded-xl text-purple-700 dark:text-purple-300 text-sm border border-purple-200/50 dark:border-purple-700/30">
+                <CheckCircle className="w-4 h-4" />
+                <span>تغطية شاملة</span>
+              </div>
+            </div>
+            
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                size="lg" 
+                className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-6 text-lg rounded-xl shadow-lg shadow-purple-500/30 transition-all duration-300"
+                onClick={() => setLocation("/motor")}
+                data-testid="button-start-insurance"
+              >
+                أؤمّن الآن
+                <ChevronLeft className="w-5 h-5 mr-2" />
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline"
+                className="flex-1 border-2 border-teal-500 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 px-6 py-6 text-lg rounded-xl transition-all duration-300"
+                onClick={() => setLocation("/motor")}
+                data-testid="button-get-quote"
+              >
+                احصل على عرض
+              </Button>
+            </div>
+            
+            {/* Trust indicator */}
+            <div className="mt-6 pt-6 border-t border-slate-200/70 dark:border-slate-700 flex items-center justify-center gap-6 text-sm text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                </div>
+                <span>+5 مليون عميل</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                </div>
+                <span>منذ 1986</span>
+              </div>
+            </div>
           </div>
         </div>
 
