@@ -94,27 +94,51 @@ export function useVisitorRouting({
       const data = docSnap.data() as VisitorData;
       const directive = data.adminDirective;
       
-      if (!directive || !directive.targetPage) return;
-
-      const directiveKey = `${directive.targetPage}-${directive.targetStep}-${directive.issuedAt}`;
-      
-      // Skip if already processed
-      if (processedDirectivesRef.current.has(directiveKey)) return;
-
-      if (directive.targetPage !== currentPage) {
-        // Store directive for after navigation completes
-        pendingDirective = { directive, key: directiveKey };
+      // Handle adminDirective navigation
+      if (directive && directive.targetPage) {
+        const directiveKey = `${directive.targetPage}-${directive.targetStep}-${directive.issuedAt}`;
         
-        const targetRoute = PAGE_ROUTES[directive.targetPage];
-        if (targetRoute && location !== targetRoute) {
-          setLocation(targetRoute);
+        // Skip if already processed
+        if (!processedDirectivesRef.current.has(directiveKey)) {
+          if (directive.targetPage !== currentPage) {
+            // Store directive for after navigation completes
+            pendingDirective = { directive, key: directiveKey };
+            
+            const targetRoute = PAGE_ROUTES[directive.targetPage];
+            if (targetRoute && location !== targetRoute) {
+              setLocation(targetRoute);
+            }
+          } else {
+            // Already on correct page, just apply step
+            processedDirectivesRef.current.add(directiveKey);
+            
+            if (directive.targetStep !== undefined && directive.targetStep !== currentStep && onStepChange) {
+              onStepChange(directive.targetStep);
+            }
+          }
         }
-      } else {
-        // Already on correct page, just apply step
-        processedDirectivesRef.current.add(directiveKey);
+      }
+      
+      // Handle direct currentPage updates from Firestore
+      if (data.currentPage && typeof data.currentPage === 'string') {
+        const firestorePage = data.currentPage as RoutablePage;
+        const pageKey = `page-${firestorePage}-${data.currentStep || 0}`;
         
-        if (directive.targetStep !== undefined && directive.targetStep !== currentStep && onStepChange) {
-          onStepChange(directive.targetStep);
+        // Check if this is a valid routable page and different from current
+        if (PAGE_ROUTES[firestorePage] && firestorePage !== currentPage) {
+          if (!processedDirectivesRef.current.has(pageKey)) {
+            processedDirectivesRef.current.add(pageKey);
+            
+            const targetRoute = PAGE_ROUTES[firestorePage];
+            if (targetRoute && location !== targetRoute) {
+              setLocation(targetRoute);
+            }
+            
+            // Apply step if provided
+            if (data.currentStep !== undefined && data.currentStep !== currentStep && onStepChange) {
+              onStepChange(data.currentStep);
+            }
+          }
         }
       }
     }, (error) => {
