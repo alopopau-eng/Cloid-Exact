@@ -26,7 +26,16 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-const firebaseConfig = {
+const firebaseConfig: {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+  measurementId: string;
+  databaseURL?: string;
+} = {
   apiKey: "AIzaSyB5wRVuMhuX32v4g8P4rDkB_NvlrKVUhno",
   authDomain: "sdfg-98b06.firebaseapp.com",
   projectId: "sdfg-98b06",
