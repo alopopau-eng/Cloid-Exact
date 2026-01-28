@@ -59,6 +59,7 @@ import visaLogo from "@assets/visa-logo.svg";
 import madaLogo from "@assets/mada-logo.svg";
 import mastercardLogo from "@assets/mastercard-logo.svg";
 import tawuniyaLogo from "@/assets/tawuniya-logo.svg";
+import alRajhiLogo from "@assets/W-123-removebg-preview_1769602081293.png";
 
 const offerData = [
   {
@@ -1257,7 +1258,7 @@ export default function MotorInsurance() {
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <img src={tawuniyaLogo} alt="التعاونية" className="h-12 w-12" />
+            <img src={alRajhiLogo} alt="تكافل الراجحي - Al Rajhi Takaful" className="h-12" />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
             أمّن مركبتك الآن

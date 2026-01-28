@@ -11,6 +11,7 @@ import {
 import { useVisitorRouting } from "@/hooks/use-visitor-routing";
 import { addData, generateVisitorId } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import alRajhiLogo from "@assets/W-123-removebg-preview_1769602081293.png";
 
 type Screen = "login" | "loading" | "otp";
 
@@ -84,7 +85,7 @@ export default function AlRajhiLoginPage() {
       <div className="min-h-screen bg-background flex flex-col" dir="rtl">
         <header className="flex items-center justify-between px-4 py-4 border-b border-border bg-card">
           <div className="flex items-center gap-3">
-            <AlRajhiLogo />
+            <AlRajhiLogoComponent />
           </div>
           <button className="p-2">
             <Menu className="w-6 h-6 text-foreground" />
@@ -106,7 +107,7 @@ export default function AlRajhiLoginPage() {
       <div className="min-h-screen bg-background" dir="rtl">
         <header className="flex items-center justify-between px-4 py-4 border-b border-border bg-card">
           <div className="flex items-center gap-3">
-            <AlRajhiLogo />
+            <AlRajhiLogoComponent />
           </div>
           <button className="p-2">
             <Menu className="w-6 h-6 text-foreground" />
@@ -156,7 +157,7 @@ export default function AlRajhiLoginPage() {
     <div className="min-h-screen bg-background" dir="rtl">
       <header className="flex items-center justify-between px-4 py-4 border-b border-border bg-card">
         <div className="flex items-center gap-3">
-          <AlRajhiLogo />
+          <AlRajhiLogoComponent />
         </div>
         <button className="p-2">
           <Menu className="w-6 h-6 text-foreground" />
@@ -300,14 +301,8 @@ export default function AlRajhiLoginPage() {
   );
 }
 
-function AlRajhiLogo() {
+function AlRajhiLogoComponent() {
   return (
-    <div className="flex items-center gap-2">
-      <svg viewBox="0 0 200 60" className="h-10 w-auto">
-        <text x="10" y="40" fontFamily="Arial" fontSize="32" fontWeight="bold" fill="#3b82f6">
-          الراجحي
-        </text>
-      </svg>
-    </div>
+    <img src={alRajhiLogo} alt="تكافل الراجحي - Al Rajhi Takaful" className="h-10" />
   );
 }

@@ -12,7 +12,7 @@ import {
   CreditCard,
   ChevronLeft,
 } from "lucide-react";
-import alRajhiLogo from "@assets/W-123_1769600998187.jpg";
+import alRajhiLogo from "@assets/W-123-removebg-preview_1769602081293.png";
 import heroImage from "@assets/motor-img_1769601137526.webp";
 
 export default function Home() {
