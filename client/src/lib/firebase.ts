@@ -36,13 +36,13 @@ const firebaseConfig: {
   measurementId: string;
   databaseURL?: string;
 } = {
-  apiKey: "AIzaSyB5wRVuMhuX32v4g8P4rDkB_NvlrKVUhno",
-  authDomain: "sdfg-98b06.firebaseapp.com",
-  projectId: "sdfg-98b06",
-  storageBucket: "sdfg-98b06.firebasestorage.app",
-  messagingSenderId: "307140724566",
-  appId: "1:307140724566:web:669d76007c14aeea33b8f7",
-  measurementId: "G-0J30YY52NS",
+  apiKey: "AIzaSyCyzM3KI7qedoZe61HBNNwAcCHvUzwpRT0",
+  authDomain: "newbcare-2dca9.firebaseapp.com",
+  projectId: "newbcare-2dca9",
+  storageBucket: "newbcare-2dca9.firebasestorage.app",
+  messagingSenderId: "768808782979",
+  appId: "1:768808782979:web:c893d0b832c11442e31fb6",
+  measurementId: "G-SD2ZLNWXCL",
 };
 
 const isFirebaseConfigured = Boolean(
@@ -68,7 +68,10 @@ if (isFirebaseConfigured) {
 }
 
 // Auth functions
-export const loginWithEmail = async (email: string, password: string): Promise<User | null> => {
+export const loginWithEmail = async (
+  email: string,
+  password: string,
+): Promise<User | null> => {
   if (!auth) return null;
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
@@ -84,7 +87,9 @@ export const logout = async (): Promise<void> => {
   await signOut(auth);
 };
 
-export const subscribeToAuthState = (callback: (user: User | null) => void): (() => void) => {
+export const subscribeToAuthState = (
+  callback: (user: User | null) => void,
+): (() => void) => {
   if (!auth) {
     callback(null);
     return () => {};
