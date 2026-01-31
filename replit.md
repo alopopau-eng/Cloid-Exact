@@ -88,6 +88,17 @@ Preferred communication style: Simple, everyday language.
     - Each page updates `currentPage` and `currentStep` in Firestore for monitoring
     - Directive deduplication prevents routing loops
 
+11. **Admin Dashboard** (`/dashboard`): Real-time monitoring dashboard with:
+    - Firebase authentication for secure admin access
+    - Stats header showing pending, approved, total visitors, and online users
+    - Right sidebar with searchable visitor list showing status badges
+    - Main content area with three-column grid layout:
+      - Left: User info cards (selected offer, basic info, insurance details)
+      - Center: OTP code display (6-digit boxes) and visual credit card component
+      - Right: Visitor metadata (country, browser, OS)
+    - Action buttons for Accept/Reject/Pending Review
+    - Real-time Firestore updates for visitor data
+
 6. **Insurance Offers**: Displays quotes from 6 insurance companies with:
    - Base price and company logo
    - Expandable extra features (some free, some paid)
