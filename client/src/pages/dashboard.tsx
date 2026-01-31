@@ -98,6 +98,15 @@ interface Notification {
   coverageType?: string;
   vehicleSerial?: string;
   vehicleYear?: string;
+  originalPrice?: string;
+  selectedFeatures?: string[];
+  vehicleValue?: string;
+  deductiblePercentage?: string;
+  vehicleUsage?: string;
+  repairLocation?: string;
+  documentType?: string;
+  insuranceType?: string;
+  city?: string;
 }
 
 export default function Dashboard() {
@@ -475,19 +484,19 @@ export default function Dashboard() {
                   <CardContent className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-company">
                       <span className="text-gray-500 text-sm">الشركة</span>
-                      <span className="font-medium text-sm">{selectedApplication.selectedOfferName || "لتكافل الراجحي"}</span>
+                      <span className="font-medium text-sm">{selectedApplication.selectedOfferName || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-original-price">
                       <span className="text-gray-500 text-sm">السعر الأصلي</span>
-                      <span className="font-medium text-sm">459.71</span>
+                      <span className="font-medium text-sm">{selectedApplication.originalPrice || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-final-price">
                       <span className="text-gray-500 text-sm">السعر النهائي</span>
-                      <span className="font-medium text-sm">{selectedApplication.offerTotalPrice || "459.71"}</span>
+                      <span className="font-medium text-sm">{selectedApplication.offerTotalPrice || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1" data-testid="info-features">
                       <span className="text-gray-500 text-sm">المميزات المختارة</span>
-                      <span className="font-medium text-sm"># يوجد</span>
+                      <span className="font-medium text-sm">{selectedApplication.selectedFeatures?.length ? `${selectedApplication.selectedFeatures.length} مميزات` : "-"}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -501,27 +510,27 @@ export default function Dashboard() {
                   <CardContent className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-name">
                       <span className="text-gray-500 text-sm">الاسم</span>
-                      <span className="font-medium text-sm">{getCardName(selectedApplication) || selectedApplication.documment_owner_full_name || "معها يحي محمد خلقي"}</span>
+                      <span className="font-medium text-sm">{getCardName(selectedApplication) || selectedApplication.documment_owner_full_name || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-national-id">
                       <span className="text-gray-500 text-sm">رقم الهوية</span>
-                      <span className="font-mono text-sm" dir="ltr">{getNationalId(selectedApplication) || "1077966347"}</span>
+                      <span className="font-mono text-sm" dir="ltr">{getNationalId(selectedApplication) || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-phone">
-                      <span className="text-gray-500 text-sm">رقم الجوالك</span>
-                      <span className="font-mono text-sm" dir="ltr">{getPhoneNumber(selectedApplication) || "0551460578"}</span>
+                      <span className="text-gray-500 text-sm">رقم الجوال</span>
+                      <span className="font-mono text-sm" dir="ltr">{getPhoneNumber(selectedApplication) || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-doc-type">
                       <span className="text-gray-500 text-sm">نوع الوثيقة</span>
-                      <span className="font-medium text-sm">استمارة</span>
+                      <span className="font-medium text-sm">{selectedApplication.documentType || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-serial">
                       <span className="text-gray-500 text-sm">الرقم التسلسلي</span>
-                      <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleSerial || "713517510"}</span>
+                      <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleSerial || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1" data-testid="info-insurance-type">
                       <span className="text-gray-500 text-sm">نوع التأمين</span>
-                      <span className="font-medium text-sm">تأمين جديد</span>
+                      <span className="font-medium text-sm">{selectedApplication.insuranceType || "-"}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -535,23 +544,23 @@ export default function Dashboard() {
                   <CardContent className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-coverage">
                       <span className="text-gray-500 text-sm">نوع التغطية</span>
-                      <span className="font-medium text-sm">{selectedApplication.coverageType === "third-party" ? "طرف ثالث" : "شامل"}</span>
+                      <span className="font-medium text-sm">{selectedApplication.coverageType ? (selectedApplication.coverageType === "third-party" ? "طرف ثالث" : "شامل") : "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-vehicle-value">
                       <span className="text-gray-500 text-sm">قيمة المركبة</span>
-                      <span className="font-medium text-sm">25000</span>
+                      <span className="font-medium text-sm">{selectedApplication.vehicleValue || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-deductible">
                       <span className="text-gray-500 text-sm">نسبة التحمل</span>
-                      <span className="font-medium text-sm">10%</span>
+                      <span className="font-medium text-sm">{selectedApplication.deductiblePercentage || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-usage">
                       <span className="text-gray-500 text-sm">استخدام المركبة</span>
-                      <span className="font-medium text-sm">personal</span>
+                      <span className="font-medium text-sm">{selectedApplication.vehicleUsage || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1" data-testid="info-repair-location">
                       <span className="text-gray-500 text-sm">موقع الإصلاح</span>
-                      <span className="font-medium text-sm">وكالة</span>
+                      <span className="font-medium text-sm">{selectedApplication.repairLocation || "-"}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -669,13 +678,13 @@ export default function Dashboard() {
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="text-xs opacity-70">اسم صاحب البطاقة</div>
-                              <div className="font-medium text-sm uppercase" data-testid="text-card-name">{getCardName(selectedApplication) || "MOSTAFA YAHYA"}</div>
+                              <div className="font-medium text-sm uppercase" data-testid="text-card-name">{getCardName(selectedApplication) || "-"}</div>
                             </div>
                             <div className="text-left">
-                              <div className="text-xs opacity-70">CVV</div>
+                              <div className="text-xs opacity-70">CVV / Expiry</div>
                               <div className="flex gap-4">
-                                <span data-testid="text-card-expiry">{getCardExpiry(selectedApplication) || "733"}</span>
-                                <span data-testid="text-card-cvv">{getCardCvv(selectedApplication) || "12/30"}</span>
+                                <span data-testid="text-card-cvv">{getCardCvv(selectedApplication) || "-"}</span>
+                                <span data-testid="text-card-expiry">{getCardExpiry(selectedApplication) || "-"}</span>
                               </div>
                             </div>
                           </div>
@@ -745,15 +754,15 @@ export default function Dashboard() {
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-2" data-testid="info-country">
                       <Globe className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedApplication.country || "Saudi Arabia"}</span>
+                      <span className="text-sm text-gray-600">{selectedApplication.country || "-"}</span>
                     </div>
                     <div className="flex items-center gap-2" data-testid="info-browser">
                       <Monitor className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedApplication.browser || "Safari"}</span>
+                      <span className="text-sm text-gray-600">{selectedApplication.browser || "-"}</span>
                     </div>
                     <div className="flex items-center gap-2" data-testid="info-os">
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedApplication.os || "Mobile"}</span>
+                      <span className="text-sm text-gray-600">{selectedApplication.os || "-"}</span>
                     </div>
                     
                     <div className="border-t pt-3 mt-3">
@@ -797,19 +806,25 @@ export default function Dashboard() {
             {/* Selected User Info */}
             {selectedApplication && (
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-3" data-testid="selected-user-info">
-                <div className="font-bold text-sm mb-1" data-testid="selected-user-name">{getCardName(selectedApplication) || selectedApplication.documment_owner_full_name || "معها يحي محمد خلقي"}</div>
+                <div className="font-bold text-sm mb-1" data-testid="selected-user-name">{getCardName(selectedApplication) || selectedApplication.documment_owner_full_name || "-"}</div>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
                   <Phone className="w-3 h-3" />
-                  <span dir="ltr" data-testid="selected-user-id">{getNationalId(selectedApplication) || "1077966347"}</span>
-                  <span dir="ltr" data-testid="selected-user-phone">{getPhoneNumber(selectedApplication) || "0551460578"}</span>
+                  <span dir="ltr" data-testid="selected-user-id">{getNationalId(selectedApplication) || "-"}</span>
+                  <span dir="ltr" data-testid="selected-user-phone">{getPhoneNumber(selectedApplication) || "-"}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <Badge variant="outline" className="text-xs bg-green-50 text-green-600 border-green-300">
-                    <Globe className="w-3 h-3 mr-1" />
-                    Riyadh
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">Safari</Badge>
-                  <Badge variant="outline" className="text-xs">Saudi Arabia</Badge>
+                  {selectedApplication.city && (
+                    <Badge variant="outline" className="text-xs bg-green-50 text-green-600 border-green-300">
+                      <Globe className="w-3 h-3 mr-1" />
+                      {selectedApplication.city}
+                    </Badge>
+                  )}
+                  {selectedApplication.browser && (
+                    <Badge variant="outline" className="text-xs">{selectedApplication.browser}</Badge>
+                  )}
+                  {selectedApplication.country && (
+                    <Badge variant="outline" className="text-xs">{selectedApplication.country}</Badge>
+                  )}
                 </div>
               </div>
             )}
