@@ -468,7 +468,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-hidden" dir="rtl">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-hidden">
       {/* Top Header with Stats */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 md:px-4 py-2 md:py-3 shrink-0">
         <div className="flex items-center justify-between gap-2">
