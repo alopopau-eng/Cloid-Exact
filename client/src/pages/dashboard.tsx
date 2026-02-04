@@ -18,6 +18,10 @@ import {
   Globe,
   Monitor,
   MapPin,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -143,6 +147,8 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [mobileVisitorSidebar, setMobileVisitorSidebar] = useState(false);
+  const [mobileStatsExpanded, setMobileStatsExpanded] = useState(false);
   const prevAppsRef = useRef<Notification[]>([]);
 
   useEffect(() => {
@@ -267,6 +273,7 @@ export default function Dashboard() {
 
   const handleMarkAsRead = async (app: Notification) => {
     setSelectedId(app.id);
+    setMobileVisitorSidebar(false);
     if (app.isUnread && db) {
       await updateDoc(doc(db, "pays", app.id), { isUnread: false });
     }
@@ -463,50 +470,71 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-hidden" dir="rtl">
       {/* Top Header with Stats */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 shrink-0">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 md:px-4 py-2 md:py-3 shrink-0">
+        <div className="flex items-center justify-between gap-2">
+          {/* Mobile Menu Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setMobileVisitorSidebar(!mobileVisitorSidebar)}
+            data-testid="button-mobile-menu"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+
           {/* Logo/Title */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <Button
               variant="default"
+              size="sm"
+              className="text-xs md:text-sm"
               data-testid="button-admin-panel"
             >
               لوحة التحكم
             </Button>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
               <span className="text-green-500 font-medium" data-testid="text-domain">treeqadmin.co</span>
               <Globe className="w-4 h-4" />
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-pending">
-              <span className="text-sm text-gray-500">رسائل قائمة</span>
-              <span className="font-bold text-gray-800 dark:text-white" data-testid="stat-pending">{stats.pending}</span>
-              <div className="w-3 h-3 bg-gray-400 rounded-full" />
+          {/* Stats Cards - Desktop */}
+          <div className="hidden xl:flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-pending">
+              <span className="text-xs text-gray-500">رسائل</span>
+              <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-pending">{stats.pending}</span>
+              <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-approved">
-              <span className="text-sm text-gray-500">بإنتظار موافق</span>
-              <span className="font-bold text-gray-800 dark:text-white" data-testid="stat-approved">{stats.approved}</span>
-              <div className="w-3 h-3 bg-blue-500 rounded-full" />
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-approved">
+              <span className="text-xs text-gray-500">موافق</span>
+              <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-approved">{stats.approved}</span>
+              <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-total">
-              <span className="text-sm text-gray-500">إجمالي 365 يوم</span>
-              <span className="font-bold text-gray-800 dark:text-white" data-testid="stat-total">{stats.total}</span>
-              <div className="w-3 h-3 bg-green-500 rounded-full" />
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-total">
+              <span className="text-xs text-gray-500">إجمالي</span>
+              <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-total">{stats.total}</span>
+              <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-visitors">
-              <span className="text-sm text-gray-500">زوار اليوم</span>
-              <span className="font-bold text-gray-800 dark:text-white" data-testid="stat-visitors">{stats.online}</span>
-              <div className="w-3 h-3 bg-purple-500 rounded-full" />
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-online">
-              <span className="text-sm text-gray-500">نشطاء الآن</span>
-              <span className="font-bold text-gray-800 dark:text-white" data-testid="stat-online">{stats.online}</span>
-              <div className="w-3 h-3 bg-red-500 rounded-full" />
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-online">
+              <span className="text-xs text-gray-500">نشطاء</span>
+              <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-online">{stats.online}</span>
+              <div className="w-2.5 h-2.5 bg-red-500 rounded-full" />
             </div>
           </div>
+
+          {/* Stats Toggle - Mobile/Tablet */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="xl:hidden flex items-center gap-1 text-xs"
+            onClick={() => setMobileStatsExpanded(!mobileStatsExpanded)}
+            data-testid="button-stats-toggle"
+          >
+            <span className="hidden sm:inline">الإحصائيات</span>
+            <Badge variant="secondary" className="text-xs">{stats.online}</Badge>
+            {mobileStatsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
 
           {/* Logout */}
           <Button
@@ -518,16 +546,50 @@ export default function Dashboard() {
             <LogOut className="w-5 h-5 text-gray-500" />
           </Button>
         </div>
+
+        {/* Expandable Stats - Mobile/Tablet */}
+        {mobileStatsExpanded && (
+          <div className="xl:hidden grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <span className="text-xs text-gray-500">رسائل قائمة</span>
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-sm" data-testid="stat-pending-mobile">{stats.pending}</span>
+                <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <span className="text-xs text-gray-500">موافق</span>
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-sm" data-testid="stat-approved-mobile">{stats.approved}</span>
+                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <span className="text-xs text-gray-500">إجمالي</span>
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-sm" data-testid="stat-total-mobile">{stats.total}</span>
+                <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <span className="text-xs text-gray-500">نشطاء الآن</span>
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-sm" data-testid="stat-online-mobile">{stats.online}</span>
+                <div className="w-2.5 h-2.5 bg-red-500 rounded-full" />
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Main Content */}
-        <main className="flex-1 overflow-auto p-4">
+        <main className="flex-1 overflow-auto p-2 md:p-4">
           {selectedApplication ? (
-            <div className="grid grid-cols-12 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3 md:gap-4">
               {/* Left Column - Info Cards */}
-              <div className="col-span-4 space-y-4 overflow-auto max-h-[calc(100vh-180px)]">
+              <div className="md:col-span-1 xl:col-span-4 space-y-3 md:space-y-4 overflow-auto max-h-none md:max-h-[calc(100vh-180px)]">
                 {/* العرض المختار - Selected Offer */}
                 <Card className="bg-white dark:bg-gray-800">
                   <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
@@ -688,7 +750,7 @@ export default function Dashboard() {
               </div>
 
               {/* Center Column - OTP and Card */}
-              <div className="col-span-5 space-y-4">
+              <div className="md:col-span-1 xl:col-span-5 space-y-3 md:space-y-4">
                 {/* OTP Code Section */}
                 {selectedApplication.otpCode && (
                   <Card className="bg-white dark:bg-gray-800">
@@ -867,7 +929,7 @@ export default function Dashboard() {
               </div>
 
               {/* Right Column - Visitor Info & Controls */}
-              <div className="col-span-3 space-y-4">
+              <div className="md:col-span-2 xl:col-span-3 space-y-3 md:space-y-4">
                 {/* Visitor Info */}
                 <Card className="bg-white dark:bg-gray-800">
                   <CardHeader className="pb-2">
@@ -1049,18 +1111,52 @@ export default function Dashboard() {
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-gray-400">
-                <Users className="w-20 h-20 mx-auto mb-4 opacity-30" />
-                <p className="text-lg" data-testid="text-select-visitor">اختر زائراً من القائمة</p>
+                <Users className="w-16 md:w-20 h-16 md:h-20 mx-auto mb-4 opacity-30" />
+                <p className="text-base md:text-lg" data-testid="text-select-visitor">اختر زائراً من القائمة</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4 lg:hidden"
+                  onClick={() => setMobileVisitorSidebar(true)}
+                  data-testid="button-open-visitor-list"
+                >
+                  <Users className="w-4 h-4 ml-2" />
+                  عرض قائمة الزوار
+                </Button>
               </div>
             </div>
           )}
         </main>
 
+        {/* Mobile Overlay */}
+        {mobileVisitorSidebar && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            onClick={() => setMobileVisitorSidebar(false)}
+          />
+        )}
+
         {/* Right Sidebar - Visitors List */}
-        <aside className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0">
+        <aside className={cn(
+          "w-72 md:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0",
+          "fixed lg:relative inset-y-0 right-0 z-50 lg:z-auto",
+          "transform transition-transform duration-300 ease-in-out",
+          mobileVisitorSidebar ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+        )}>
+          {/* Mobile Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden absolute left-2 top-2 z-10"
+            onClick={() => setMobileVisitorSidebar(false)}
+            data-testid="button-close-sidebar"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="font-bold text-lg mb-2" data-testid="text-sidebar-title">لوحة التحكم</h2>
+          <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="font-bold text-base md:text-lg mb-2" data-testid="text-sidebar-title">لوحة التحكم</h2>
             
             {/* Selected User Info */}
             {selectedApplication && (
