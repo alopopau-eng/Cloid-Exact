@@ -346,8 +346,8 @@ export default function Dashboard() {
 
   const getDisplayName = (n: Notification) => {
     return (
-      getCardName(n) ||
       n.documment_owner_full_name ||
+      getCardName(n) ||
       n.nationalId ||
       n.phoneNumber ||
       n.id.substring(0, 8)
@@ -559,13 +559,18 @@ export default function Dashboard() {
                     <CardTitle className="text-sm font-medium">المعلومات الشخصية</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-name">
-                      <span className="text-gray-500 text-sm">الاسم</span>
-                      <span className="font-medium text-sm">{getCardName(selectedApplication) || selectedApplication.documment_owner_full_name || "-"}</span>
+                    {/* الاسم الكامل - بارز */}
+                    <div className="flex justify-between items-center py-2 border-b bg-blue-50 dark:bg-blue-900/20 px-2 rounded" data-testid="info-full-name">
+                      <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">الاسم الكامل</span>
+                      <span className="font-bold text-base text-blue-700 dark:text-blue-300">{selectedApplication.documment_owner_full_name || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-national-id">
                       <span className="text-gray-500 text-sm">رقم الهوية</span>
                       <span className="font-mono text-sm" dir="ltr">{getNationalId(selectedApplication) || "-"}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-1 border-b" data-testid="info-card-name">
+                      <span className="text-gray-500 text-sm">اسم حامل البطاقة</span>
+                      <span className="font-medium text-sm">{getCardName(selectedApplication) || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-phone">
                       <span className="text-gray-500 text-sm">رقم الجوال</span>
@@ -1143,6 +1148,11 @@ export default function Dashboard() {
                     <div className="flex flex-wrap items-center justify-between gap-1">
                       <span className="font-medium text-sm truncate" data-testid={`visitor-name-${index}`}>{getDisplayName(app)}</span>
                     </div>
+                    {getNationalId(app) && (
+                      <div className="text-xs text-gray-500 font-mono mt-0.5" dir="ltr" data-testid={`visitor-id-${index}`}>
+                        {getNationalId(app)}
+                      </div>
+                    )}
                     <div className="flex flex-wrap items-center gap-1 mt-1">
                       <Badge 
                         variant="outline" 
