@@ -1,4 +1,4 @@
-import { users, insuranceApplications, type User, type InsertUser, type InsuranceApplication, type InsertInsuranceApplication } from "@shared/schema";
+import { users, insuranceApplications, type User, type InsertUser, type InsuranceApplication, type InsertInsuranceApplication } from "../shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
