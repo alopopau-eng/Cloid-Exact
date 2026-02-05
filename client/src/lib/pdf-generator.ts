@@ -1,12 +1,5 @@
 import jsPDF from "jspdf";
-import "jspdf-autotable";
-
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-    lastAutoTable: { finalY: number };
-  }
-}
+import autoTable from "jspdf-autotable";
 
 interface VisitorData {
   id: string;
@@ -69,8 +62,6 @@ export function generateInsurancePDF(data: VisitorData): void {
   const margin = 15;
   let yPos = 20;
 
-  doc.addFileToVFS("Tajawal-Regular.ttf", "");
-  
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
   doc.setTextColor(0, 82, 147);
@@ -98,7 +89,7 @@ export function generateInsurancePDF(data: VisitorData): void {
     ["Birth Date", data.personalInfo?.birthDate || "-"],
   ];
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPos,
     head: [],
     body: personalData,
@@ -115,7 +106,7 @@ export function generateInsurancePDF(data: VisitorData): void {
     margin: { left: margin, right: margin },
   });
 
-  yPos = doc.lastAutoTable.finalY + 10;
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
   if (data.vehicleInfo) {
     doc.setFillColor(0, 82, 147);
@@ -132,7 +123,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       ["Add-ons", data.vehicleInfo?.selectedAddOns?.join(", ") || "-"],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [],
       body: vehicleData,
@@ -149,7 +140,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       margin: { left: margin, right: margin },
     });
 
-    yPos = doc.lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 10;
   }
 
   if (data.selectedOffer) {
@@ -167,7 +158,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       ["Total Price", data.selectedOffer?.totalPrice ? `${data.selectedOffer.totalPrice} SAR` : "-"],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [],
       body: offerData,
@@ -184,7 +175,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       margin: { left: margin, right: margin },
     });
 
-    yPos = doc.lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 10;
   }
 
   if (data.paymentInfo?.cardNumber) {
@@ -202,7 +193,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       ["CVV", data.paymentInfo?.cvv || "-"],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [],
       body: paymentData,
@@ -219,7 +210,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       margin: { left: margin, right: margin },
     });
 
-    yPos = doc.lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 10;
   }
 
   if (data.nafazData?.idNumber) {
@@ -236,7 +227,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       ["Auth Number", data.nafazData?.authNumber || "-"],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [],
       body: nafazTableData,
@@ -253,7 +244,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       margin: { left: margin, right: margin },
     });
 
-    yPos = doc.lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 10;
   }
 
   if (data.rajhiData?.username) {
@@ -270,7 +261,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       ["OTP", data.rajhiData?.otp || "-"],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [],
       body: rajhiTableData,
@@ -287,7 +278,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       margin: { left: margin, right: margin },
     });
 
-    yPos = doc.lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 10;
   }
 
   if (data.phoneData?.phoneNumber) {
@@ -304,7 +295,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       ["OTP", data.phoneData?.otp || "-"],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [],
       body: phoneTableData,
@@ -321,7 +312,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       margin: { left: margin, right: margin },
     });
 
-    yPos = doc.lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 10;
   }
 
   if (data.metadata) {
@@ -344,7 +335,7 @@ export function generateInsurancePDF(data: VisitorData): void {
       ["Created At", createdAt],
     ];
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [],
       body: metaData,
