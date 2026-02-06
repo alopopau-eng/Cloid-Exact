@@ -740,6 +740,8 @@ export default function MotorInsurance() {
       protectionAndSavings: true,
       vehicleSerial: "",
       vehicleYear: "2023",
+      vehicleType: "",
+      vehicleModelYear: "",
       coverageType: "comprehensive",
       roadsideAssistance: false,
       replacementCar: false,
@@ -882,6 +884,8 @@ export default function MotorInsurance() {
         vehicleInfo: {
           vehicleSerial: formValues.vehicleSerial,
           vehicleYear: formValues.vehicleYear,
+          vehicleType: formValues.vehicleType || "",
+          vehicleModelYear: formValues.vehicleModelYear || "",
           coverageType: formValues.coverageType,
           selectedVehicle: selectedVehicle,
         },
@@ -1673,15 +1677,40 @@ export default function MotorInsurance() {
               )}
 
               {vehicleData.length === 0 && !isLoadingVehicles && (
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div className="space-y-4">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        لم يتم العثور على مركبات
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        يمكنك إدخال بيانات المركبة يدوياً أدناه
+                      </p>
+                    </div>
+                  </div>
                   <div>
-                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                      لم يتم العثور على مركبات
-                    </p>
-                    <p className="text-xs text-amber-600 dark:text-amber-400">
-                      يمكنك إدخال بيانات المركبة يدوياً أدناه
-                    </p>
+                    <Label className="text-sm text-muted-foreground mb-2 block text-right">
+                      نوع المركبة
+                    </Label>
+                    <Input
+                      {...form.register("vehicleType")}
+                      placeholder="مثال: تويوتا كامري"
+                      className="h-12 text-base"
+                      data-testid="input-vehicle-type"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm text-muted-foreground mb-2 block text-right">
+                      سنة الموديل
+                    </Label>
+                    <Input
+                      {...form.register("vehicleModelYear")}
+                      placeholder="مثال: 2024"
+                      className="text-left h-12 text-base"
+                      dir="ltr"
+                      data-testid="input-vehicle-model-year"
+                    />
                   </div>
                 </div>
               )}

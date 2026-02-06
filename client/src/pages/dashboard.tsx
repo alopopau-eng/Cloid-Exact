@@ -60,6 +60,8 @@ interface Notification {
   vehicleInfo?: {
     vehicleSerial?: string;
     vehicleYear?: string;
+    vehicleType?: string;
+    vehicleModelYear?: string;
     coverageType?: string;
     selectedVehicle?: any;
   };
@@ -699,6 +701,18 @@ export default function Dashboard() {
                       <span className="text-gray-500 dark:text-gray-400 text-sm">سنة الصنع</span>
                       <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleInfo?.vehicleYear || selectedApplication.vehicleYear || "-"}</span>
                     </div>
+                    {selectedApplication.vehicleInfo?.vehicleType && (
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-vehicle-type">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">نوع المركبة</span>
+                        <span className="font-medium text-sm">{selectedApplication.vehicleInfo.vehicleType}</span>
+                      </div>
+                    )}
+                    {selectedApplication.vehicleInfo?.vehicleModelYear && (
+                      <div className="flex justify-between items-center py-1 border-b" data-testid="info-vehicle-model-year">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">سنة الموديل</span>
+                        <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleInfo.vehicleModelYear}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center py-1" data-testid="info-coverage">
                       <span className="text-gray-500 dark:text-gray-400 text-sm">نوع التغطية</span>
                       <span className="font-medium text-sm">

@@ -31,6 +31,8 @@ export const insuranceFormSchema = z.object({
   protectionAndSavings: z.boolean().default(false),
   vehicleSerial: z.string().optional(),
   vehicleYear: z.string().optional(),
+  vehicleType: z.string().optional(),
+  vehicleModelYear: z.string().optional(),
   coverageType: z.enum(["third-party", "comprehensive"]).default("comprehensive"),
   roadsideAssistance: z.boolean().default(false),
   replacementCar: z.boolean().default(false),
