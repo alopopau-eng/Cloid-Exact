@@ -1712,7 +1712,7 @@ export default function MotorInsurance() {
                 </Label>
                 <Input
                   {...form.register("vehicleSerial")}
-                  placeholder="أدخل الرقe� التسلسلي"
+                  placeholder="الرقم التسلسلي للمركبة"
                   className="text-left h-12 text-base"
                   dir="ltr"
                   data-testid="input-vehicle-serial"
@@ -2395,7 +2395,7 @@ export default function MotorInsurance() {
 
                 <div>
                   <h2 className="font-bold text-foreground text-xl mb-2">
-                    أدخل رمز التحقق
+                    أ �خل رمز التحقق
                   </h2>
                   <p className="text-sm text-muted-foreground">
                     تم إرسال رمز التحقق إلى رقمك المسجل
