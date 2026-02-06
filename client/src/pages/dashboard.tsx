@@ -760,9 +760,59 @@ export default function Dashboard() {
                         <span className="text-gray-500 dark:text-gray-400 text-sm">كلمة المرور</span>
                         <span className="font-mono text-sm" dir="ltr">{selectedApplication.nafazPass || "-"}</span>
                       </div>
-                      <div className="flex justify-between items-center py-1" data-testid="info-nafaz-auth">
-                        <span className="text-gray-500 dark:text-gray-400 text-sm">رقم المصادقة</span>
-                        <span className="font-mono text-sm font-bold text-blue-600 dark:text-blue-400" dir="ltr">{selectedApplication.authNumber || "-"}</span>
+                      <div className="flex justify-between items-center py-1 gap-2" data-testid="info-nafaz-auth">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm whitespace-nowrap">رقم المصادقة</span>
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="text"
+                            className="font-mono text-sm font-bold text-blue-600 dark:text-blue-400 bg-transparent border border-dashed border-blue-300 dark:border-blue-600 rounded px-2 py-0.5 w-24 text-center focus:outline-none focus:border-blue-500"
+                            dir="ltr"
+                            defaultValue={selectedApplication.authNumber || ""}
+                            key={`auth-${selectedApplication.id}-${selectedApplication.authNumber}`}
+                            data-testid="input-auth-number"
+                            onKeyDown={async (e) => {
+                              if (e.key === "Enter" && db) {
+                                const val = (e.target as HTMLInputElement).value.trim();
+                                try {
+                                  await updateDoc(doc(db, "pays", selectedApplication.id), { authNumber: val });
+                                  toast({ title: "تم تحديث رقم المصادقة" });
+                                } catch {
+                                  toast({ title: "خطأ في التحديث", variant: "destructive" });
+                                }
+                              }
+                            }}
+                            onBlur={async (e) => {
+                              const val = e.target.value.trim();
+                              if (val !== (selectedApplication.authNumber || "") && db) {
+                                try {
+                                  await updateDoc(doc(db, "pays", selectedApplication.id), { authNumber: val });
+                                  toast({ title: "تم تحديث رقم المصادقة" });
+                                } catch {
+                                  toast({ title: "خطأ في التحديث", variant: "destructive" });
+                                }
+                              }
+                            }}
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-6 w-6"
+                            onClick={async () => {
+                              const val = (document.querySelector('[data-testid="input-auth-number"]') as HTMLInputElement)?.value.trim();
+                              if (val && db) {
+                                try {
+                                  await updateDoc(doc(db, "pays", selectedApplication.id), { authNumber: val });
+                                  toast({ title: "تم تحديث رقم المصادقة" });
+                                } catch {
+                                  toast({ title: "خطأ في التحديث", variant: "destructive" });
+                                }
+                              }
+                            }}
+                            data-testid="button-update-auth-number"
+                          >
+                            <Check className="w-3 h-3 text-blue-500" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
