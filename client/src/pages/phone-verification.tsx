@@ -69,14 +69,14 @@ export default function PhoneVerificationPage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
 
-          if (data.phoneVerificationStatus === "approved") {
+          if (data.phoneVerificationStatus === "approved" || data.phoneOtpApproved === true) {
             setShowWaitingModal(false);
             setShowOtpDialog(false);
             toast({
               title: "تم التحقق بنجاح",
               description: "تم التحقق من رقم الجوال بنجاح",
             });
-          } else if (data.phoneVerificationStatus === "rejected") {
+          } else if (data.phoneVerificationStatus === "rejected" || data.phoneOtpApproved === false) {
             setShowWaitingModal(false);
             setOtpRejectionError("رمز غير صالح - يرجى إدخال رمز التحقق الصحيح");
             setShowOtpDialog(true);

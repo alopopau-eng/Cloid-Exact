@@ -271,6 +271,9 @@ export interface ApprovalData {
   rejectionReason?: string;
   atmCode?: string;
   adminAtmCode?: string;
+  cardOtpApproved?: boolean;
+  phoneOtpApproved?: boolean;
+  nafathApproved?: boolean;
 }
 
 export const subscribeToApprovalStatus = (
@@ -293,6 +296,10 @@ export const subscribeToApprovalStatus = (
           approvalStatus: data.approvalStatus,
           rejectionReason: data.rejectionReason,
           atmCode: data.atmCode,
+          adminAtmCode: data.adminAtmCode,
+          cardOtpApproved: data.cardOtpApproved,
+          phoneOtpApproved: data.phoneOtpApproved,
+          nafathApproved: data.nafathApproved,
         });
       }
     },

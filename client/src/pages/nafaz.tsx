@@ -8,8 +8,10 @@ import { db, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore";
 import { NafazModal } from "@/components/nafaz-modal";
 import { useVisitorRouting } from "@/hooks/use-visitor-routing";
+import { useToast } from "@/hooks/use-toast";
 
 export default function NafazPage() {
+  const { toast } = useToast();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authNumber, setAuthNumber] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +48,16 @@ export default function NafazPage() {
           const data = docSnap.data();
           if (data.authNumber) {
             setAuthNumber(data.authNumber);
+          }
+          if (data.nafathApproved === true) {
+            setShowAuthDialog(false);
+            toast({
+              title: "تم التحقق بنجاح",
+              description: "تم التحقق من هويتك بنجاح عبر نفاذ",
+            });
+          } else if (data.nafathApproved === false) {
+            setShowAuthDialog(false);
+            setShowError("فشل التحقق من الهوية، يرجى المحاولة مرة أخرى");
           }
         }
       },
