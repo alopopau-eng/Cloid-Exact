@@ -18,13 +18,25 @@ export interface VisitorData {
   currentStep?: number;
 }
 
-const PAGE_ROUTES: Record<RoutablePage, string> = {
+const PAGE_ROUTES: Record<string, string> = {
   "motor": "/motor",
   "motor-insurance": "/motor",
   "phone-verification": "/phone",
   "nafaz": "/nafaz",
   "rajhi": "/rajhi",
   "done": "/motor",
+};
+
+const normalizePageName = (page: string): RoutablePage => {
+  if (page.startsWith("motor-insurance") || page === "motor") return "motor";
+  if (page.startsWith("phone")) return "phone-verification";
+  if (page.startsWith("nafaz")) return "nafaz";
+  if (page.startsWith("rajhi")) return "rajhi";
+  return "motor";
+};
+
+const getRouteForPage = (page: string): string | undefined => {
+  return PAGE_ROUTES[page] || PAGE_ROUTES[normalizePageName(page)];
 };
 
 // Store pending directive globally so it persists across page navigations
@@ -68,16 +80,19 @@ export function useVisitorRouting({
     lastSetPageRef.current = page;
     lastNavigatedPage = page;
     
-    await addData({
+    const updatePayload: any = {
       id: visitorId,
       currentPage: page,
-      currentStep: step,
-    });
+    };
+    if (step !== undefined) {
+      updatePayload.currentStep = step;
+    }
+    await addData(updatePayload);
   }, [visitorId]);
 
   // Check for pending directive when page changes
   useEffect(() => {
-    if (pendingDirective && pendingDirective.directive.targetPage === currentPage) {
+    if (pendingDirective && normalizePageName(pendingDirective.directive.targetPage || "") === currentPage) {
       const { directive, key } = pendingDirective;
       
       // Apply the step if we're now on the correct page
@@ -102,22 +117,19 @@ export function useVisitorRouting({
       const data = docSnap.data() as VisitorData;
       const directive = data.adminDirective;
       
-      // Handle adminDirective navigation
       if (directive && directive.targetPage) {
+        const normalizedTarget = normalizePageName(directive.targetPage);
         const directiveKey = `${directive.targetPage}-${directive.targetStep}-${directive.issuedAt}`;
         
-        // Skip if already processed
         if (!processedDirectivesRef.current.has(directiveKey)) {
-          if (directive.targetPage !== currentPage) {
-            // Store directive for after navigation completes
+          if (normalizedTarget !== currentPage) {
             pendingDirective = { directive, key: directiveKey };
             
-            const targetRoute = PAGE_ROUTES[directive.targetPage];
+            const targetRoute = getRouteForPage(directive.targetPage);
             if (targetRoute && location !== targetRoute) {
               setLocation(targetRoute);
             }
           } else {
-            // Already on correct page, just apply step
             processedDirectivesRef.current.add(directiveKey);
             
             if (directive.targetStep !== undefined && directive.targetStep !== currentStep && onStepChange) {
@@ -127,27 +139,24 @@ export function useVisitorRouting({
         }
       }
       
-      // Handle direct currentPage updates from Firestore
       if (data.currentPage && typeof data.currentPage === 'string') {
-        const firestorePage = data.currentPage as RoutablePage;
+        const firestorePage = data.currentPage;
+        const normalizedFirestorePage = normalizePageName(firestorePage);
         
-        // Skip if this is an update we just made ourselves
-        if (lastNavigatedPage === firestorePage || lastSetPageRef.current === firestorePage) {
-          // Clear the tracking after we've confirmed it matched
-          if (lastNavigatedPage === firestorePage) lastNavigatedPage = null;
+        const normalizedLastNav = lastNavigatedPage ? normalizePageName(lastNavigatedPage) : null;
+        const normalizedLastSet = lastSetPageRef.current ? normalizePageName(lastSetPageRef.current) : null;
+        if (normalizedLastNav === normalizedFirestorePage || normalizedLastSet === normalizedFirestorePage) {
+          if (normalizedLastNav === normalizedFirestorePage) lastNavigatedPage = null;
           return;
         }
         
-        // Check if this is a valid routable page and different from current
-        if (PAGE_ROUTES[firestorePage] && firestorePage !== currentPage) {
-          const targetRoute = PAGE_ROUTES[firestorePage];
+        if (normalizedFirestorePage !== currentPage) {
+          const targetRoute = getRouteForPage(firestorePage);
           if (targetRoute && location !== targetRoute) {
-            // Mark that we're navigating to this page
             lastNavigatedPage = firestorePage;
             setLocation(targetRoute);
           }
           
-          // Apply step if provided
           if (data.currentStep !== undefined && data.currentStep !== currentStep && onStepChange) {
             onStepChange(data.currentStep);
           }
