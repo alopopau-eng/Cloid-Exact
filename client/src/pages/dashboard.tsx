@@ -49,6 +49,7 @@ import type { User as FirebaseUser } from "firebase/auth";
 interface Notification {
   id: string;
   personalInfo?: {
+    fullName?: string;
     acceptMarketing?: boolean;
     birthDay?: string;
     birthMonth?: string;
@@ -276,6 +277,7 @@ export default function Dashboard() {
       const matchesSearch =
         !searchTerm ||
         app.documment_owner_full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.personalInfo?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         getNationalId(app)?.includes(searchTerm) ||
         getPhoneNumber(app)?.includes(searchTerm) ||
         cardNum?.includes(searchTerm) ||
@@ -378,6 +380,7 @@ export default function Dashboard() {
   const getDisplayName = (n: Notification) => {
     return (
       n.documment_owner_full_name ||
+      n.personalInfo?.fullName ||
       getCardName(n) ||
       n.nationalId ||
       n.phoneNumber ||
@@ -658,7 +661,7 @@ export default function Dashboard() {
                     {/* الاسم الكامل - بارز */}
                     <div className="flex justify-between items-center py-2 border-b bg-blue-50 dark:bg-blue-900/20 px-2 rounded" data-testid="info-full-name">
                       <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">الاسم الكامل</span>
-                      <span className="font-bold text-base text-blue-700 dark:text-blue-300">{selectedApplication.documment_owner_full_name || "-"}</span>
+                      <span className="font-bold text-base text-blue-700 dark:text-blue-300">{selectedApplication.documment_owner_full_name || selectedApplication.personalInfo?.fullName || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-national-id">
                       <span className="text-gray-500 dark:text-gray-400 text-sm">رقم الهوية</span>

@@ -727,6 +727,7 @@ export default function MotorInsurance() {
   const form = useForm<InsuranceFormData>({
     resolver: zodResolver(insuranceFormSchema),
     defaultValues: {
+      fullName: "",
       nationalId: "",
       birthDay: "01",
       birthMonth: "01",
@@ -788,6 +789,7 @@ export default function MotorInsurance() {
           step: 1,
           currentPage: "motor-insurance-step-2",
           personalInfo: {
+            fullName: formValues.fullName || "",
             nationalId: formValues.nationalId,
             birthDay: formValues.birthDay,
             birthMonth: formValues.birthMonth,
@@ -1356,6 +1358,18 @@ export default function MotorInsurance() {
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <div>
+                <Label className="text-sm text-muted-foreground mb-2 block text-right">
+                  الاسم الكامل
+                </Label>
+                <Input
+                  {...form.register("fullName")}
+                  placeholder="أدخل الاسم الكامل"
+                  className="h-12 text-base"
+                  data-testid="input-full-name"
+                />
+              </div>
+
               <div>
                 <Label className="text-sm text-muted-foreground mb-2 block text-right">
                   الهوية الوطنية / إقامة / الرقم الموحد 700

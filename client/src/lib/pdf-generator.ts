@@ -124,7 +124,7 @@ export function generateInsurancePDF(data: VisitorData): void {
 
   y = checkPageBreak(doc, y, 55);
   y = drawSectionHeader(doc, "معلومات مقدم الطلب", y, margin, pageWidth);
-  y = drawTableRow(doc, "الاسم الكامل", data.personalInfo?.documment_owner_full_name || "-", y, margin, pageWidth, false);
+  y = drawTableRow(doc, "الاسم الكامل", data.personalInfo?.documment_owner_full_name || data.personalInfo?.fullName || "-", y, margin, pageWidth, false);
   y = drawTableRow(doc, "رقم الهوية", data.personalInfo?.nationalId || "-", y, margin, pageWidth, true);
   y = drawTableRow(doc, "رقم الهاتف", data.personalInfo?.phone || "-", y, margin, pageWidth, false);
   y = drawTableRow(doc, "تاريخ الميلاد", data.personalInfo?.birthDate || "-", y, margin, pageWidth, true);

@@ -18,6 +18,7 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 export const insuranceFormSchema = z.object({
+  fullName: z.string().optional(),
   nationalId: z.string().min(10, "الرجاء إدخال رقم الهوية الصحيح").max(10),
   birthDay: z.string().min(1, "الرجاء إدخال اليوم"),
   birthMonth: z.string().min(1, "الرجاء إدخال الشهر"),
