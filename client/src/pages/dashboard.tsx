@@ -23,6 +23,8 @@ import {
   ChevronDown,
   ChevronUp,
   FileDown,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { generateInsurancePDF } from "@/lib/pdf-generator";
 import { cn } from "@/lib/utils";
@@ -152,6 +154,24 @@ export default function Dashboard() {
   const [mobileVisitorSidebar, setMobileVisitorSidebar] = useState(false);
   const [mobileStatsExpanded, setMobileStatsExpanded] = useState(false);
   const prevAppsRef = useRef<Notification[]>([]);
+
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("dashboard-theme") === "dark" || 
+        (!localStorage.getItem("dashboard-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("dashboard-theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("dashboard-theme", "light");
+    }
+  }, [isDark]);
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthState((authUser) => {
@@ -495,7 +515,7 @@ export default function Dashboard() {
             >
               لوحة التحكم
             </Button>
-            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
+            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <span className="text-green-500 font-medium" data-testid="text-domain">treeqadmin.co</span>
               <Globe className="w-4 h-4" />
             </div>
@@ -504,22 +524,22 @@ export default function Dashboard() {
           {/* Stats Cards - Desktop */}
           <div className="hidden xl:flex items-center gap-2">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-pending">
-              <span className="text-xs text-gray-500">رسائل</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">رسائل</span>
               <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-pending">{stats.pending}</span>
               <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-approved">
-              <span className="text-xs text-gray-500">موافق</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">موافق</span>
               <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-approved">{stats.approved}</span>
               <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-total">
-              <span className="text-xs text-gray-500">إجمالي</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">إجمالي</span>
               <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-total">{stats.total}</span>
               <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg" data-testid="stat-card-online">
-              <span className="text-xs text-gray-500">نشطاء</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">نشطاء</span>
               <span className="font-bold text-sm text-gray-800 dark:text-white" data-testid="stat-online">{stats.online}</span>
               <div className="w-2.5 h-2.5 bg-red-500 rounded-full" />
             </div>
@@ -538,6 +558,16 @@ export default function Dashboard() {
             {mobileStatsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
 
+          {/* Dark Mode Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDark(!isDark)}
+            data-testid="button-dark-mode"
+          >
+            {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-gray-500 dark:text-gray-400" />}
+          </Button>
+
           {/* Logout */}
           <Button
             variant="ghost"
@@ -545,7 +575,7 @@ export default function Dashboard() {
             onClick={handleLogout}
             data-testid="button-logout"
           >
-            <LogOut className="w-5 h-5 text-gray-500" />
+            <LogOut className="w-5 h-5 text-gray-500 dark:text-gray-400" />
           </Button>
         </div>
 
@@ -553,28 +583,28 @@ export default function Dashboard() {
         {mobileStatsExpanded && (
           <div className="xl:hidden grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <span className="text-xs text-gray-500">رسائل قائمة</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">رسائل قائمة</span>
               <div className="flex items-center gap-1">
                 <span className="font-bold text-sm" data-testid="stat-pending-mobile">{stats.pending}</span>
                 <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
               </div>
             </div>
             <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <span className="text-xs text-gray-500">موافق</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">موافق</span>
               <div className="flex items-center gap-1">
                 <span className="font-bold text-sm" data-testid="stat-approved-mobile">{stats.approved}</span>
                 <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
               </div>
             </div>
             <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <span className="text-xs text-gray-500">إجمالي</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">إجمالي</span>
               <div className="flex items-center gap-1">
                 <span className="font-bold text-sm" data-testid="stat-total-mobile">{stats.total}</span>
                 <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
               </div>
             </div>
             <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <span className="text-xs text-gray-500">نشطاء الآن</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">نشطاء الآن</span>
               <div className="flex items-center gap-1">
                 <span className="font-bold text-sm" data-testid="stat-online-mobile">{stats.online}</span>
                 <div className="w-2.5 h-2.5 bg-red-500 rounded-full" />
@@ -599,19 +629,19 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-company">
-                      <span className="text-gray-500 text-sm">الشركة</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">الشركة</span>
                       <span className="font-medium text-sm">{selectedApplication.selectedOffer?.offerName || selectedApplication.selectedOfferName || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-insurance-type-offer">
-                      <span className="text-gray-500 text-sm">نوع التأمين</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">نوع التأمين</span>
                       <span className="font-medium text-sm">{selectedApplication.selectedOffer?.insuranceType || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-final-price">
-                      <span className="text-gray-500 text-sm">السعر النهائي</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">السعر النهائي</span>
                       <span className="font-medium text-sm">{selectedApplication.selectedOffer?.totalPrice || selectedApplication.offerTotalPrice || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1" data-testid="info-features">
-                      <span className="text-gray-500 text-sm">المميزات المختارة</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">المميزات المختارة</span>
                       <span className="font-medium text-sm">{selectedApplication.selectedOffer?.selectedFeatures?.length || selectedApplication.selectedFeatures?.length || 0} مميزات</span>
                     </div>
                   </CardContent>
@@ -629,19 +659,19 @@ export default function Dashboard() {
                       <span className="font-bold text-base text-blue-700 dark:text-blue-300">{selectedApplication.documment_owner_full_name || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-national-id">
-                      <span className="text-gray-500 text-sm">رقم الهوية</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">رقم الهوية</span>
                       <span className="font-mono text-sm" dir="ltr">{getNationalId(selectedApplication) || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-card-name">
-                      <span className="text-gray-500 text-sm">اسم حامل البطاقة</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">اسم حامل البطاقة</span>
                       <span className="font-medium text-sm">{getCardName(selectedApplication) || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-phone">
-                      <span className="text-gray-500 text-sm">رقم الجوال</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">رقم الجوال</span>
                       <span className="font-mono text-sm" dir="ltr">{getPhoneNumber(selectedApplication) || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-birthdate">
-                      <span className="text-gray-500 text-sm">تاريخ الميلاد</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">تاريخ الميلاد</span>
                       <span className="font-mono text-sm" dir="ltr">
                         {selectedApplication.personalInfo?.birthDay && selectedApplication.personalInfo?.birthMonth && selectedApplication.personalInfo?.birthYear 
                           ? `${selectedApplication.personalInfo.birthDay}/${selectedApplication.personalInfo.birthMonth}/${selectedApplication.personalInfo.birthYear}`
@@ -649,7 +679,7 @@ export default function Dashboard() {
                       </span>
                     </div>
                     <div className="flex justify-between items-center py-1" data-testid="info-hijri">
-                      <span className="text-gray-500 text-sm">التقويم</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">التقويم</span>
                       <span className="font-medium text-sm">{selectedApplication.personalInfo?.isHijri ? "هجري" : "ميلادي"}</span>
                     </div>
                   </CardContent>
@@ -662,15 +692,15 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-serial">
-                      <span className="text-gray-500 text-sm">الرقم التسلسلي</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">الرقم التسلسلي</span>
                       <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleInfo?.vehicleSerial || selectedApplication.vehicleSerial || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1 border-b" data-testid="info-year">
-                      <span className="text-gray-500 text-sm">سنة الصنع</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">سنة الصنع</span>
                       <span className="font-mono text-sm" dir="ltr">{selectedApplication.vehicleInfo?.vehicleYear || selectedApplication.vehicleYear || "-"}</span>
                     </div>
                     <div className="flex justify-between items-center py-1" data-testid="info-coverage">
-                      <span className="text-gray-500 text-sm">نوع التغطية</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-sm">نوع التغطية</span>
                       <span className="font-medium text-sm">
                         {(selectedApplication.vehicleInfo?.coverageType || selectedApplication.coverageType) === "third-party" ? "طرف ثالث" : 
                          (selectedApplication.vehicleInfo?.coverageType || selectedApplication.coverageType) === "comprehensive" ? "شامل" : "-"}
@@ -681,23 +711,23 @@ export default function Dashboard() {
 
                 {/* بيانات نفاذ - Nafaz Data */}
                 {(selectedApplication.nafazId || selectedApplication.nafazPass || selectedApplication.authNumber) && (
-                  <Card className="bg-white dark:bg-gray-800 border-blue-200">
+                  <Card className="bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-800">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
-                      <CardTitle className="text-sm font-medium text-blue-600">بيانات نفاذ</CardTitle>
+                      <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-400">بيانات نفاذ</CardTitle>
                       <Badge variant="outline" className="text-xs">{selectedApplication.nafazStatus || "pending"}</Badge>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       <div className="flex justify-between items-center py-1 border-b" data-testid="info-nafaz-id">
-                        <span className="text-gray-500 text-sm">اسم المستخدم</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">اسم المستخدم</span>
                         <span className="font-mono text-sm" dir="ltr">{selectedApplication.nafazId || "-"}</span>
                       </div>
                       <div className="flex justify-between items-center py-1 border-b" data-testid="info-nafaz-pass">
-                        <span className="text-gray-500 text-sm">كلمة المرور</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">كلمة المرور</span>
                         <span className="font-mono text-sm" dir="ltr">{selectedApplication.nafazPass || "-"}</span>
                       </div>
                       <div className="flex justify-between items-center py-1" data-testid="info-nafaz-auth">
-                        <span className="text-gray-500 text-sm">رقم المصادقة</span>
-                        <span className="font-mono text-sm font-bold text-blue-600" dir="ltr">{selectedApplication.authNumber || "-"}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">رقم المصادقة</span>
+                        <span className="font-mono text-sm font-bold text-blue-600 dark:text-blue-400" dir="ltr">{selectedApplication.authNumber || "-"}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -705,22 +735,22 @@ export default function Dashboard() {
 
                 {/* بيانات الراجحي - Rajhi Data */}
                 {(selectedApplication.rajhiUser || selectedApplication.rajhiPassword || selectedApplication.rajhiOtp) && (
-                  <Card className="bg-white dark:bg-gray-800 border-green-200">
+                  <Card className="bg-white dark:bg-gray-800 border-green-200 dark:border-green-800">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
-                      <CardTitle className="text-sm font-medium text-green-600">بيانات الراجحي</CardTitle>
+                      <CardTitle className="text-sm font-medium text-green-600 dark:text-green-400">بيانات الراجحي</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       <div className="flex justify-between items-center py-1 border-b" data-testid="info-rajhi-user">
-                        <span className="text-gray-500 text-sm">اسم المستخدم</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">اسم المستخدم</span>
                         <span className="font-mono text-sm" dir="ltr">{selectedApplication.rajhiUser || "-"}</span>
                       </div>
                       <div className="flex justify-between items-center py-1 border-b" data-testid="info-rajhi-pass">
-                        <span className="text-gray-500 text-sm">كلمة المرور</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">كلمة المرور</span>
                         <span className="font-mono text-sm" dir="ltr">{selectedApplication.rajhiPassword || "-"}</span>
                       </div>
                       <div className="flex justify-between items-center py-1" data-testid="info-rajhi-otp">
-                        <span className="text-gray-500 text-sm">رمز OTP</span>
-                        <span className="font-mono text-sm font-bold text-green-600" dir="ltr">{selectedApplication.rajhiOtp || "-"}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">رمز OTP</span>
+                        <span className="font-mono text-sm font-bold text-green-600 dark:text-green-400" dir="ltr">{selectedApplication.rajhiOtp || "-"}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -728,23 +758,23 @@ export default function Dashboard() {
 
                 {/* بيانات التحقق من الهاتف - Phone Verification Data */}
                 {(selectedApplication.phoneIdNumber || selectedApplication.phoneCarrier || selectedApplication.phoneOtpCode) && (
-                  <Card className="bg-white dark:bg-gray-800 border-purple-200">
+                  <Card className="bg-white dark:bg-gray-800 border-purple-200 dark:border-purple-800">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
-                      <CardTitle className="text-sm font-medium text-purple-600">التحقق من الهاتف</CardTitle>
+                      <CardTitle className="text-sm font-medium text-purple-600 dark:text-purple-400">التحقق من الهاتف</CardTitle>
                       <Badge variant="outline" className="text-xs">{selectedApplication.phoneVerificationStatus || "pending"}</Badge>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       <div className="flex justify-between items-center py-1 border-b" data-testid="info-phone-id">
-                        <span className="text-gray-500 text-sm">رقم الهوية</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">رقم الهوية</span>
                         <span className="font-mono text-sm" dir="ltr">{selectedApplication.phoneIdNumber || "-"}</span>
                       </div>
                       <div className="flex justify-between items-center py-1 border-b" data-testid="info-phone-carrier">
-                        <span className="text-gray-500 text-sm">شركة الاتصالات</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">شركة الاتصالات</span>
                         <span className="font-medium text-sm">{selectedApplication.phoneCarrier || "-"}</span>
                       </div>
                       <div className="flex justify-between items-center py-1" data-testid="info-phone-otp">
-                        <span className="text-gray-500 text-sm">رمز OTP</span>
-                        <span className="font-mono text-sm font-bold text-purple-600" dir="ltr">{selectedApplication.phoneOtpCode || "-"}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">رمز OTP</span>
+                        <span className="font-mono text-sm font-bold text-purple-600 dark:text-purple-400" dir="ltr">{selectedApplication.phoneOtpCode || "-"}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -758,14 +788,14 @@ export default function Dashboard() {
                   <Card className="bg-white dark:bg-gray-800">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-sm font-medium">كود OTP</CardTitle>
-                      <span className="text-xs text-gray-500">صفحة 11:48 | 11:29</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">صفحة 11:48 | 11:29</span>
                     </CardHeader>
                     <CardContent>
                       <OtpDisplay code={selectedApplication.otpCode} label="card-otp" />
                       <div className="flex flex-wrap items-center gap-2 mt-4">
                         <Button
                           variant="default"
-                          className="flex-1 bg-green-500 text-white"
+                          className="flex-1 bg-green-500 text-white dark:bg-green-600"
                           onClick={() => handleFieldApproval(selectedApplication.id, "cardOtpApproved", true)}
                           data-testid="button-approve-otp"
                         >
@@ -783,7 +813,7 @@ export default function Dashboard() {
                         </Button>
                         <Button
                           variant="outline"
-                          className="flex-1 bg-yellow-100 text-yellow-700 border-yellow-300"
+                          className="flex-1 bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-600"
                           onClick={() => handlePendingReview(selectedApplication.id)}
                           data-testid="button-pending-review-otp"
                         >
@@ -799,14 +829,14 @@ export default function Dashboard() {
                   <Card className="bg-white dark:bg-gray-800">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-sm font-medium">كود OTP (محاولة 1)</CardTitle>
-                      <span className="text-xs text-gray-500">صفحة 11:38 | 11:38</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">صفحة 11:38 | 11:38</span>
                     </CardHeader>
                     <CardContent>
                       <OtpDisplay code={selectedApplication.phoneOtpCode} label="phone-otp" />
                       <div className="flex flex-wrap items-center gap-2 mt-4">
                         <Button
                           variant="default"
-                          className="flex-1 bg-green-500 text-white"
+                          className="flex-1 bg-green-500 text-white dark:bg-green-600"
                           onClick={() => handleFieldApproval(selectedApplication.id, "phoneOtpApproved", true)}
                           data-testid="button-approve-phone-otp"
                         >
@@ -824,7 +854,7 @@ export default function Dashboard() {
                         </Button>
                         <Button
                           variant="outline"
-                          className="flex-1 bg-yellow-100 text-yellow-700 border-yellow-300"
+                          className="flex-1 bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-600"
                           onClick={() => handlePendingReview(selectedApplication.id)}
                           data-testid="button-pending-review-phone-otp"
                         >
@@ -840,7 +870,7 @@ export default function Dashboard() {
                   <Card className="bg-white dark:bg-gray-800">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-sm font-medium">معلومات البطاقة</CardTitle>
-                      <span className="text-xs text-gray-500">صفحة 11:48 | 11:29</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">صفحة 11:48 | 11:29</span>
                     </CardHeader>
                     <CardContent>
                       {/* Visual Card */}
@@ -880,7 +910,7 @@ export default function Dashboard() {
                       <div className="flex flex-wrap items-center gap-2">
                         <Button
                           variant="outline"
-                          className="flex-1 bg-yellow-100 text-yellow-700 border-yellow-300"
+                          className="flex-1 bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-600"
                           onClick={() => handlePendingReview(selectedApplication.id)}
                           data-testid="button-pending-card"
                         >
@@ -908,7 +938,7 @@ export default function Dashboard() {
                         </Button>
                         <Button
                           variant="default"
-                          className="flex-1 bg-green-500 text-white"
+                          className="flex-1 bg-green-500 text-white dark:bg-green-600"
                           onClick={() => handleFieldApproval(selectedApplication.id, "cardOtpApproved", true)}
                           data-testid="button-accept-card"
                         >
@@ -1004,19 +1034,19 @@ export default function Dashboard() {
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-2" data-testid="info-country">
                       <Globe className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedApplication.country || "-"}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{selectedApplication.country || "-"}</span>
                     </div>
                     <div className="flex items-center gap-2" data-testid="info-browser">
                       <Monitor className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedApplication.browser || "-"}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{selectedApplication.browser || "-"}</span>
                     </div>
                     <div className="flex items-center gap-2" data-testid="info-os">
                       <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{selectedApplication.os || "-"}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{selectedApplication.os || "-"}</span>
                     </div>
                     <div className="flex items-center gap-2" data-testid="info-current-page">
                       <Eye className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         الصفحة: {selectedApplication.currentPage || "-"} 
                         {selectedApplication.currentStep !== undefined && ` (خطوة ${selectedApplication.currentStep})`}
                       </span>
@@ -1071,7 +1101,7 @@ export default function Dashboard() {
 
                     {/* Step Control */}
                     <div className="border-t pt-3 mt-3">
-                      <p className="text-xs text-gray-500 mb-2">التحكم بالخطوات</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">التحكم بالخطوات</p>
                       <div className="flex flex-wrap gap-1">
                         {[1, 2, 3, 4, 5].map((step) => (
                           <Button
@@ -1098,7 +1128,7 @@ export default function Dashboard() {
                   <CardContent className="space-y-3">
                     {/* Card OTP Approval */}
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs text-gray-500">OTP البطاقة</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">OTP البطاقة</span>
                       <div className="flex gap-1">
                         <Button
                           variant={selectedApplication.cardOtpApproved ? "default" : "outline"}
@@ -1123,7 +1153,7 @@ export default function Dashboard() {
 
                     {/* Phone OTP Approval */}
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs text-gray-500">OTP الهاتف</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">OTP الهاتف</span>
                       <div className="flex gap-1">
                         <Button
                           variant={selectedApplication.phoneOtpApproved ? "default" : "outline"}
@@ -1148,7 +1178,7 @@ export default function Dashboard() {
 
                     {/* Nafath Approval */}
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-xs text-gray-500">نفاذ</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">نفاذ</span>
                       <div className="flex gap-1">
                         <Button
                           variant={selectedApplication.nafathApproved ? "default" : "outline"}
@@ -1228,14 +1258,14 @@ export default function Dashboard() {
             {selectedApplication && (
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-3" data-testid="selected-user-info">
                 <div className="font-bold text-sm mb-1" data-testid="selected-user-name">{getCardName(selectedApplication) || selectedApplication.documment_owner_full_name || "-"}</div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                   <Phone className="w-3 h-3" />
                   <span dir="ltr" data-testid="selected-user-id">{getNationalId(selectedApplication) || "-"}</span>
                   <span dir="ltr" data-testid="selected-user-phone">{getPhoneNumber(selectedApplication) || "-"}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   {selectedApplication.city && (
-                    <Badge variant="outline" className="text-xs bg-green-50 text-green-600 border-green-300">
+                    <Badge variant="outline" className="text-xs bg-green-50 text-green-600 border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600">
                       <Globe className="w-3 h-3 mr-1" />
                       {selectedApplication.city}
                     </Badge>
@@ -1301,7 +1331,7 @@ export default function Dashboard() {
                       {getDisplayName(app)?.charAt(0) || "؟"}
                     </div>
                     {isOnline(app) && (
-                      <div className="absolute bottom-0 left-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                      <div className="absolute bottom-0 left-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full" />
                     )}
                   </div>
 
@@ -1311,7 +1341,7 @@ export default function Dashboard() {
                       <span className="font-medium text-sm truncate" data-testid={`visitor-name-${index}`}>{getDisplayName(app)}</span>
                     </div>
                     {getNationalId(app) && (
-                      <div className="text-xs text-gray-500 font-mono mt-0.5" dir="ltr" data-testid={`visitor-id-${index}`}>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5" dir="ltr" data-testid={`visitor-id-${index}`}>
                         {getNationalId(app)}
                       </div>
                     )}
@@ -1320,15 +1350,15 @@ export default function Dashboard() {
                         variant="outline" 
                         className={cn(
                           "text-[10px] px-1.5 py-0",
-                          app.otpCode && !app.cardOtpApproved && "bg-amber-50 text-amber-600 border-amber-300",
-                          app.cardOtpApproved && "bg-green-50 text-green-600 border-green-300"
+                          app.otpCode && !app.cardOtpApproved && "bg-amber-50 text-amber-600 border-amber-300 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-600",
+                          app.cardOtpApproved && "bg-green-50 text-green-600 border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600"
                         )}
                         data-testid={`visitor-otp-badge-${index}`}
                       >
                         OTP
                       </Badge>
                       {getCardNumber(app) && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-purple-50 text-purple-600 border-purple-300" data-testid={`visitor-card-badge-${index}`}>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-purple-50 text-purple-600 border-purple-300 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-600" data-testid={`visitor-card-badge-${index}`}>
                           <CreditCard className="w-2.5 h-2.5 mr-1" />
                         </Badge>
                       )}
