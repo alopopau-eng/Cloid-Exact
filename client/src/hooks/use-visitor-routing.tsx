@@ -39,26 +39,25 @@ const getRouteForPage = (page: string): string | undefined => {
   return PAGE_ROUTES[page] || PAGE_ROUTES[normalizePageName(page)];
 };
 
-// Store pending directive globally so it persists across page navigations
 let pendingDirective: { directive: AdminDirective; key: string } | null = null;
-
-// Track pages we've navigated to ourselves to prevent feedback loops
-let lastNavigatedPage: string | null = null;
 
 interface UseVisitorRoutingOptions {
   currentPage: RoutablePage;
   currentStep?: number;
+  firestorePageName?: string;
   onStepChange?: (step: number) => void;
 }
 
 export function useVisitorRouting({
   currentPage,
   currentStep,
+  firestorePageName,
   onStepChange,
 }: UseVisitorRoutingOptions) {
   const [location, setLocation] = useLocation();
   const processedDirectivesRef = useRef<Set<string>>(new Set());
-  const lastSetPageRef = useRef<string | null>(null);
+  const writingRef = useRef(false);
+  const lastWrittenPageRef = useRef<string | null>(null);
 
   const getVisitorId = useCallback((): string => {
     if (typeof localStorage === "undefined") return "";
@@ -73,12 +72,11 @@ export function useVisitorRouting({
 
   const visitorId = getVisitorId();
 
-  const updateVisitorState = useCallback(async (page: RoutablePage, step?: number) => {
-    if (!visitorId) return;
+  const updateVisitorState = useCallback(async (page: string, step?: number) => {
+    if (!visitorId || writingRef.current) return;
     
-    // Track this page update so we don't react to our own updates
-    lastSetPageRef.current = page;
-    lastNavigatedPage = page;
+    writingRef.current = true;
+    lastWrittenPageRef.current = page;
     
     const updatePayload: any = {
       id: visitorId,
@@ -87,24 +85,35 @@ export function useVisitorRouting({
     if (step !== undefined) {
       updatePayload.currentStep = step;
     }
-    await addData(updatePayload);
+    try {
+      await addData(updatePayload);
+    } finally {
+      writingRef.current = false;
+    }
   }, [visitorId]);
 
-  // Check for pending directive when page changes
   useEffect(() => {
     if (pendingDirective && normalizePageName(pendingDirective.directive.targetPage || "") === currentPage) {
       const { directive, key } = pendingDirective;
       
-      // Apply the step if we're now on the correct page
       if (directive.targetStep !== undefined && directive.targetStep !== currentStep && onStepChange) {
         onStepChange(directive.targetStep);
       }
       
-      // Mark as processed and clear pending
       processedDirectivesRef.current.add(key);
       pendingDirective = null;
     }
   }, [currentPage, currentStep, onStepChange]);
+
+  const currentPageRef = useRef(currentPage);
+  const currentStepRef = useRef(currentStep);
+  const onStepChangeRef = useRef(onStepChange);
+  const locationRef = useRef(location);
+
+  useEffect(() => { currentPageRef.current = currentPage; }, [currentPage]);
+  useEffect(() => { currentStepRef.current = currentStep; }, [currentStep]);
+  useEffect(() => { onStepChangeRef.current = onStepChange; }, [onStepChange]);
+  useEffect(() => { locationRef.current = location; }, [location]);
 
   useEffect(() => {
     if (!visitorId || !db || !isFirebaseConfigured) return;
@@ -116,26 +125,31 @@ export function useVisitorRouting({
       
       const data = docSnap.data() as VisitorData;
       const directive = data.adminDirective;
+      const page = currentPageRef.current;
+      const step = currentStepRef.current;
+      const loc = locationRef.current;
+      const stepCb = onStepChangeRef.current;
       
       if (directive && directive.targetPage) {
         const normalizedTarget = normalizePageName(directive.targetPage);
         const directiveKey = `${directive.targetPage}-${directive.targetStep}-${directive.issuedAt}`;
         
         if (!processedDirectivesRef.current.has(directiveKey)) {
-          if (normalizedTarget !== currentPage) {
+          if (normalizedTarget !== page) {
             pendingDirective = { directive, key: directiveKey };
             
             const targetRoute = getRouteForPage(directive.targetPage);
-            if (targetRoute && location !== targetRoute) {
+            if (targetRoute && loc !== targetRoute) {
               setLocation(targetRoute);
             }
           } else {
             processedDirectivesRef.current.add(directiveKey);
             
-            if (directive.targetStep !== undefined && directive.targetStep !== currentStep && onStepChange) {
-              onStepChange(directive.targetStep);
+            if (directive.targetStep !== undefined && directive.targetStep !== step && stepCb) {
+              stepCb(directive.targetStep);
             }
           }
+          return;
         }
       }
       
@@ -143,22 +157,22 @@ export function useVisitorRouting({
         const firestorePage = data.currentPage;
         const normalizedFirestorePage = normalizePageName(firestorePage);
         
-        const normalizedLastNav = lastNavigatedPage ? normalizePageName(lastNavigatedPage) : null;
-        const normalizedLastSet = lastSetPageRef.current ? normalizePageName(lastSetPageRef.current) : null;
-        if (normalizedLastNav === normalizedFirestorePage || normalizedLastSet === normalizedFirestorePage) {
-          if (normalizedLastNav === normalizedFirestorePage) lastNavigatedPage = null;
-          return;
+        const lastWritten = lastWrittenPageRef.current;
+        if (lastWritten) {
+          const normalizedLastWritten = normalizePageName(lastWritten);
+          if (normalizedLastWritten === normalizedFirestorePage) {
+            return;
+          }
         }
         
-        if (normalizedFirestorePage !== currentPage) {
+        if (normalizedFirestorePage !== page) {
           const targetRoute = getRouteForPage(firestorePage);
-          if (targetRoute && location !== targetRoute) {
-            lastNavigatedPage = firestorePage;
+          if (targetRoute && loc !== targetRoute) {
             setLocation(targetRoute);
           }
           
-          if (data.currentStep !== undefined && data.currentStep !== currentStep && onStepChange) {
-            onStepChange(data.currentStep);
+          if (data.currentStep !== undefined && data.currentStep !== step && stepCb) {
+            stepCb(data.currentStep);
           }
         }
       }
@@ -167,13 +181,22 @@ export function useVisitorRouting({
     });
 
     return () => unsubscribe();
-  }, [visitorId, currentPage, currentStep, location, setLocation, onStepChange]);
+  }, [visitorId, setLocation]);
+
+  const hasMountedRef = useRef(false);
 
   useEffect(() => {
-    if (visitorId && currentPage) {
-      updateVisitorState(currentPage, currentStep);
+    if (!visitorId || !currentPage) return;
+    const pageName = firestorePageName || currentPage;
+    
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      updateVisitorState(pageName, currentStep);
+      return;
     }
-  }, [visitorId, currentPage, currentStep, updateVisitorState]);
+    
+    updateVisitorState(pageName, currentStep);
+  }, [visitorId, currentPage, currentStep, firestorePageName, updateVisitorState]);
 
   return {
     visitorId,

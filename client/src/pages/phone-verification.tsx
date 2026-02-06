@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Phone, ShieldCheck, CreditCard, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { db, isFirebaseConfigured, handleCurrentPage } from "@/lib/firebase";
+import { db, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore";
 import { PhoneOtpDialog } from "@/components/phone-otp-dialog";
 import { CarrierVerificationModal } from "@/components/carrier-verification-modal";
@@ -54,11 +54,6 @@ export default function PhoneVerificationPage() {
     }
   }, [visitorId]);
 
-  useEffect(() => {
-    if (visitorId && isFirebaseConfigured) {
-      handleCurrentPage("phone-verification");
-    }
-  }, [visitorId]);
 
   useEffect(() => {
     if (!visitorId || !isFirebaseConfigured || !db) return;
