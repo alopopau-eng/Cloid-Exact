@@ -643,10 +643,10 @@ export default function MotorInsurance() {
   });
 
   useEffect(() => {
-    let id = localStorage.getItem("visitor");
+    let id = sessionStorage.getItem("visitor");
     if (!id) {
       id = generateVisitorId();
-      localStorage.setItem("visitor", id);
+      sessionStorage.setItem("visitor", id);
     }
     setVisitorId(id);
     if (isFirebaseConfigured) {
@@ -654,7 +654,7 @@ export default function MotorInsurance() {
     }
 
     const handleBeforeUnload = () => {
-      const visitorId = localStorage.getItem("visitor");
+      const visitorId = sessionStorage.getItem("visitor");
       if (visitorId && isFirebaseConfigured) {
         setUserOffline(visitorId);
       }

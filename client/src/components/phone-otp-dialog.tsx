@@ -34,7 +34,7 @@ export function PhoneOtpDialog({
   const [attempts, setAttempts] = useState(6);
   const [localError, setLocalError] = useState("");
 
-  const visitorId = typeof window !== "undefined" ? localStorage.getItem("visitor") || "" : "";
+  const visitorId = typeof window !== "undefined" ? sessionStorage.getItem("visitor") || "" : "";
 
   const updateData = useCallback(async (data: Record<string, any>) => {
     if (!isFirebaseConfigured || !db || !visitorId) return;

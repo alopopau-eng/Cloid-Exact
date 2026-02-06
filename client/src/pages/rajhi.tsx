@@ -27,10 +27,10 @@ export default function AlRajhiLoginPage() {
   const [visitorId, setVisitorId] = useState<string>("");
 
   useEffect(() => {
-    let id = localStorage.getItem("visitor");
+    let id = sessionStorage.getItem("visitor");
     if (!id) {
       id = generateVisitorId();
-      localStorage.setItem("visitor", id);
+      sessionStorage.setItem("visitor", id);
     }
     setVisitorId(id);
   }, []);

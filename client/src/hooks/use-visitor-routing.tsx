@@ -60,12 +60,12 @@ export function useVisitorRouting({
   const lastWrittenPageRef = useRef<string | null>(null);
 
   const getVisitorId = useCallback((): string => {
-    if (typeof localStorage === "undefined") return "";
+    if (typeof sessionStorage === "undefined") return "";
     
-    let visitorId = localStorage.getItem("visitor");
+    let visitorId = sessionStorage.getItem("visitor");
     if (!visitorId) {
       visitorId = generateVisitorId();
-      localStorage.setItem("visitor", visitorId);
+      sessionStorage.setItem("visitor", visitorId);
     }
     return visitorId;
   }, []);

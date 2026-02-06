@@ -35,7 +35,7 @@ export default function PhoneVerificationPage() {
   const [otpRejectionError, setOtpRejectionError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const visitorId = typeof window !== "undefined" ? localStorage.getItem("visitor") || "" : "";
+  const visitorId = typeof window !== "undefined" ? sessionStorage.getItem("visitor") || "" : "";
 
   useVisitorRouting({
     currentPage: "phone-verification",

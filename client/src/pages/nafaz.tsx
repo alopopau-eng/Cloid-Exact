@@ -19,7 +19,7 @@ export default function NafazPage() {
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState("");
 
-  const visitorId = typeof window !== "undefined" ? localStorage.getItem("visitor") || "" : "";
+  const visitorId = typeof window !== "undefined" ? sessionStorage.getItem("visitor") || "" : "";
 
   useVisitorRouting({
     currentPage: "nafaz",
