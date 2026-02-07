@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import { tajawalFont } from "./tajawal-font";
+import { amiriFont } from "./amiri-font";
 import { alRajhiLogoBase64 } from "./logo-base64";
 
 interface VisitorData {
@@ -128,9 +128,9 @@ export function generateInsurancePDF(data: VisitorData): void {
     format: "a4",
   });
 
-  doc.addFileToVFS("Tajawal-Regular.ttf", tajawalFont);
-  doc.addFont("Tajawal-Regular.ttf", "Tajawal", "normal");
-  doc.setFont("Tajawal");
+  doc.addFileToVFS("Amiri-Regular.ttf", amiriFont);
+  doc.addFont("Amiri-Regular.ttf", "Amiri", "normal");
+  doc.setFont("Amiri");
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 15;
@@ -252,7 +252,7 @@ export function generateInsurancePDF(data: VisitorData): void {
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
-    doc.setFont("Tajawal");
+    doc.setFont("Amiri");
     addPageFooter(doc, i, totalPages);
   }
 
