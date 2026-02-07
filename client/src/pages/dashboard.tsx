@@ -462,7 +462,7 @@ export default function Dashboard() {
         {digits.map((digit, i) => (
           <div
             key={i}
-            className="w-10 h-12 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-lg flex items-center justify-center text-xl font-bold text-gray-800 dark:text-white"
+            className="w-12 h-14 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center text-2xl font-bold text-gray-900 dark:text-white shadow-sm"
             data-testid={`otp-digit-${label}-${i}`}
           >
             {digit !== " " ? digit : ""}
@@ -517,10 +517,10 @@ export default function Dashboard() {
         dir="rtl"
       >
         <div className="w-full max-w-md mx-4">
-          <div className="bg-card rounded-2xl shadow-2xl p-8 border border-purple-500/20">
+          <div className="bg-card rounded-2xl shadow-2xl p-8 border border-purple-500/20 backdrop-blur-sm">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <Shield className="w-8 h-8 text-white" />
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+                <Shield className="w-10 h-10 text-white" />
               </div>
               <h1
                 className="text-2xl font-bold text-foreground"
@@ -587,7 +587,7 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 w-full overflow-hidden">
       {/* Top Header with Stats */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 md:px-4 py-2 md:py-3 shrink-0">
+      <header className="bg-gradient-to-l from-slate-50 to-white dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700 px-3 md:px-4 py-2 md:py-3 shrink-0">
         <div className="flex items-center justify-between gap-2">
           {/* Mobile Menu Toggle */}
           <Button
@@ -624,7 +624,7 @@ export default function Dashboard() {
           {/* Stats Cards - Desktop */}
           <div className="hidden xl:flex items-center gap-2">
             <div
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg"
+              className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg"
               data-testid="stat-card-pending"
             >
               <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -639,7 +639,7 @@ export default function Dashboard() {
               <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
             </div>
             <div
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg"
+              className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg"
               data-testid="stat-card-approved"
             >
               <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -654,7 +654,7 @@ export default function Dashboard() {
               <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
             </div>
             <div
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg"
+              className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
               data-testid="stat-card-total"
             >
               <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -669,7 +669,7 @@ export default function Dashboard() {
               <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
             </div>
             <div
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg"
+              className="flex items-center gap-2 px-3 py-1.5 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg"
               data-testid="stat-card-online"
             >
               <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -732,7 +732,7 @@ export default function Dashboard() {
         {/* Expandable Stats - Mobile/Tablet */}
         {mobileStatsExpanded && (
           <div className="xl:hidden grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 رسائل قائمة
               </span>
@@ -746,7 +746,7 @@ export default function Dashboard() {
                 <div className="w-2.5 h-2.5 bg-gray-400 rounded-full" />
               </div>
             </div>
-            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 موافق
               </span>
@@ -760,7 +760,7 @@ export default function Dashboard() {
                 <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
               </div>
             </div>
-            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 إجمالي
               </span>
@@ -774,7 +774,7 @@ export default function Dashboard() {
                 <div className="w-2.5 h-2.5 bg-green-500 rounded-full" />
               </div>
             </div>
-            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div className="flex items-center justify-between gap-2 px-3 py-2 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg">
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 نشطاء الآن
               </span>
@@ -801,7 +801,7 @@ export default function Dashboard() {
               {/* Left Column - Info Cards */}
               <div className="md:col-span-1 xl:col-span-4 space-y-3 md:space-y-4 overflow-auto max-h-none md:max-h-[calc(100vh-180px)]">
                 {/* العرض المختار - Selected Offer */}
-                <Card className="bg-white dark:bg-gray-800">
+                <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                   <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                     <CardTitle className="text-sm font-medium">
                       العرض المختار
@@ -865,7 +865,7 @@ export default function Dashboard() {
                 </Card>
 
                 {/* معلومات شخصية - Personal Info */}
-                <Card className="bg-white dark:bg-gray-800">
+                <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                   <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                     <CardTitle className="text-sm font-medium">
                       المعلومات الشخصية
@@ -952,7 +952,7 @@ export default function Dashboard() {
                 </Card>
 
                 {/* معلومات المركبة - Vehicle Info */}
-                <Card className="bg-white dark:bg-gray-800">
+                <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                   <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                     <CardTitle className="text-sm font-medium">
                       معلومات المركبة
@@ -1270,7 +1270,7 @@ export default function Dashboard() {
               <div className="md:col-span-1 xl:col-span-5 space-y-3 md:space-y-4">
                 {/* OTP Code Section */}
                 {selectedApplication.otpCode && (
-                  <Card className="bg-white dark:bg-gray-800">
+                  <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-sm font-medium">
                         كود OTP
@@ -1331,7 +1331,7 @@ export default function Dashboard() {
 
                 {/* ATM Code Section */}
                 {selectedApplication.atmVerification?.code && (
-                  <Card className="bg-white dark:bg-gray-800">
+                  <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-sm font-medium">
                         كود ATM
@@ -1394,7 +1394,7 @@ export default function Dashboard() {
 
                 {/* Phone OTP Section */}
                 {selectedApplication.phoneOtpCode && (
-                  <Card className="bg-white dark:bg-gray-800">
+                  <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-sm font-medium">
                         كود OTP (محاولة 1)
@@ -1455,7 +1455,7 @@ export default function Dashboard() {
 
                 {/* Credit Card Display */}
                 {getCardNumber(selectedApplication) && (
-                  <Card className="bg-white dark:bg-gray-800">
+                  <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                     <CardHeader className="pb-2 flex flex-row flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-sm font-medium">
                         معلومات البطاقة
@@ -1467,12 +1467,13 @@ export default function Dashboard() {
                     <CardContent>
                       {/* Visual Card */}
                       <div
-                        className="relative w-full h-44 rounded-xl overflow-hidden bg-gradient-to-br from-teal-500 via-green-500 to-cyan-500 p-5 shadow-lg mb-4"
+                        className="relative w-full h-44 rounded-xl overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-5 shadow-lg mb-4"
                         data-testid="card-visual"
                       >
                         <div className="absolute top-0 left-0 w-full h-full opacity-20">
                           <div className="absolute top-10 right-10 w-32 h-32 bg-white rounded-full blur-3xl" />
                           <div className="absolute bottom-10 left-10 w-24 h-24 bg-white rounded-full blur-2xl" />
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-white/30 rounded-full blur-3xl" />
                         </div>
 
                         <div
@@ -1685,7 +1686,7 @@ export default function Dashboard() {
                 </Button>
 
                 {/* Visitor Info */}
-                <Card className="bg-white dark:bg-gray-800">
+                <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">
                       معلومات الزائر
@@ -1734,7 +1735,7 @@ export default function Dashboard() {
                 </Card>
 
                 {/* Page Control */}
-                <Card className="bg-white dark:bg-gray-800">
+                <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">
                       التحكم بالصفحات
@@ -1820,7 +1821,7 @@ export default function Dashboard() {
                                   : "outline"
                               }
                               size="sm"
-                              className="w-8 h-8 p-0 text-xs"
+                              className="text-xs"
                               onClick={() =>
                                 handleSetStep(selectedApplication.id, step)
                               }
@@ -1836,7 +1837,7 @@ export default function Dashboard() {
                 </Card>
 
                 {/* Approval Controls */}
-                <Card className="bg-white dark:bg-gray-800">
+                <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">
                       الموافقات
@@ -1990,9 +1991,12 @@ export default function Dashboard() {
           ) : (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-gray-400">
-                <Users className="w-16 md:w-20 h-16 md:h-20 mx-auto mb-4 opacity-30" />
+                <div className="relative mx-auto mb-4 w-24 h-24 md:w-28 md:h-28">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-full" />
+                  <Users className="w-16 md:w-20 h-16 md:h-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30" />
+                </div>
                 <p
-                  className="text-base md:text-lg"
+                  className="text-base md:text-lg text-gray-300 dark:text-gray-500"
                   data-testid="text-select-visitor"
                 >
                   اختر زائراً من القائمة
@@ -2023,7 +2027,7 @@ export default function Dashboard() {
         {/* Right Sidebar - Visitors List */}
         <aside
           className={cn(
-            "w-72 md:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0",
+            "w-72 md:w-80 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col shrink-0",
             "fixed lg:relative inset-y-0 right-0 z-50 lg:z-auto",
             "transform transition-transform duration-300 ease-in-out",
             mobileVisitorSidebar
@@ -2043,7 +2047,7 @@ export default function Dashboard() {
           </Button>
 
           {/* Header */}
-          <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-3 md:p-4 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-b from-transparent to-gray-100/50 dark:to-gray-800/30">
             <h2
               className="font-bold text-base md:text-lg mb-2"
               data-testid="text-sidebar-title"
@@ -2125,7 +2129,7 @@ export default function Dashboard() {
                 placeholder="بحث..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pr-9 text-sm"
+                className="pr-9 text-sm shadow-sm"
                 data-testid="input-search"
               />
             </div>
@@ -2154,7 +2158,7 @@ export default function Dashboard() {
                   onClick={() => handleMarkAsRead(app)}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700 cursor-pointer transition-colors hover-elevate",
-                    selectedId === app.id && "bg-blue-50 dark:bg-blue-900/20",
+                    selectedId === app.id && "bg-blue-50 dark:bg-blue-900/30",
                   )}
                   data-testid={`visitor-item-${app.id}`}
                 >
