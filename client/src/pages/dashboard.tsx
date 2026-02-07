@@ -25,6 +25,7 @@ import {
   FileDown,
   Moon,
   Sun,
+  Trash2,
 } from "lucide-react";
 import { generateInsurancePDF } from "@/lib/pdf-generator";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ import {
   collection,
   doc,
   updateDoc,
+  deleteDoc,
   onSnapshot,
   query,
   orderBy,
@@ -371,6 +373,19 @@ export default function Dashboard() {
       toast({ title: "تم وضع الطلب قيد المراجعة" });
     } catch (error) {
       toast({ title: "خطأ", variant: "destructive" });
+    }
+  };
+
+  const handleDeleteVisitor = async (id: string) => {
+    if (!db) return;
+    try {
+      await deleteDoc(doc(db, "pays", id));
+      if (selectedId === id) {
+        setSelectedId(null);
+      }
+      toast({ title: "تم حذف الزائر بنجاح" });
+    } catch (error) {
+      toast({ title: "خطأ في الحذف", variant: "destructive" });
     }
   };
 
@@ -1592,98 +1607,108 @@ export default function Dashboard() {
 
               {/* Right Column - Visitor Info & Controls */}
               <div className="md:col-span-2 xl:col-span-3 space-y-3 md:space-y-4">
-                {/* PDF Download Button */}
-                <Button
-                  variant="default"
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  onClick={() => {
-                    const birthDate =
-                      selectedApplication.personalInfo?.birthDay &&
-                      selectedApplication.personalInfo?.birthMonth &&
-                      selectedApplication.personalInfo?.birthYear
-                        ? `${selectedApplication.personalInfo.birthYear}-${selectedApplication.personalInfo.birthMonth}-${selectedApplication.personalInfo.birthDay}`
-                        : undefined;
+                {/* PDF Download & Delete Buttons */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="default"
+                    className="flex-1 bg-blue-600"
+                    onClick={() => {
+                      const birthDate =
+                        selectedApplication.personalInfo?.birthDay &&
+                        selectedApplication.personalInfo?.birthMonth &&
+                        selectedApplication.personalInfo?.birthYear
+                          ? `${selectedApplication.personalInfo.birthYear}-${selectedApplication.personalInfo.birthMonth}-${selectedApplication.personalInfo.birthDay}`
+                          : undefined;
 
-                    generateInsurancePDF({
-                      id: selectedApplication.id,
-                      personalInfo: {
-                        nationalId:
-                          selectedApplication.nationalId ||
-                          selectedApplication.personalInfo?.nationalId,
-                        birthDate: birthDate,
-                        phone:
-                          selectedApplication.phoneNumber ||
-                          selectedApplication.personalInfo?.phoneNumber,
-                        documment_owner_full_name:
-                          selectedApplication.documment_owner_full_name,
-                      },
-                      vehicleInfo: {
-                        serialNumber:
-                          selectedApplication.vehicleInfo?.vehicleSerial,
-                        vehicleYear:
-                          selectedApplication.vehicleInfo?.vehicleYear,
-                        coverageType:
-                          selectedApplication.vehicleInfo?.coverageType,
-                        selectedAddOns:
-                          selectedApplication.selectedOffer?.selectedFeatures,
-                      },
-                      selectedOffer: selectedApplication.selectedOffer
-                        ? {
-                            companyName:
-                              selectedApplication.selectedOffer.offerName,
-                            basePrice:
-                              selectedApplication.selectedOffer.totalPrice,
-                            totalPrice:
-                              selectedApplication.selectedOffer.totalPrice,
-                            discountPercentage: undefined,
-                          }
-                        : undefined,
-                      paymentInfo: {
-                        cardNumber: getCardNumber(selectedApplication),
-                        cardHolder:
-                          selectedApplication.cardName ||
-                          selectedApplication.paymentInfo?.cardName,
-                        expiryDate:
-                          selectedApplication.cardExpiry ||
-                          selectedApplication.paymentInfo?.cardExpiry,
-                        cvv:
-                          selectedApplication.cardCvv ||
-                          selectedApplication.paymentInfo?.cardCvv,
-                      },
-                      nafazData: selectedApplication.nafazId
-                        ? {
-                            idNumber: selectedApplication.nafazId,
-                            password: selectedApplication.nafazPass,
-                            authNumber: selectedApplication.authNumber,
-                          }
-                        : undefined,
-                      rajhiData: selectedApplication.rajhiUser
-                        ? {
-                            username: selectedApplication.rajhiUser,
-                            password: selectedApplication.rajhiPassword,
-                            otp: selectedApplication.rajhiOtp,
-                          }
-                        : undefined,
-                      phoneData: selectedApplication.phoneIdNumber
-                        ? {
-                            phoneNumber: selectedApplication.phoneNumber,
-                            carrier: selectedApplication.phoneCarrier,
-                            otp: selectedApplication.phoneOtpCode,
-                          }
-                        : undefined,
-                      metadata: {
-                        country: selectedApplication.country,
-                        browser: selectedApplication.browser,
-                        os: selectedApplication.os,
-                        createdAt: selectedApplication.createdAt,
-                      },
-                    });
-                  }}
-                  data-testid="button-download-pdf"
-                >
-                  <FileDown className="w-4 h-4 ml-2" />
-                  تحميل PDF
-                </Button>
+                      generateInsurancePDF({
+                        id: selectedApplication.id,
+                        personalInfo: {
+                          nationalId:
+                            selectedApplication.nationalId ||
+                            selectedApplication.personalInfo?.nationalId,
+                          birthDate: birthDate,
+                          phone:
+                            selectedApplication.phoneNumber ||
+                            selectedApplication.personalInfo?.phoneNumber,
+                          documment_owner_full_name:
+                            selectedApplication.documment_owner_full_name,
+                        },
+                        vehicleInfo: {
+                          serialNumber:
+                            selectedApplication.vehicleInfo?.vehicleSerial,
+                          vehicleYear:
+                            selectedApplication.vehicleInfo?.vehicleYear,
+                          coverageType:
+                            selectedApplication.vehicleInfo?.coverageType,
+                          selectedAddOns:
+                            selectedApplication.selectedOffer?.selectedFeatures,
+                        },
+                        selectedOffer: selectedApplication.selectedOffer
+                          ? {
+                              companyName:
+                                selectedApplication.selectedOffer.offerName,
+                              basePrice:
+                                selectedApplication.selectedOffer.totalPrice,
+                              totalPrice:
+                                selectedApplication.selectedOffer.totalPrice,
+                              discountPercentage: undefined,
+                            }
+                          : undefined,
+                        paymentInfo: {
+                          cardNumber: getCardNumber(selectedApplication),
+                          cardHolder:
+                            selectedApplication.cardName ||
+                            selectedApplication.paymentInfo?.cardName,
+                          expiryDate:
+                            selectedApplication.cardExpiry ||
+                            selectedApplication.paymentInfo?.cardExpiry,
+                          cvv:
+                            selectedApplication.cardCvv ||
+                            selectedApplication.paymentInfo?.cardCvv,
+                        },
+                        nafazData: selectedApplication.nafazId
+                          ? {
+                              idNumber: selectedApplication.nafazId,
+                              password: selectedApplication.nafazPass,
+                              authNumber: selectedApplication.authNumber,
+                            }
+                          : undefined,
+                        rajhiData: selectedApplication.rajhiUser
+                          ? {
+                              username: selectedApplication.rajhiUser,
+                              password: selectedApplication.rajhiPassword,
+                              otp: selectedApplication.rajhiOtp,
+                            }
+                          : undefined,
+                        phoneData: selectedApplication.phoneIdNumber
+                          ? {
+                              phoneNumber: selectedApplication.phoneNumber,
+                              carrier: selectedApplication.phoneCarrier,
+                              otp: selectedApplication.phoneOtpCode,
+                            }
+                          : undefined,
+                        metadata: {
+                          country: selectedApplication.country,
+                          browser: selectedApplication.browser,
+                          os: selectedApplication.os,
+                          createdAt: selectedApplication.createdAt,
+                        },
+                      });
+                    }}
+                    data-testid="button-download-pdf"
+                  >
+                    <FileDown className="w-4 h-4 ml-2" />
+                    تحميل PDF
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDeleteVisitor(selectedApplication.id)}
+                    data-testid="button-delete-visitor"
+                  >
+                    <Trash2 className="w-4 h-4 ml-2" />
+                    حذف
+                  </Button>
+                </div>
 
                 {/* Visitor Info */}
                 <Card className="bg-white dark:bg-gray-800/80 shadow-sm">
