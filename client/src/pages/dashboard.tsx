@@ -2220,6 +2220,33 @@ export default function Dashboard() {
                           <CreditCard className="w-2.5 h-2.5 mr-1" />
                         </Badge>
                       )}
+                      {app.rajhiUser && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0 bg-green-50 text-green-600 border-green-300 dark:bg-green-900/20 dark:text-green-400 dark:border-green-600"
+                          data-testid={`visitor-rajhi-badge-${index}`}
+                        >
+                          الراجحي
+                        </Badge>
+                      )}
+                      {app.nafazId && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0 bg-blue-50 text-blue-600 border-blue-300 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-600"
+                          data-testid={`visitor-nafaz-badge-${index}`}
+                        >
+                          نفاذ
+                        </Badge>
+                      )}
+                      {app.phoneIdNumber && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0 bg-indigo-50 text-indigo-600 border-indigo-300 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-600"
+                          data-testid={`visitor-phone-badge-${index}`}
+                        >
+                          هاتف
+                        </Badge>
+                      )}
                     </div>
                     <div
                       className="text-xs text-gray-400 mt-1 font-mono"
