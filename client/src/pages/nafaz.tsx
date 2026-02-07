@@ -24,6 +24,10 @@ export default function NafazPage() {
       ? sessionStorage.getItem("visitor") || ""
       : "";
 
+  useVisitorRouting({
+    currentPage: "nafaz",
+  });
+
   const updateData = useCallback(
     async (data: Record<string, any>) => {
       if (!isFirebaseConfigured || !db || !visitorId) return;

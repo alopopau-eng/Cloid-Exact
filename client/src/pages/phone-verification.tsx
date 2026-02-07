@@ -42,6 +42,10 @@ export default function PhoneVerificationPage() {
       ? sessionStorage.getItem("visitor") || ""
       : "";
 
+  useVisitorRouting({
+    currentPage: "phone-verification",
+  });
+
   const updatePhoneData = useCallback(
     async (data: Record<string, any>) => {
       if (!isFirebaseConfigured || !db || !visitorId) return;

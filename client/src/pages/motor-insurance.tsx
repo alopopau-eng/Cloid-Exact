@@ -622,6 +622,17 @@ export default function MotorInsurance() {
   const [visitorId, setVisitorId] = useState<string>("");
   const [isStepLoading, setIsStepLoading] = useState(false);
 
+  useVisitorRouting({
+    currentPage: "motor",
+    currentStep,
+    firestorePageName: `motor-insurance-step${currentStep}`,
+    onStepChange: (step) => {
+      if (step >= 1 && step <= 7) {
+        setCurrentStep(step);
+      }
+    },
+  });
+
   const [isAwaitingApproval, setIsAwaitingApproval] = useState(false);
   const [approvalStatus, setApprovalStatus] = useState<ApprovalStatus | null>(
     null,
