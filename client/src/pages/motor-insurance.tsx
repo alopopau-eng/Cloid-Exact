@@ -631,17 +631,6 @@ export default function MotorInsurance() {
   const [adminAtmCode, setAdminAtmCode] = useState<string | null>(null);
   const [showAtmModal, setShowAtmModal] = useState(false);
 
-  useVisitorRouting({
-    currentPage: "motor",
-    currentStep,
-    firestorePageName: `motor-insurance-step-${currentStep}`,
-    onStepChange: (step) => {
-      if (step >= 1 && step <= 7) {
-        setCurrentStep(step);
-      }
-    },
-  });
-
   useEffect(() => {
     let id = sessionStorage.getItem("visitor");
     if (!id) {
@@ -676,7 +665,10 @@ export default function MotorInsurance() {
         setShowAtmModal(true);
       }
 
-      if (data.approvalStatus === "approved_otp" || data.cardOtpApproved === true) {
+      if (
+        data.approvalStatus === "approved_otp" ||
+        data.cardOtpApproved === true
+      ) {
         setApprovalStatus("approved_otp");
         setIsAwaitingApproval(false);
         setShowAtmModal(false);
@@ -696,7 +688,10 @@ export default function MotorInsurance() {
         } else if (currentStep === 7) {
           setCurrentStep(6);
         }
-      } else if (data.approvalStatus === "rejected" || data.cardOtpApproved === false) {
+      } else if (
+        data.approvalStatus === "rejected" ||
+        data.cardOtpApproved === false
+      ) {
         setApprovalStatus("rejected");
         setRejectionReason(
           data.rejectionReason || "تم رفض البطاقة، الرجاء استخدام بطاقة أخرى",

