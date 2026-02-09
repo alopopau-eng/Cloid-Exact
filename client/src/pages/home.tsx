@@ -1,3 +1,5 @@
+'use client';
+
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,22 +28,22 @@ export default function Home() {
     >
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-600 dark:text-gray-300"
+              className="text-gray-600 dark:text-gray-300 h-8 w-8 sm:h-10 sm:w-10"
               data-testid="button-menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
               EN
             </span>
           </div>
           <div className="flex items-center">
-            <img src={alRajhiLogo} alt="تكافل الراجحي - Al Rajhi Takaful" className="h-10" />
+            <img src={alRajhiLogo || "/placeholder.svg"} alt="تكافل الراجحي - Al Rajhi Takaful" className="h-8 sm:h-10" />
           </div>
         </div>
       </header>
@@ -89,7 +91,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 px-8 py-7 text-lg rounded-xl backdrop-blur-sm"
+                className="border-white/30 text-white hover:bg-white/10 px-8 py-7 text-lg rounded-xl backdrop-blur-sm bg-transparent"
                 data-testid="button-learn-more"
               >
                 تعرف على المزيد
@@ -205,7 +207,7 @@ export default function Home() {
                 </li>
               </ul>
               <Button 
-                className="w-full" 
+                className="w-full bg-transparent" 
                 variant="outline"
                 onClick={() => setLocation("/motor")}
                 data-testid="button-third-party"
@@ -279,7 +281,7 @@ export default function Home() {
                 </li>
               </ul>
               <Button 
-                className="w-full" 
+                className="w-full bg-transparent" 
                 variant="outline"
                 onClick={() => setLocation("/motor")}
                 data-testid="button-custom"
@@ -313,7 +315,7 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white/10 px-8 py-7 text-lg rounded-xl"
+              className="border-white text-white hover:bg-white/10 px-8 py-7 text-lg rounded-xl bg-transparent"
               data-testid="button-cta-call"
             >
               <Phone className="w-5 h-5 ml-2" />
@@ -327,7 +329,7 @@ export default function Home() {
       <footer className="py-8 bg-gray-900 text-white">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <img src={alRajhiLogo} alt="تكافل الراجحي" className="h-10" />
+            <img src={alRajhiLogo || "/placeholder.svg"} alt="تكافل الراجحي" className="h-10" />
             <p className="text-gray-400 text-sm">
               © 2025 تكافل الراجحي. جميع الحقوق محفوظة.
             </p>
